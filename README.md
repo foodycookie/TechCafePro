@@ -5,5 +5,5 @@
 3. 打这个：git clone https://github.com/foodycookie/TechCafePro.git
 4. 我的话他save在Users那边，不确定的话可以windows key然后打TechCafePro
 ----------------------------------------------------------------------
-a. 要push打这个：git commit -a -m "commit mesage"
-b. 跟这个：git push
+1. 要push打这个：git commit -a -m "commit mesage"
+2. 跟这个：git push
