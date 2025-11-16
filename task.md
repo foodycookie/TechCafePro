@@ -2,7 +2,7 @@ GUI
 • Header & Footer
 • Overall Design
 
-Security [ONG HAO]
+Security [Ong Hao]
 • Roles: Admin + Member 
 • Login + Logout 
 • Password Hashing 
