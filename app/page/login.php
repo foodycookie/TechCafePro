@@ -1,30 +1,78 @@
 <?php
 require '../_base.php';
 
+if (is_post()) {
+
+    $_err = [];
+
+    // Input
+    $name       = req('name');
+    $password   = req('password');
+
+    // Validate name
+    if ($name == '') {
+        $_err['name'] = 'Required';
+    }
+    else if (strlen($name) > 100) {
+        $_err['name'] = 'Maximum length 100';
+    }
+
+    // Validate password
+    if ($password == '') {
+        $_err['password'] = 'Required';
+    } else if (strlen($password) > 100) {
+        $_err['password'] = 'Maximum length 100';
+    }
+
+    // Output
+    // if (!$_err) {
+    //     // TODO
+    //     $stm = $_db->prepare('INSERT INTO student
+    //                             (id, name, gender, program_id)
+    //                             VALUES(?, ?, ?, ?)');
+    //     $stm->execute([$id, $name, $gender, $program_id]);
+                                
+    //     temp('info', 'Record inserted');
+    //     redirect('/');
+    // }
+
+    if (!$_err) {
+
+        foreach ($_user as $u) {
+            if ($u['name'] === $name && $u['password'] === $password) {
+                $_SESSION['user_id'] = $u['id'];
+                $_SESSION['user_name'] = $u['name'];
+
+                temp('info', 'Login successful');
+                redirect('/page/home.php');
+                exit;
+            }
+        }
+        
+        $_err['general'] = 'Invalid name or password';
+    }
+}
+
 $_title = 'Login';
 include '../_head.php';
 
 ?>
    <form method="post" class="form">
-    <label for="id">Id</label>
-    <?= html_text('id', 'maxlength="10" data-upper') ?>
-    <?= err('id') ?>
+    <?php if (!empty($_err['general'])): ?>
+        <p style="color:red;"><?= $_err['general'] ?></p>
+    <?php endif; ?>
 
     <label for="name">Name</label>
     <?= html_text('name', 'maxlength="100"') ?>
     <?= err('name') ?>
 
-    <label>Gender</label>
-    <?= html_radios('gender', $_genders) ?>
-    <?= err('gender') ?>
-
-    <label for="program_id">Program</label>
-    <?= html_select('program_id', $_programs) ?>
-    <?= err('program_id') ?>
+    <label for="password">Password</label>
+    <?= html_text('password', 'maxlength="100"') ?>
+    <?= err('password') ?>
 
     <section>
-        <button>Submit</button>
-        <button type="reset">Reset</button>
+        <button type="submit">Submit</button>
+        <button type="button" onclick="window.location.href='/page/home.php'">Cancel</button>
     </section>
 </form>
 

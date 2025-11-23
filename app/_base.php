@@ -145,6 +145,12 @@ function is_exists($value, $table, $field) {
     return $stm->fetchColumn() > 0;
 }
 
+// Check Login
+function is_login()
+{
+    return isset($_SESSION['user_id']);
+}
+
 // ============================================================================
 // Global Constants and Variables
 // ============================================================================
@@ -200,4 +206,19 @@ $_ice_cream = [
     'Vanilla'       => 'vanilla',
     'Strawberry'    => 'strawberry',
     'Green Tea'     => 'green_tea',
+];
+
+$_user = [
+    [
+        'id'        => '0',
+        'name'      => 'admin',
+        'password'  => '888888',
+    ],
+
+    [
+        'id'        => '1',
+        'name'      => 'tester1',
+        'password'  => '123123',
+    ],
+
 ];

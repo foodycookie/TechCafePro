@@ -47,6 +47,7 @@ nav a {
 
 nav .right {
     margin-left: auto;
+    display: flex;
 }
 
 nav a:hover {

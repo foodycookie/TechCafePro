@@ -14,11 +14,21 @@
         <h1><a href="/">TECH CAFE PRO</a></h1>
     </header>
 
-    <nav>    
-        <a href="/page/home.php">Home</a>
-        <a href="/page/menu.php">Menu</a>
-        <a href="/page/category.php">Category</a>
-        <a href="/page/login.php" class = "right">Login</a>
+    <nav>
+        <?php if (is_login()): ?>
+            <a href="/page/home.php">Home</a>
+            <a href="/page/menu.php">Menu</a>
+            <a href="/page/category.php">Category</a>
+            <div class = "right">
+                <a href="/page/cart.php"\>Cart</a>
+                <a href="/page/profile.php">Profile</a>
+            </div>
+        <?php else: ?>
+            <a href="/page/home.php">Home</a>
+            <a href="/page/menu.php">Menu</a>
+            <a href="/page/category.php">Category</a>
+            <a href="/page/login.php" class = "right">Login</a>
+        <?php endif; ?>
     </nav>
 
     <main>
