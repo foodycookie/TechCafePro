@@ -1,8 +1,8 @@
 <?php
-require '../_base.php';
+require '../../_base.php';
 
-$_title = 'Page | Demo 1';
-include '../_head.php';
+$_title = 'Cake';
+include '../../_head.php';
 ?>
 
 <style>
@@ -16,8 +16,10 @@ include '../_head.php';
     }
 </style>
 
-<p id="p">Image 1 of 4</p>
+<?php foreach ($_cake as $b => $p): ?>
+<p><?= $b ?></p>
 <img id="img" src="/images/1.jpg">
+<?php endforeach; ?>
 
 <script>
     const arr = [
@@ -42,4 +44,4 @@ include '../_head.php';
 </script>
 
 <?php
-include '../_foot.php';
+include '../../_foot.php';
