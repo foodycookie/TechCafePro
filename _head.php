@@ -43,7 +43,9 @@
                 <a href="/page/home.php">Home</a>
                 <a href="/page/menu.php">Menu</a>
                 <a href="/page/category.php">Category</a>
-                <a href="/page/login.php" class="right">Login</a>
+                <a href="/page/register.php" class="right">Register</a>
+                <a href="/page/login.php">Login</a>
+                <a href="/page/forget_password.php">Forget password</a>
             <?php endif; ?>
     </nav>
 

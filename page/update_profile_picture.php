@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Forget password</title>
+    <title>update profile picture</title>
 </head>
 <body>
-    <h1>Forget Password Page</h1>
-    <p>This is a placeholder for the forget password functionality.</p>
+    <h1>update profile picture Page</h1>
+    <p>This is a placeholder for the update profile picture functionality.</p>
 </body>
 </html>

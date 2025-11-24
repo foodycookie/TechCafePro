@@ -2,33 +2,12 @@
 require '../_base.php';
 
 if (is_post()) {
+    $_err = [];
+
     // Input
-    $id         = req('id');
     $name       = req('name');
-    $gender     = req('gender');
-    $program_id = req('program_id');
+    $password   = req('password');
 
-    // Validate id
-    if ($id == '') {
-        $_err['id'] = 'Required';
-    }
-    else if (!preg_match('/^\d{2}[A-Z]{3}\d{5}$/', $id)) {
-        $_err['id'] = 'Invalid format';
-    }
-    // else {
-    //     // TODO
-    //     $stm = $_db->prepare('SELCT COUNT(*) FROM student WHERE id = ?');
-    //     $stm->execute($id);
-
-    //     if ($stm->fetchColumn() > 0) {
-    //         $_err['id'] = 'Duplicated';
-    //     }
-    // }
-
-    else if (!is_unique($id, 'student', 'id')) {
-        $_err['id'] = 'Duplicated';
-    }
-    
     // Validate name
     if ($name == '') {
         $_err['name'] = 'Required';
@@ -37,60 +16,55 @@ if (is_post()) {
         $_err['name'] = 'Maximum length 100';
     }
 
-    // Validate gender
-    if ($gender == '') {
-        $_err['gender'] = 'Required';
-    }
-    else if (!array_key_exists($gender, $_genders)) {
-        $_err['name'] = 'Invalid value';
-    }
-
-    // Validate program_id
-    if ($program_id == '') {
-        $_err['program_id'] = 'Required';
-    }
-    else if (!array_key_exists($program_id, $_programs)) {
-        $_err['program_id'] = 'Invalid value';
+    // Validate password
+    if ($password == '') {
+        $_err['password'] = 'Required';
+    } else if (strlen($password) > 100) {
+        $_err['password'] = 'Maximum length 100';
     }
 
     // Output
-    if (!$_err) {
-        // TODO
-        $stm = $_db->prepare('INSERT INTO student
-                                (id, name, gender, program_id)
-                                VALUES(?, ?, ?, ?)');
-        $stm->execute([$id, $name, $gender, $program_id]);
+    // if (!$_err) {
+    //     // TODO
+    //     $stm = $_db->prepare('INSERT INTO student
+    //                             (id, name, gender, program_id)
+    //                             VALUES(?, ?, ?, ?)');
+    //     $stm->execute([$id, $name, $gender, $program_id]);
                                 
-        temp('info', 'Record inserted');
-        redirect('/');
+    //     temp('info', 'Record inserted');
+    //     redirect('/');
+    // }
+
+    if (!$_err) {
+        temp('info', 'Register successful (no data will be saved lol');
+        redirect('/page/login.php');
+        exit;
+
+        $_err['general'] = temp('info', 'Invalid name or password');
     }
 }
 
-$_title = 'Login';
+$_title = 'Register';
 include '../_head.php';
 
 ?>
    <form method="post" class="form">
-    <label for="id">Id</label>
-    <?= html_text('id', 'maxlength="10" data-upper') ?>
-    <?= err('id') ?>
+    <?php if (!empty($_err['general'])): ?>
+        <p style="color:red;"><?= $_err['general'] ?></p>
+    <?php endif; ?>
 
     <label for="name">Name</label>
     <?= html_text('name', 'maxlength="100"') ?>
     <?= err('name') ?>
 
-    <label>Gender</label>
-    <?= html_radios('gender', $_genders) ?>
-    <?= err('gender') ?>
+    <label for="password">Password</label>
+    <?= html_password('password', 'maxlength="100" autocomplete="off"') ?>
+    <?= err('password') ?>
 
-    <label for="program_id">Program</label>
-    <?= html_select('program_id', $_programs) ?>
-    <?= err('program_id') ?>
-
-    <section>
-        <button>Submit</button>
-        <a href="/page/home.php"><button type = "button">Cancel</button>
-    </section>
+        <section>
+            <button type="submit">Submit</button>
+            <button type="button" onclick="window.location.href='/page/home.php'">Cancel</button>
+        </section>
 </form>
 
 <?php
