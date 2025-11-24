@@ -48,8 +48,8 @@ if (is_post()) {
                 exit;
             }
         }
-        
-        $_err['general'] = 'Invalid name or password';
+
+        $_err['general'] = temp('info', 'Invalid name or password');
     }
 }
 
@@ -67,7 +67,7 @@ include '../_head.php';
     <?= err('name') ?>
 
     <label for="password">Password</label>
-    <?= html_text('password', 'maxlength="100"') ?>
+    <?= html_password('password', 'maxlength="100" autocomplete="off"') ?>
     <?= err('password') ?>
 
     <section>

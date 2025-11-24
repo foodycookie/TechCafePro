@@ -1,8 +1,7 @@
 <?php
 require '../_base.php';
-include '../_head.php';
 
-session_destroy();
+session_unset();
+temp('info', 'Logout Successfully!');
 redirect('/page/home.php');
 
-include '../_foot.php';

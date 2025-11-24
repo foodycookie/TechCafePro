@@ -73,6 +73,10 @@ function html_text($key, $attr = '') {
     echo "<input type='text' id='$key' name='$key' value='$value' $attr>";
 }
 
+function html_password($key, $attr = '') {
+    return '<input type="password" name="' .$key.'" value="" '.$attr.'>';
+}
+
 // Generate <input type='radio'> list
 function html_radios($key, $items, $br = false) {
     $value = encode($GLOBALS[$key] ?? '');

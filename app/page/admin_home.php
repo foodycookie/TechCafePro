@@ -15,7 +15,7 @@ include '../_head.php';
         cursor: pointer;
     }
 </style>
-
+<h1>Show Report or table</h1>
 <p id="p">Image 1 of 4</p>
 <img id="img" src="/images/1.jpg">
 
