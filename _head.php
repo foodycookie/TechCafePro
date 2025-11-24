@@ -29,7 +29,7 @@
                 <a href="/page/profile.php">Profile</a>
             </div>
             <?php elseif (is_login() && $_SESSION['user_id'] == 0): ?>
-                <?php// echo $_SESSION['user_id']; ?>
+                <?php // echo $_SESSION['user_id']; ?>
                 <a href="/page/admin_home.php">Home</a>
                 <a href="/page/insert.php">Insert</a>
                 <a href="/page/update.php">Update</a>
