@@ -1,11 +1,12 @@
 GUI
 • Header & Footer
 • Overall Design
-
+dyudyudyuduysyudyu
 Security [Ong Hao]
 • Roles: Admin + Member 
 • Login + Logout 
 • Password Hashing 
+
 • Password Reset 
  
 User Profile 
