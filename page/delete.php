@@ -1,17 +1,12 @@
-<?php
-require '../_base.php';
-// ----------------------------------------------------------------------------
-
-// if (is_post()) {
-//     // TODO
-//     $id = req('id');
-    
-//     $stm = $_db->prepare('DELETE FROM student WHERE id = ?');
-//     $sTM->execute([$id]);
-
-//     temp('info', 'Record deleted');
-// }
-
-// redirect('/');
-
-// TODO
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>delete</title>
+</head>
+<body>
+    <h1>delete Page</h1>
+    <p>This is a placeholder for the delete functionality.</p>
+</body>
+</html>

@@ -73,6 +73,7 @@ include '../_head.php';
     <section>
         <button type="submit">Submit</button>
         <button type="button" onclick="window.location.href='/page/home.php'">Cancel</button>
+        <button type="button" onclick="window.location.href='/page/forget_password.php'">forget password</button>
     </section>
 </form>
 
