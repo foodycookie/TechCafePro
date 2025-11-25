@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 24, 2025 at 02:31 PM
+-- Generation Time: Nov 25, 2025 at 11:17 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -42,10 +42,9 @@ CREATE TABLE `carts` (
 --
 
 CREATE TABLE `cart_items` (
-  `cart_item_id` char(10) NOT NULL,
-  `quantity` int(11) NOT NULL,
   `cart_id` char(10) NOT NULL,
-  `menu_id` char(10) NOT NULL
+  `product_id` char(10) NOT NULL,
+  `quantity` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -76,33 +75,6 @@ CREATE TABLE `deliveries` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `menus`
---
-
-CREATE TABLE `menus` (
-  `menu_id` char(10) NOT NULL,
-  `name` varchar(50) NOT NULL,
-  `price` double(4,2) NOT NULL,
-  `description` text NOT NULL,
-  `created_at` datetime NOT NULL,
-  `category_id` char(10) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `menu_images`
---
-
-CREATE TABLE `menu_images` (
-  `menu_image_id` char(10) NOT NULL,
-  `image_path` varchar(255) NOT NULL,
-  `menu_id` char(10) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `orders`
 --
 
@@ -120,10 +92,9 @@ CREATE TABLE `orders` (
 --
 
 CREATE TABLE `order_items` (
-  `order_item_id` char(10) NOT NULL,
-  `quantity` int(11) NOT NULL,
   `order_id` char(10) NOT NULL,
-  `menu_id` char(10) NOT NULL
+  `product_id` char(10) NOT NULL,
+  `quantity` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -139,6 +110,45 @@ CREATE TABLE `payments` (
   `status` varchar(50) NOT NULL,
   `paid_at` datetime NOT NULL,
   `order_id` char(10) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `products`
+--
+
+CREATE TABLE `products` (
+  `product_id` char(10) NOT NULL,
+  `name` varchar(50) NOT NULL,
+  `price` double(4,2) NOT NULL,
+  `description` text NOT NULL,
+  `created_at` datetime NOT NULL,
+  `category_id` char(10) NOT NULL,
+  `is_available` tinyint(1) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `product_images`
+--
+
+CREATE TABLE `product_images` (
+  `product_image_id` char(10) NOT NULL,
+  `image_path` varchar(255) NOT NULL,
+  `product_id` char(10) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `product_tags`
+--
+
+CREATE TABLE `product_tags` (
+  `product_id` char(10) NOT NULL,
+  `tag_id` char(10) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -160,6 +170,17 @@ CREATE TABLE `shipping_addresses` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `tags`
+--
+
+CREATE TABLE `tags` (
+  `tag_id` char(10) NOT NULL,
+  `name` varchar(50) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `users`
 --
 
@@ -168,21 +189,21 @@ CREATE TABLE `users` (
   `name` varchar(50) NOT NULL,
   `email` varchar(255) NOT NULL,
   `password` varchar(50) NOT NULL,
-  `role` enum('guest','customer','member','admin') DEFAULT NULL,
   `profile_image_path` varchar(255) NOT NULL,
-  `created_at` datetime NOT NULL
+  `created_at` datetime NOT NULL,
+  `is_member` tinyint(1) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`user_id`, `name`, `email`, `password`, `role`, `profile_image_path`, `created_at`) VALUES
-('25RSW00001', 'pdiddy', 'pdiddy@gmail.com', 'pdiddy', 'guest', '', '2025-11-24 14:20:28'),
-('25RSW00002', 'hx', 'hx@gmail.com', 'hx', 'customer', '', '2025-11-24 14:20:28'),
-('25RSW00003', 'ty', 'ty@gmail.com', 'ty', 'member', '', '2025-11-24 14:20:28'),
-('25RSW00004', 'wz', 'wz@gmail.com', 'wz', 'admin', '', '2025-11-24 14:20:28'),
-('25RSW00005', 'yh', 'yh@gmail.com', 'yh', 'guest', '', '2025-11-24 14:20:28');
+INSERT INTO `users` (`user_id`, `name`, `email`, `password`, `profile_image_path`, `created_at`, `is_member`) VALUES
+('25RSW00001', 'pdiddy', 'pdiddy@gmail.com', 'pdiddy', '', '2025-11-24 14:20:28', 0),
+('25RSW00002', 'hx', 'hx@gmail.com', 'hx', '', '2025-11-24 14:20:28', 0),
+('25RSW00003', 'ty', 'ty@gmail.com', 'ty', '', '2025-11-24 14:20:28', 0),
+('25RSW00004', 'wz', 'wz@gmail.com', 'wz', '', '2025-11-24 14:20:28', 0),
+('25RSW00005', 'yh', 'yh@gmail.com', 'yh', '', '2025-11-24 14:20:28', 0);
 
 --
 -- Indexes for dumped tables
@@ -199,9 +220,7 @@ ALTER TABLE `carts`
 -- Indexes for table `cart_items`
 --
 ALTER TABLE `cart_items`
-  ADD PRIMARY KEY (`cart_item_id`),
-  ADD KEY `cart_id` (`cart_id`),
-  ADD KEY `menu_id` (`menu_id`);
+  ADD PRIMARY KEY (`cart_id`,`product_id`);
 
 --
 -- Indexes for table `categories`
@@ -218,20 +237,6 @@ ALTER TABLE `deliveries`
   ADD KEY `shipping_address_id` (`shipping_address_id`);
 
 --
--- Indexes for table `menus`
---
-ALTER TABLE `menus`
-  ADD PRIMARY KEY (`menu_id`),
-  ADD KEY `categoryID` (`category_id`);
-
---
--- Indexes for table `menu_images`
---
-ALTER TABLE `menu_images`
-  ADD PRIMARY KEY (`menu_image_id`),
-  ADD KEY `menu_id` (`menu_id`);
-
---
 -- Indexes for table `orders`
 --
 ALTER TABLE `orders`
@@ -242,9 +247,7 @@ ALTER TABLE `orders`
 -- Indexes for table `order_items`
 --
 ALTER TABLE `order_items`
-  ADD PRIMARY KEY (`order_item_id`),
-  ADD KEY `order_id` (`order_id`),
-  ADD KEY `menu_id` (`menu_id`);
+  ADD PRIMARY KEY (`order_id`,`product_id`);
 
 --
 -- Indexes for table `payments`
@@ -254,11 +257,37 @@ ALTER TABLE `payments`
   ADD KEY `order_id` (`order_id`);
 
 --
+-- Indexes for table `products`
+--
+ALTER TABLE `products`
+  ADD PRIMARY KEY (`product_id`),
+  ADD KEY `categoryID` (`category_id`);
+
+--
+-- Indexes for table `product_images`
+--
+ALTER TABLE `product_images`
+  ADD PRIMARY KEY (`product_image_id`),
+  ADD KEY `product_id` (`product_id`);
+
+--
+-- Indexes for table `product_tags`
+--
+ALTER TABLE `product_tags`
+  ADD PRIMARY KEY (`product_id`,`tag_id`);
+
+--
 -- Indexes for table `shipping_addresses`
 --
 ALTER TABLE `shipping_addresses`
   ADD PRIMARY KEY (`shipping_address_id`),
   ADD KEY `user_id` (`user_id`);
+
+--
+-- Indexes for table `tags`
+--
+ALTER TABLE `tags`
+  ADD PRIMARY KEY (`tag_id`);
 
 --
 -- Indexes for table `users`
@@ -277,30 +306,11 @@ ALTER TABLE `carts`
   ADD CONSTRAINT `carts_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`);
 
 --
--- Constraints for table `cart_items`
---
-ALTER TABLE `cart_items`
-  ADD CONSTRAINT `cart_items_ibfk_1` FOREIGN KEY (`cart_id`) REFERENCES `carts` (`cart_id`),
-  ADD CONSTRAINT `cart_items_ibfk_2` FOREIGN KEY (`menu_id`) REFERENCES `menus` (`menu_id`);
-
---
 -- Constraints for table `deliveries`
 --
 ALTER TABLE `deliveries`
   ADD CONSTRAINT `deliveries_ibfk_1` FOREIGN KEY (`order_id`) REFERENCES `orders` (`order_id`),
   ADD CONSTRAINT `deliveries_ibfk_2` FOREIGN KEY (`shipping_address_id`) REFERENCES `shipping_addresses` (`shipping_address_id`);
-
---
--- Constraints for table `menus`
---
-ALTER TABLE `menus`
-  ADD CONSTRAINT `menus_ibfk_1` FOREIGN KEY (`category_id`) REFERENCES `categories` (`category_id`);
-
---
--- Constraints for table `menu_images`
---
-ALTER TABLE `menu_images`
-  ADD CONSTRAINT `menu_images_ibfk_1` FOREIGN KEY (`menu_id`) REFERENCES `menus` (`menu_id`);
 
 --
 -- Constraints for table `orders`
@@ -309,17 +319,22 @@ ALTER TABLE `orders`
   ADD CONSTRAINT `orders_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`);
 
 --
--- Constraints for table `order_items`
---
-ALTER TABLE `order_items`
-  ADD CONSTRAINT `order_items_ibfk_1` FOREIGN KEY (`order_id`) REFERENCES `orders` (`order_id`),
-  ADD CONSTRAINT `order_items_ibfk_2` FOREIGN KEY (`menu_id`) REFERENCES `menus` (`menu_id`);
-
---
 -- Constraints for table `payments`
 --
 ALTER TABLE `payments`
   ADD CONSTRAINT `payments_ibfk_1` FOREIGN KEY (`order_id`) REFERENCES `orders` (`order_id`);
+
+--
+-- Constraints for table `products`
+--
+ALTER TABLE `products`
+  ADD CONSTRAINT `products_ibfk_1` FOREIGN KEY (`category_id`) REFERENCES `categories` (`category_id`);
+
+--
+-- Constraints for table `product_images`
+--
+ALTER TABLE `product_images`
+  ADD CONSTRAINT `product_images_ibfk_1` FOREIGN KEY (`product_id`) REFERENCES `products` (`product_id`);
 
 --
 -- Constraints for table `shipping_addresses`
