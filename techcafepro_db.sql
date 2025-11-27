@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 25, 2025 at 11:17 AM
+-- Generation Time: Nov 27, 2025 at 08:55 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -18,10 +18,10 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `techcafeprodb`
+-- Database: `techcafepro_db`
 --
-CREATE DATABASE IF NOT EXISTS `techcafeprodb` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
-USE `techcafeprodb`;
+CREATE DATABASE IF NOT EXISTS `techcafepro_db` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+USE `techcafepro_db`;
 
 -- --------------------------------------------------------
 
@@ -30,9 +30,9 @@ USE `techcafeprodb`;
 --
 
 CREATE TABLE `carts` (
-  `cart_id` char(10) NOT NULL,
-  `updated_at` datetime NOT NULL,
-  `user_id` char(10) NOT NULL
+  `cart_id` int(11) NOT NULL,
+  `updated_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `user_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -42,8 +42,8 @@ CREATE TABLE `carts` (
 --
 
 CREATE TABLE `cart_items` (
-  `cart_id` char(10) NOT NULL,
-  `product_id` char(10) NOT NULL,
+  `cart_id` int(11) NOT NULL,
+  `product_id` int(11) NOT NULL,
   `quantity` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -54,9 +54,19 @@ CREATE TABLE `cart_items` (
 --
 
 CREATE TABLE `categories` (
-  `category_id` char(10) NOT NULL,
+  `category_id` int(11) NOT NULL,
   `name` varchar(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `categories`
+--
+
+INSERT INTO `categories` (`category_id`, `name`) VALUES
+(1, 'Bread'),
+(2, 'Cake'),
+(3, 'Coffee'),
+(4, 'Ice cream');
 
 -- --------------------------------------------------------
 
@@ -65,11 +75,11 @@ CREATE TABLE `categories` (
 --
 
 CREATE TABLE `deliveries` (
-  `delivery_id` char(10) NOT NULL,
+  `delivery_id` int(11) NOT NULL,
   `status` varchar(50) NOT NULL,
-  `delivered_at` datetime NOT NULL,
-  `order_id` char(10) NOT NULL,
-  `shipping_address_id` char(10) NOT NULL
+  `delivered_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `order_id` int(11) NOT NULL,
+  `shipping_address_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -79,10 +89,10 @@ CREATE TABLE `deliveries` (
 --
 
 CREATE TABLE `orders` (
-  `order_id` char(10) NOT NULL,
+  `order_id` int(11) NOT NULL,
   `total_amount` double(4,2) NOT NULL,
-  `created_at` datetime NOT NULL,
-  `user_id` char(10) NOT NULL
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `user_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -92,8 +102,8 @@ CREATE TABLE `orders` (
 --
 
 CREATE TABLE `order_items` (
-  `order_id` char(10) NOT NULL,
-  `product_id` char(10) NOT NULL,
+  `order_id` int(11) NOT NULL,
+  `product_id` int(11) NOT NULL,
   `quantity` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -104,12 +114,12 @@ CREATE TABLE `order_items` (
 --
 
 CREATE TABLE `payments` (
-  `payment_id` char(10) NOT NULL,
+  `payment_id` int(11) NOT NULL,
   `amount` double(4,2) NOT NULL,
   `method` varchar(50) NOT NULL,
   `status` varchar(50) NOT NULL,
-  `paid_at` datetime NOT NULL,
-  `order_id` char(10) NOT NULL
+  `paid_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `order_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -119,14 +129,36 @@ CREATE TABLE `payments` (
 --
 
 CREATE TABLE `products` (
-  `product_id` char(10) NOT NULL,
+  `product_id` int(11) NOT NULL,
   `name` varchar(50) NOT NULL,
   `price` double(4,2) NOT NULL,
   `description` text NOT NULL,
-  `created_at` datetime NOT NULL,
-  `category_id` char(10) NOT NULL,
-  `is_available` tinyint(1) NOT NULL
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `is_available` tinyint(1) NOT NULL,
+  `category_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `products`
+--
+
+INSERT INTO `products` (`product_id`, `name`, `price`, `description`, `created_at`, `is_available`, `category_id`) VALUES
+(17, 'Americano', 8.50, 'Classic bold espresso with hot water.', '2025-11-27 15:54:30', 1, 3),
+(18, 'Latte', 9.50, 'Smooth espresso with steamed milk.', '2025-11-27 15:54:30', 1, 3),
+(19, 'Mocha', 10.00, 'Chocolate-flavored latte with espresso.', '2025-11-27 15:54:30', 1, 3),
+(20, 'Cappuccino', 9.00, 'Espresso topped with frothed milk.', '2025-11-27 15:54:30', 1, 3),
+(21, 'Bagel', 4.50, 'Soft and chewy round bread.', '2025-11-27 15:54:30', 1, 1),
+(22, 'Wholemeal', 3.80, 'Healthy whole-grain bread.', '2025-11-27 15:54:30', 1, 1),
+(23, 'Pita', 3.50, 'Soft flatbread used for wraps.', '2025-11-27 15:54:30', 1, 1),
+(24, 'Flatbread', 3.20, 'Thin and soft bread for meals.', '2025-11-27 15:54:30', 1, 1),
+(25, 'Chocolate Cake', 12.50, 'Rich and moist chocolate cake.', '2025-11-27 15:54:30', 1, 2),
+(26, 'Cheese Cake', 13.00, 'Creamy baked cheese dessert.', '2025-11-27 15:54:30', 1, 2),
+(27, 'Black Forest', 14.00, 'Chocolate cake with cherries and cream.', '2025-11-27 15:54:30', 1, 2),
+(28, 'Tiramisu', 15.00, 'Coffee-flavored Italian layered dessert.', '2025-11-27 15:54:30', 1, 2),
+(29, 'Chocolate', 6.50, 'Creamy chocolate ice cream.', '2025-11-27 15:54:30', 1, 4),
+(30, 'Vanilla', 6.00, 'Classic vanilla ice cream.', '2025-11-27 15:54:30', 1, 4),
+(31, 'Strawberry', 6.20, 'Fresh strawberry-flavored ice cream.', '2025-11-27 15:54:30', 1, 4),
+(32, 'Green Tea', 6.80, 'Japanese matcha green tea ice cream.', '2025-11-27 15:54:30', 1, 4);
 
 -- --------------------------------------------------------
 
@@ -135,20 +167,9 @@ CREATE TABLE `products` (
 --
 
 CREATE TABLE `product_images` (
-  `product_image_id` char(10) NOT NULL,
+  `product_image_id` int(11) NOT NULL,
   `image_path` varchar(255) NOT NULL,
-  `product_id` char(10) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `product_tags`
---
-
-CREATE TABLE `product_tags` (
-  `product_id` char(10) NOT NULL,
-  `tag_id` char(10) NOT NULL
+  `product_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -158,13 +179,13 @@ CREATE TABLE `product_tags` (
 --
 
 CREATE TABLE `shipping_addresses` (
-  `shipping_address_id` char(10) NOT NULL,
+  `shipping_address_id` int(11) NOT NULL,
   `address` text NOT NULL,
   `city` varchar(50) NOT NULL,
   `postal_code` int(11) NOT NULL,
   `state` varchar(50) NOT NULL,
   `country` varchar(50) NOT NULL,
-  `user_id` char(10) NOT NULL
+  `user_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -174,7 +195,7 @@ CREATE TABLE `shipping_addresses` (
 --
 
 CREATE TABLE `tags` (
-  `tag_id` char(10) NOT NULL,
+  `tag_id` int(11) NOT NULL,
   `name` varchar(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -185,25 +206,14 @@ CREATE TABLE `tags` (
 --
 
 CREATE TABLE `users` (
-  `user_id` char(10) NOT NULL,
+  `user_id` int(11) NOT NULL,
   `name` varchar(50) NOT NULL,
   `email` varchar(255) NOT NULL,
   `password` varchar(50) NOT NULL,
   `profile_image_path` varchar(255) NOT NULL,
-  `created_at` datetime NOT NULL,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `is_member` tinyint(1) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `users`
---
-
-INSERT INTO `users` (`user_id`, `name`, `email`, `password`, `profile_image_path`, `created_at`, `is_member`) VALUES
-('25RSW00001', 'pdiddy', 'pdiddy@gmail.com', 'pdiddy', '', '2025-11-24 14:20:28', 0),
-('25RSW00002', 'hx', 'hx@gmail.com', 'hx', '', '2025-11-24 14:20:28', 0),
-('25RSW00003', 'ty', 'ty@gmail.com', 'ty', '', '2025-11-24 14:20:28', 0),
-('25RSW00004', 'wz', 'wz@gmail.com', 'wz', '', '2025-11-24 14:20:28', 0),
-('25RSW00005', 'yh', 'yh@gmail.com', 'yh', '', '2025-11-24 14:20:28', 0);
 
 --
 -- Indexes for dumped tables
@@ -261,7 +271,7 @@ ALTER TABLE `payments`
 --
 ALTER TABLE `products`
   ADD PRIMARY KEY (`product_id`),
-  ADD KEY `categoryID` (`category_id`);
+  ADD KEY `category_id` (`category_id`);
 
 --
 -- Indexes for table `product_images`
@@ -269,12 +279,6 @@ ALTER TABLE `products`
 ALTER TABLE `product_images`
   ADD PRIMARY KEY (`product_image_id`),
   ADD KEY `product_id` (`product_id`);
-
---
--- Indexes for table `product_tags`
---
-ALTER TABLE `product_tags`
-  ADD PRIMARY KEY (`product_id`,`tag_id`);
 
 --
 -- Indexes for table `shipping_addresses`
@@ -294,6 +298,70 @@ ALTER TABLE `tags`
 --
 ALTER TABLE `users`
   ADD PRIMARY KEY (`user_id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `carts`
+--
+ALTER TABLE `carts`
+  MODIFY `cart_id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `categories`
+--
+ALTER TABLE `categories`
+  MODIFY `category_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT for table `deliveries`
+--
+ALTER TABLE `deliveries`
+  MODIFY `delivery_id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `orders`
+--
+ALTER TABLE `orders`
+  MODIFY `order_id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `payments`
+--
+ALTER TABLE `payments`
+  MODIFY `payment_id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `products`
+--
+ALTER TABLE `products`
+  MODIFY `product_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=33;
+
+--
+-- AUTO_INCREMENT for table `product_images`
+--
+ALTER TABLE `product_images`
+  MODIFY `product_image_id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `shipping_addresses`
+--
+ALTER TABLE `shipping_addresses`
+  MODIFY `shipping_address_id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `tags`
+--
+ALTER TABLE `tags`
+  MODIFY `tag_id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `users`
+--
+ALTER TABLE `users`
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- Constraints for dumped tables
