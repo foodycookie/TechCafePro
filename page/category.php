@@ -27,6 +27,7 @@ include '../_head.php';
     }
 </style>
 
+
 <div class="button-container">
     <?php foreach ($_category as $c => $p): ?>
         <button data-get="/page/category/<?= $p ?>.php"><?= $c ?></button>

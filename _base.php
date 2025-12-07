@@ -58,13 +58,120 @@ function temp($key, $value = null) {
     }
 }
 
+// Obtain uploaded file --> cast to object
+function get_file($key) {
+    $f = $_FILES[$key] ?? null;
+    
+    if ($f && $f['error'] == 0) {
+        return (object)$f;
+    }
+
+    return null;
+}
+
+// Crop, resize and save photo
+function save_photo($f, $folder, $width = 225, $height = 225) {
+    $photo = uniqid() . '.jpg';
+    
+    require_once 'lib/SimpleImage.php';
+    $img = new SimpleImage();
+    $img->fromFile($f->tmp_name)
+        ->thumbnail($width, $height)
+        ->toFile("$folder/$photo", 'image/jpeg');
+
+    return $photo;
+}
+
+
+// Is money?
+function is_money($value) {
+    return preg_match('/^\-?\d+(\.\d{1,2})?$/', $value);
+}
+
+// Is email?
+function is_email($value) {
+    return filter_var($value, FILTER_VALIDATE_EMAIL) !== false;
+}
+
+// Is date?
+function is_date($value, $format = 'Y-m-d') {
+    $d = DateTime::createFromFormat($format, $value);
+    return $d && $d->format($format) == $value;
+}
+
+// Is time?
+function is_time($value, $format = 'H:i') {
+    $d = DateTime::createFromFormat($format, $value);
+    return $d && $d->format($format) == $value;
+}
+
+// Return year list items
+function get_years($min, $max, $reverse = false) {
+    $arr = range($min, $max);
+
+    if ($reverse) {
+        $arr = array_reverse($arr);
+    }
+
+    return array_combine($arr, $arr);
+}
+
+// Return month list items
+function get_months() {
+    return [
+        1  => 'January',
+        2  => 'February',
+        3  => 'March',
+        4  => 'April',
+        5  => 'May',
+        6  => 'June',
+        7  => 'July',
+        8  => 'August',
+        9  => 'September',
+        10 => 'October',
+        11 => 'November',
+        12 => 'December',
+    ];
+}
+
+// Return local root path
+function root($path = '') {
+    return "$_SERVER[DOCUMENT_ROOT]/$path";
+}
+
+// Return base url (host + port)
+function base($path = '') {
+    return "http://$_SERVER[SERVER_NAME]:$_SERVER[SERVER_PORT]/$path";
+}
+
+// Return TRUE if ALL array elements meet the condition given
+function array_all($arr, $fn) {
+    foreach ($arr as $k => $v) {
+        if (!$fn($v, $k)) {
+            return false;
+        }
+    }
+    return true;
+}
+
 // ============================================================================
 // HTML Helpers
 // ============================================================================
 
+// Placeholder for TODO
+function TODO() {
+    echo '<span>TODO</span>';
+}
+
 // Encode HTML special characters
 function encode($value) {
     return htmlentities($value);
+}
+
+// Generate <input type='hidden'>
+function html_hidden($key, $attr = '') {
+    $value ??= encode($GLOBALS[$key] ?? '');
+    echo "<input type='hidden' id='$key' name='$key' value='$value' $attr>";
 }
 
 // Generate <input type='text'>
@@ -73,8 +180,65 @@ function html_text($key, $attr = '') {
     echo "<input type='text' id='$key' name='$key' value='$value' $attr>";
 }
 
+// Generate <input type='password'>
 function html_password($key, $attr = '') {
-    return '<input type="password" name="' .$key.'" value="" '.$attr.'>';
+    $value = encode($GLOBALS[$key] ?? '');
+    echo "<input type='password' id='$key' name='$key' value='$value' $attr>";
+}
+
+// Generate <input type='number'>
+function html_number($key, $min = '', $max = '', $step = '', $attr = '') {
+    $value = encode($GLOBALS[$key] ?? '');
+    echo "<input type='number' id='$key' name='$key' value='$value'
+                 min='$min' max='$max' step='$step' $attr>";
+}
+
+// Generate <input type='search'>
+function html_search($key, $attr = '') {
+    $value = encode($GLOBALS[$key] ?? '');
+    echo "<input type='search' id='$key' name='$key' value='$value' $attr>";
+}
+
+// Generate <input type='date'>
+function html_date($key, $min= '', $max = '', $attr = '') {
+    $value = encode($GLOBALS[$key] ?? '');
+    echo "<input type='date' id='$key' name='$key' value='$value'
+                 min='$min' max='$max' $attr>";
+}
+
+// Generate <input type='time'>
+function html_time($key, $attr = '') {
+    $value = encode($GLOBALS[$key] ?? '');
+    echo "<input type='time' id='$key' name='$key' value='$value' $attr>";
+}
+
+// Generate <textarea>
+function html_textarea($key, $attr = '') {
+    $value = encode($GLOBALS[$key] ?? '');
+    echo "<textarea id='$key' name='$key' $attr>$value</textarea>";
+}
+
+// Generate SINGLE <input type='checkbox'>
+function html_checkbox($key, $label = '', $attr = '') {
+    $value = encode($GLOBALS[$key] ?? '');
+    $status = $value == 1 ? 'checked' : '';
+    echo "<label><input type='checkbox' id='$key' name='$key' value='1' $status $attr>$label</label>";
+}
+
+// Generate <input type='checkbox'> list
+function html_checkboxes($key, $items, $br = false) {
+    $values = $GLOBALS[$key] ?? [];
+    if (!is_array($values)) $values = [];
+
+    echo '<div>';
+    foreach ($items as $id => $text) {
+        $state = in_array($id, $values) ? 'checked' : '';
+        echo "<label><input type='checkbox' id='{$key}_$id' name='{$key}[]' value='$id' $state>$text</label>";
+        if ($br) {
+            echo '<br>';
+        }
+    }
+    echo '</div>';
 }
 
 // Generate <input type='radio'> list
@@ -105,6 +269,26 @@ function html_select($key, $items, $default = '- Select One -', $attr = '') {
     echo '</select>';
 }
 
+// Generate <input type='file'>
+function html_file($key, $accept = '', $attr = '') {
+    echo "<input type='file' id='$key' name='$key' accept='$accept' $attr>";
+}
+
+// Generate table headers <th>
+function table_headers($fields, $sort, $dir, $href = '') {
+    foreach ($fields as $k => $v) {
+        $d = 'asc'; // Default direction
+        $c = '';    // Default class
+        
+        if ($k == $sort) {
+            $d = $dir == 'asc' ? 'desc' : 'asc';
+            $c = $dir;
+        }
+
+        echo "<th><a href='?sort=$k&dir=$d&$href' class='$c'>$v</a></th>";
+    }
+}
+
 // ============================================================================
 // Error Handlings
 // ============================================================================
@@ -124,12 +308,105 @@ function err($key) {
 }
 
 // ============================================================================
+// Security
+// ============================================================================
+
+// Global user object
+$_user = $_SESSION['user'] ?? null;
+
+// Login user
+function login($user, $url = '/') {
+    $_SESSION['user'] = $user;
+    redirect($url);
+}
+
+// Logout user
+function logout($url = '/') {
+    unset($_SESSION['user']);
+    redirect($url);
+}
+
+// Authorization
+function auth(...$roles) {
+    global $_user;
+    if ($_user) {
+        if ($roles) {
+            if (in_array($_user->role, $roles)) {
+                return; // OK
+            }
+        }
+        else {
+            return; // OK
+        }
+    }
+    
+    redirect('/login.php');
+}
+
+// ============================================================================
+// Email Functions
+// ============================================================================
+
+// Demo Accounts:
+// --------------
+// AACS3173@gmail.com           xxna ftdu plga hzxl
+// BAIT2173.email@gmail.com     ncom fsil wjzk ptre
+// liaw.casual@gmail.com        buvq yftx klma vezl
+// liawcv1@gmail.com            pztq znli gpjg tooe
+
+// Initialize and return mail object
+function get_mail() {
+    require_once 'lib/PHPMailer.php';
+    require_once 'lib/SMTP.php';
+
+    $m = new PHPMailer(true);
+    $m->isSMTP();
+    $m->SMTPAuth = true;
+    $m->Host = 'smtp.gmail.com';
+    $m->Port = 587;
+    $m->Username = 'AACS3173@gmail.com';
+    $m->Password = 'xxna ftdu plga hzxl';
+    $m->CharSet = 'utf-8';
+    $m->setFrom($m->Username, '😺 Admin');
+
+    return $m;
+}
+
+// ============================================================================
+// Shopping Cart
+// ============================================================================
+
+// Get shopping cart
+function get_cart() {
+    return $_SESSION['cart'] ?? [];
+}
+
+// Set shopping cart
+function set_cart($cart = []) {
+    $_SESSION['cart'] = $cart;
+}
+
+// Update shopping cart
+function update_cart($id, $unit) {
+    $cart = get_cart();
+
+    if ($unit >= 1 && $unit <= 10 && is_exists($id, 'product', 'id')) {
+        $cart[$id] = $unit;
+        ksort($cart);
+    }
+    else {
+        unset($cart[$id]);
+    }
+
+    set_cart($cart);
+}
+
+// ============================================================================
 // Database Setups and Functions
 // ============================================================================
 
 // Global PDO object
-// TODO
-$_db = new PDO('mysql:dbname=db4', 'root', '', [
+$_db = new PDO('mysql:dbname=techcafepro_db', 'root', '', [
     PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_OBJ,
 ]);
 
@@ -148,6 +425,12 @@ function is_exists($value, $table, $field) {
     $stm->execute([$value]);
     return $stm->fetchColumn() > 0;
 }
+
+// ============================================================================
+// Global Constants and Variables
+// ============================================================================
+
+// old?
 
 // Check Login
 function is_login()
@@ -174,8 +457,6 @@ $_genders = [
 //     'RSW' => 'Software Engineering',
 // ];
 
-$_programs = $_db->query('SELECT id, name FROM program')
-                ->fetchAll(PDO::FETCH_KEY_PAIR);
 
 $_category = [
         'Coffee'    => 'coffee',
