@@ -28,7 +28,7 @@ $page = req('page', 1);
 require_once '../lib/SimplePager.php';
 
 // ----------------------------------------------------------------------------
-// Build SQL for SimplePager (NO JOIN ALLOWED)
+// Build SQL for SimplePager
 $baseSQL = "FROM products WHERE pro_name LIKE ?";
 $params = ["%$pro_name%"];
 

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 27, 2025 at 08:55 AM
+-- Generation Time: Dec 08, 2025 at 01:35 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -55,18 +55,19 @@ CREATE TABLE `cart_items` (
 
 CREATE TABLE `categories` (
   `category_id` int(11) NOT NULL,
-  `name` varchar(50) NOT NULL
+  `cat_name` varchar(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `categories`
 --
 
-INSERT INTO `categories` (`category_id`, `name`) VALUES
+INSERT INTO `categories` (`category_id`, `cat_name`) VALUES
 (1, 'Bread'),
 (2, 'Cake'),
 (3, 'Coffee'),
-(4, 'Ice cream');
+(4, 'Ice cream'),
+(6, 'Frappe');
 
 -- --------------------------------------------------------
 
@@ -130,35 +131,40 @@ CREATE TABLE `payments` (
 
 CREATE TABLE `products` (
   `product_id` int(11) NOT NULL,
-  `name` varchar(50) NOT NULL,
+  `pro_name` varchar(50) NOT NULL,
   `price` double(4,2) NOT NULL,
   `description` text NOT NULL,
+  `ingredient` text NOT NULL,
   `created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `is_available` tinyint(1) NOT NULL,
-  `category_id` int(11) NOT NULL
+  `category_id` int(11) NOT NULL,
+  `photo` varchar(100) NOT NULL,
+  `sold` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `products`
 --
 
-INSERT INTO `products` (`product_id`, `name`, `price`, `description`, `created_at`, `is_available`, `category_id`) VALUES
-(17, 'Americano', 8.50, 'Classic bold espresso with hot water.', '2025-11-27 15:54:30', 1, 3),
-(18, 'Latte', 9.50, 'Smooth espresso with steamed milk.', '2025-11-27 15:54:30', 1, 3),
-(19, 'Mocha', 10.00, 'Chocolate-flavored latte with espresso.', '2025-11-27 15:54:30', 1, 3),
-(20, 'Cappuccino', 9.00, 'Espresso topped with frothed milk.', '2025-11-27 15:54:30', 1, 3),
-(21, 'Bagel', 4.50, 'Soft and chewy round bread.', '2025-11-27 15:54:30', 1, 1),
-(22, 'Wholemeal', 3.80, 'Healthy whole-grain bread.', '2025-11-27 15:54:30', 1, 1),
-(23, 'Pita', 3.50, 'Soft flatbread used for wraps.', '2025-11-27 15:54:30', 1, 1),
-(24, 'Flatbread', 3.20, 'Thin and soft bread for meals.', '2025-11-27 15:54:30', 1, 1),
-(25, 'Chocolate Cake', 12.50, 'Rich and moist chocolate cake.', '2025-11-27 15:54:30', 1, 2),
-(26, 'Cheese Cake', 13.00, 'Creamy baked cheese dessert.', '2025-11-27 15:54:30', 1, 2),
-(27, 'Black Forest', 14.00, 'Chocolate cake with cherries and cream.', '2025-11-27 15:54:30', 1, 2),
-(28, 'Tiramisu', 15.00, 'Coffee-flavored Italian layered dessert.', '2025-11-27 15:54:30', 1, 2),
-(29, 'Chocolate', 6.50, 'Creamy chocolate ice cream.', '2025-11-27 15:54:30', 1, 4),
-(30, 'Vanilla', 6.00, 'Classic vanilla ice cream.', '2025-11-27 15:54:30', 1, 4),
-(31, 'Strawberry', 6.20, 'Fresh strawberry-flavored ice cream.', '2025-11-27 15:54:30', 1, 4),
-(32, 'Green Tea', 6.80, 'Japanese matcha green tea ice cream.', '2025-11-27 15:54:30', 1, 4);
+INSERT INTO `products` (`product_id`, `pro_name`, `price`, `description`, `ingredient`, `created_at`, `is_available`, `category_id`, `photo`, `sold`) VALUES
+(17, 'Americano', 8.50, 'Classic bold espresso with hot water.', '', '2025-11-27 15:54:30', 1, 3, '6935af03bda1d.jpg', 0),
+(18, 'Latte', 9.50, 'Smooth espresso with steamed milk.', '', '2025-11-27 15:54:30', 1, 3, '6935ab925d066.jpg', 0),
+(19, 'Mocha', 10.00, 'Chocolate-flavored latte with espresso.', '', '2025-11-27 15:54:30', 1, 3, '', 0),
+(20, 'Cappuccino', 9.00, 'Espresso topped with frothed milk.', '', '2025-11-27 15:54:30', 1, 3, '', 0),
+(21, 'Bagel', 4.50, 'Soft and chewy round bread.', '', '2025-11-27 15:54:30', 1, 1, '', 0),
+(22, 'Wholemeal', 3.80, 'Healthy whole-grain bread.', '', '2025-11-27 15:54:30', 1, 1, '', 0),
+(23, 'Pita', 3.50, 'Soft flatbread used for wraps.', '', '2025-11-27 15:54:30', 1, 1, '', 0),
+(24, 'Flatbread', 3.20, 'Thin and soft bread for meals.', '', '2025-11-27 15:54:30', 1, 1, '', 0),
+(25, 'Chocolate Cake', 12.50, 'Rich and moist chocolate cake.', '', '2025-11-27 15:54:30', 1, 2, '', 0),
+(26, 'Cheese Cake', 13.00, 'Creamy baked cheese dessert.', '', '2025-11-27 15:54:30', 1, 2, '', 0),
+(27, 'Black Forest', 14.00, 'Chocolate cake with cherries and cream.', '', '2025-11-27 15:54:30', 1, 2, '', 0),
+(28, 'Tiramisu', 15.00, 'Coffee-flavored Italian layered dessert.', '', '2025-11-27 15:54:30', 1, 2, '', 0),
+(29, 'Chocolate', 6.50, 'Creamy chocolate ice cream.', '', '2025-11-27 15:54:30', 1, 4, '', 0),
+(30, 'Vanilla', 6.00, 'Classic vanilla ice cream.', '', '2025-11-27 15:54:30', 1, 4, '', 0),
+(31, 'Strawberry', 6.20, 'Fresh strawberry-flavored ice cream.', '', '2025-11-27 15:54:30', 1, 4, '', 0),
+(32, 'Green Tea', 6.80, 'Japanese matcha green tea ice cream.', '', '2025-11-27 15:54:30', 1, 4, '', 0),
+(33, 'Mocha Frappe', 12.00, 'good', '', '2025-12-08 00:00:56', 0, 6, '6935a67889266.jpg', 0),
+(34, 'Matcha Tiramisu', 20.00, 'Green and good', '', '2025-12-08 00:46:42', 0, 2, '6935af726ca1c.jpg', 0);
 
 -- --------------------------------------------------------
 
@@ -313,7 +319,7 @@ ALTER TABLE `carts`
 -- AUTO_INCREMENT for table `categories`
 --
 ALTER TABLE `categories`
-  MODIFY `category_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `category_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `deliveries`
@@ -337,7 +343,7 @@ ALTER TABLE `payments`
 -- AUTO_INCREMENT for table `products`
 --
 ALTER TABLE `products`
-  MODIFY `product_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=33;
+  MODIFY `product_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
 
 --
 -- AUTO_INCREMENT for table `product_images`
