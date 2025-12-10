@@ -4,17 +4,17 @@ include '../_base.php';
 // ----------------------------------------------------------------------------
 
 // Load categories
-$cats = $_db->query("SELECT * FROM categories ORDER BY cat_name")->fetchAll();
+$cats = $_db->query("SELECT * FROM categories ORDER BY category_name")->fetchAll();
 
 // Search keyword
 $search = req('name', '');
 
 // Query products (sorted by category, then sold DESC, then name ASC)
-$stm = $_db->prepare('SELECT p.*, c.cat_name
+$stm = $_db->prepare('SELECT p.*, c.category_name
                       FROM products p 
                       JOIN categories c ON p.category_id = c.category_id
-                      WHERE p.pro_name LIKE ?
-                      ORDER BY c.cat_name, p.sold DESC, p.pro_name ASC');
+                      WHERE p.product_name LIKE ?
+                      ORDER BY c.category_name, p.sold DESC, p.product_name ASC');
 
 $stm->execute(["%$search%"]);
 $arr = $stm->fetchAll();
@@ -30,7 +30,7 @@ foreach ($arr as $m) {
     // Ensure array exists
     if (!isset($grouped[$m->category_id])) {
         $grouped[$m->category_id] = [
-            'cat_name' => $m->cat_name,
+            'category_name' => $m->category_name,
             'items'    => []
         ];
     }
@@ -56,7 +56,7 @@ include '../_head.php';
     <div class="category-bar" style="float: right;">
         <?php foreach ($cats as $c): ?>
             <a href="#cat-<?= $c->category_id ?>" class="cat-link">
-                <?= encode($c->cat_name) ?>
+                <?= encode($c->category_name) ?>
             </a>
         <?php endforeach ?>
     </div>
@@ -66,11 +66,11 @@ include '../_head.php';
     <main class="menu-grid">
 
         <?php foreach ($grouped as $cat_id => $data): ?>
-            <?php $cat_name = $data['cat_name']; ?>
+            <?php $category_name = $data['category_name']; ?>
             <?php $items    = $data['items']; ?>
 
             <h2 id="cat-<?= $cat_id ?>" style="font-size: 35px; clear:both;">
-                <?= encode($cat_name) ?>
+                <?= encode($category_name) ?>
             </h2>
 
             <div class="category-section">
@@ -87,10 +87,10 @@ include '../_head.php';
                             <div class="badge-unavailable">Unavailable</div>
                         <?php endif; ?>
 
-                        <img src="/photo/<?= $p->photo ?>" 
-                             alt="<?= encode($p->pro_name) ?>" width="180">
+                        <img src="../images/placeholder/<?= $p->photo ?>" 
+                             alt="<?= encode($p->product_name) ?>" width="180">
 
-                        <h3><?= encode($p->pro_name) ?></h3>
+                        <h3><?= encode($p->product_name) ?></h3>
                         <p class="price">RM <?= number_format($p->price, 2) ?></p>
 
                         <?php if ($p->is_available): ?>

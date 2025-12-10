@@ -5,7 +5,7 @@ include '../_base.php';
 // (1) Sorting
 $fields = [
     'product_id'     => 'Id',
-    'pro_name'       => 'Product Name',
+    'product_name'   => 'Product Name',
     'price'          => 'Price',
     'description'    => 'Description',
     'category_id'    => 'Category',
@@ -19,7 +19,7 @@ $dir = req('dir');
 in_array($dir, ['asc', 'desc']) || $dir = 'asc';
 
 // (2) Filtering
-$pro_name   = req('pro_name', '');
+$product_name   = req('product_name', '');
 $category_id = req('category_id', '');
 
 // (3) Paging
@@ -29,8 +29,8 @@ require_once '../lib/SimplePager.php';
 
 // ----------------------------------------------------------------------------
 // Build SQL for SimplePager
-$baseSQL = "FROM products WHERE pro_name LIKE ?";
-$params = ["%$pro_name%"];
+$baseSQL = "FROM products WHERE product_name LIKE ?";
+$params = ["%$product_name%"];
 
 // Category filter
 if ($category_id !== '') {
@@ -48,7 +48,7 @@ $p = new SimplePager($sql, $params, 10, $page);
 $arr = [];
 foreach ($p->result as $row) {
     $full = $_db->prepare("
-        SELECT p.*, c.cat_name 
+        SELECT p.*, c.category_name 
         FROM products p 
         JOIN categories c ON p.category_id = c.category_id
         WHERE p.product_id = ?
@@ -58,11 +58,11 @@ foreach ($p->result as $row) {
 }
 
 // Fetch all categories for dropdown
-$cats = $_db->query("SELECT * FROM categories ORDER BY cat_name")->fetchAll();
+$cats = $_db->query("SELECT * FROM categories ORDER BY category_name")->fetchAll();
 
 // Insert new category
 if (isset($_POST['new_cat'])) {
-    $_db->prepare("INSERT INTO categories(cat_name) VALUES(?)")
+    $_db->prepare("INSERT INTO categories(category_name) VALUES(?)")
         ->execute([$_POST['new_cat']]);
     redirect("/page/product_crud.php");
 }
@@ -81,14 +81,14 @@ include '../_head.php';
 </style>
 
 <form>
-    <?= html_search('pro_name','placeholder="Search product..."') ?>
+    <?= html_search('product_name','placeholder="Search product..."') ?>
 
     <select name="category_id">
         <option value="">All Categories</option>
         <?php foreach ($cats as $c): ?>
             <option value="<?= $c->category_id ?>"
                 <?= $category_id == $c->category_id ? 'selected' : '' ?>>
-                <?= encode($c->cat_name) ?>
+                <?= encode($c->category_name) ?>
             </option>
         <?php endforeach ?>
     </select>
@@ -107,22 +107,22 @@ include '../_head.php';
                 $fields,
                 $sort,
                 $dir,
-                "page={$p->page}&pro_name={$pro_name}&category_id={$category_id}"
+                "page={$p->page}&product_name={$product_name}&category_id={$category_id}"
             ) ?>
     </tr>
 
     <?php foreach ($arr as $m): ?>
     <tr>
         <td><?= $m->product_id ?></td>
-        <td><?= $m->pro_name ?></td>
+        <td><?= $m->product_name ?></td>
         <td style="text-align: right;"><?= number_format($m->price, 2) ?></td>
         <td><?= $m->description ?></td>
-        <td><?= $m->cat_name ?></td>
+        <td><?= $m->category_name ?></td>
         <td><?= $m->is_available ?></td>
         <td>
             <button data-get="/page/product_update.php?product_id=<?= $m->product_id ?>">Update</button>
             <button data-post="/page/product_delete.php?product_id=<?= $m->product_id ?>" data-confirm>Delete</button>
-            <img src="/photo/<?= $m->photo ?>" class="popup">
+            <img src="../images/placeholder/<?= $m->photo ?>" class="popup">
         </td>
     </tr>
     <?php endforeach ?>
@@ -130,7 +130,7 @@ include '../_head.php';
 
 <br>
 
-<?= $p->html("sort=$sort&dir=$dir&pro_name=$pro_name&category_id=$category_id") ?>
+<?= $p->html("sort=$sort&dir=$dir&product_name=$product_name&category_id=$category_id") ?>
 
 <p>
     <button data-get="/page/product_insert.php">Insert</button>
@@ -145,7 +145,7 @@ include '../_head.php';
 
 <table>
 <?php foreach ($cats as $c): ?>
-<tr><td><?= $c->cat_name ?></td></tr>
+<tr><td><?= $c->category_name ?></td></tr>
 <?php endforeach; ?>
 </table>
 

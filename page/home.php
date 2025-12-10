@@ -17,14 +17,14 @@ include '../_head.php';
 </style>
 
 <p id="p">Image 1 of 4</p>
-<img id="img" src="/images/1.jpg">
+<img id="img" src="../images/system/placeholder.jpg">
 
 <script>
     const arr = [
-        '/images/1.jpg',
-        '/images/2.jpg',
-        '/images/3.jpg',
-        '/images/4.jpg'
+        '../images/system/placeholder.jpg',
+        '../images/system/placeholder.jpg',
+        '../images/system/placeholder.jpg',
+        '../images/system/placeholder.jpg'
     ];
 
     let i = 0;

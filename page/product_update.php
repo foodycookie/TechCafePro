@@ -10,7 +10,7 @@ if (is_get()) {  // step1 SQL select
     $stm->execute([$product_id]);
     $p = $stm->fetch();
 
-    if (!$p) {   // if no record fouund, go /page/product_crud.php
+    if (!$p) {   // if no record found, go /page/product_crud.php
         temp('info', 'No Record');
         redirect('/page/product_crud.php');
     }
@@ -23,19 +23,19 @@ if (is_get()) {  // step1 SQL select
 
 if (is_post()) {   // step3 SQL update
     $product_id     = req('product_id');
-    $pro_name       = req('pro_name');
+    $product_name   = req('product_name');
     $price          = req('price');
     $description    = req('description');
-    $category_id    = req('category_id');
     $f              = get_file('photo');  // for new uploaded file
     $photo          = $_SESSION['photo']; // current photo filename
+    $category_id    = req('category_id');
 
     // Validate: name   
-    if ($pro_name == '') {
-        $_err['pro_name'] = 'Required';
+    if ($product_name == '') {
+        $_err['product_name'] = 'Required';
     }
     else if (strlen($pro_name) > 50) {
-        $_err['pro_name'] = 'Maximum 50 characters';
+        $_err['product_name'] = 'Maximum 50 characters';
     }
 
     // Validate: price
@@ -73,23 +73,23 @@ if (is_post()) {   // step3 SQL update
         //redirect(); 
         
         if ($f){
-            unlink("../photo/$photo");
-            $photo = save_photo($f, '../photo');
+            unlink("../images/placeholder/$photo");
+            $photo = save_photo($f, '../images/placeholder');
         }
         
         $stm = $_db->prepare('
             UPDATE products
-            SET pro_name = ?, price = ?, description = ?, category_id = ?, photo = ?
+            SET product_name = ?, price = ?, description = ?, category_id = ?, photo = ?
             WHERE product_id = ?
         ');
-        $stm->execute([$pro_name, $price, $description, $category_id, $photo, $product_id]);
+        $stm->execute([$product_name, $price, $description, $category_id, $photo, $product_id]);
 
         temp('info', 'Record updated');
         redirect('/page/product_crud.php');
     }
 }
 
-$cats = $_db->query("SELECT * FROM categories ORDER BY cat_name")->fetchAll();
+$cats = $_db->query("SELECT * FROM categories ORDER BY category_name")->fetchAll();
 // ----------------------------------------------------------------------------
 
 $_title = 'Admin | Product Update';
@@ -101,9 +101,9 @@ include '../_head.php';
     <b><?= $product_id ?></b>
     <br>
 
-    <label for="pro_name">Product Name</label>
-    <?= html_text('pro_name', 'maxlength="50"') ?>
-    <?= err('pro_name') ?>
+    <label for="product_name">Product Name</label>
+    <?= html_text('product_name', 'maxlength="50"') ?>
+    <?= err('product_name') ?>
 
     <label for="price">Price</label>
     <?= html_number('price', 0.01, 99.99, 0.01) ?>
@@ -119,7 +119,7 @@ include '../_head.php';
         <?php foreach ($cats as $c): ?>
             <option value="<?= $c->category_id ?>"
                 <?= $category_id == $c->category_id ? 'selected' : '' ?>>
-                <?= htmlspecialchars($c->cat_name) ?>
+                <?= htmlspecialchars($c->category_name) ?>
             </option>
         <?php endforeach; ?>
     </select>
@@ -128,7 +128,7 @@ include '../_head.php';
     <label for="photo">Photo</label>
     <label class="upload" tabindex="0">
         <?= html_file('photo', 'image/*', 'hidden') ?>
-        <img src="/photo/<?= $photo ?>">
+        <img src="../images/placeholder/<?= $photo ?>">
     </label>
     <?= err('photo') ?>
 

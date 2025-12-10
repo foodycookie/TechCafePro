@@ -18,15 +18,15 @@ include '../../_head.php';
 
 <?php foreach ($_coffee as $b => $p): ?>
 <p><?= $b ?></p>
-<img id="img" src="/images/1.jpg">
+<img id="img" src="../../images/system/placeholder.jpg">
 <?php endforeach; ?>
 
 <script>
     const arr = [
-        '/images/1.jpg',
-        '/images/2.jpg',
-        '/images/3.jpg',
-        '/images/4.jpg'
+        '../../images/system/placeholder.jpg',
+        '../../images/system/placeholder.jpg',
+        '../../images/system/placeholder.jpg',
+        '../../images/system/placeholder.jpg'
     ];
 
     let i = 0;

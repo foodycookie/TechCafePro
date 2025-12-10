@@ -10,7 +10,7 @@ if (is_post()) {
     $stm = $_db->prepare('SELECT photo FROM products WHERE product_id = ?');
     $stm->execute([$product_id]);
     $photo = $stm->fetchColumn();
-    unlink("../photos/$photo");  // remove from directory
+    unlink("../images/placeholder/$photo");  // remove from directory
     //redirect('index.php'); 
 
     $stm = $_db->prepare('DELETE FROM products WHERE product_id = ?');

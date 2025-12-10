@@ -4,22 +4,22 @@ include '../_base.php';
 // ----------------------------------------------------------------------------
 
 if (is_post()) {
-    //$product_id    = req('product_id');  auto generated
-    $pro_name      = req('pro_name');
+    //$product_id  = req('product_id');  auto generated
+    $product_name  = req('product_name');
     $price         = req('price');
     $description   = req('description');
     $category_id   = req('category_id');
     $f             = get_file('photo');
 
     // Validate: name
-    if ($pro_name == '') {
-        $_err['pro_name'] = 'Required';
+    if ($product_name == '') {
+        $_err['product_name'] = 'Required';
     }
-    else if (strlen($pro_name) > 50) {
-        $_err['pro_name'] = 'Maximum 50 characters';
+    else if (strlen($product_name) > 50) {
+        $_err['product_name'] = 'Maximum 50 characters';
     }
-    else if (!is_unique($pro_name, 'products', 'pro_name')) {
-        $_err['pro_name'] = 'Duplicated';
+    else if (!is_unique($product_name, 'products', 'product_name')) {
+        $_err['product_name'] = 'Duplicated';
     }
 
     // Validate: price
@@ -57,20 +57,20 @@ if (is_post()) {
     // DB operation
     if (!$_err) {
         // Save photo
-        $photo = save_photo($f, '../photo');
+        $photo = save_photo($f, '../images/placeholder');
 
         $stm = $_db->prepare('
-            INSERT INTO products (pro_name, price, description, category_id, photo)
+            INSERT INTO products (product_name, price, description, category_id, photo)
             VALUES (?, ?, ?, ?, ?)
         ');
-        $stm->execute([$pro_name, $price, $description, $category_id, $photo]);
+        $stm->execute([$product_name, $price, $description, $category_id, $photo]);
 
         temp('info', 'Record inserted');
         redirect('/page/product_crud.php');
     }
 }
 
-$cats = $_db->query("SELECT * FROM categories ORDER BY cat_name")->fetchAll();
+$cats = $_db->query("SELECT * FROM categories ORDER BY category_name")->fetchAll();
 // ----------------------------------------------------------------------------
 
 $_title = 'Admin| Product Insert';
@@ -79,9 +79,9 @@ include '../_head.php';
 ?>
 <form method="post" class="form" enctype="multipart/form-data" novalidate>
 
-    <label for="pro_name">Product Name</label>
-    <?= html_text('pro_name', 'maxlength="50"') ?>
-    <?= err('pro_name') ?>
+    <label for="product_name">Product Name</label>
+    <?= html_text('product_name', 'maxlength="50"') ?>
+    <?= err('product_name') ?>
 
     <label for="price">Price</label>
     <?= html_number('price', 0.01, 99.99, 0.01) ?>
@@ -97,7 +97,7 @@ include '../_head.php';
             <?php foreach ($cats as $c): ?>
                 <option value="<?= $c-> category_id ?>"
                     <?= req('category_id') == $c-> category_id ? 'selected' : '' ?>>
-                    <?= htmlspecialchars($c-> cat_name) ?>
+                    <?= htmlspecialchars($c-> category_name) ?>
                 </option>
             <?php endforeach; ?>
         </select>
@@ -106,7 +106,7 @@ include '../_head.php';
     <label for="photo">Photo</label>
     <label class="upload" tabindex="0">
         <?= html_file('photo', 'image/*', 'hidden') ?>
-        <img src="/images/photo.jpg">
+        <img src="../images/system/placeholder.jpg">
     </label>
     <?= err('photo') ?>
 

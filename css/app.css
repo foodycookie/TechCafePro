@@ -14,7 +14,7 @@ body {
     display: grid;
     grid: auto auto 1fr auto / auto;
         background: linear-gradient(rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.5)), /* transparent white overlay */
-        url("/images/background.png") center / cover no-repeat fixed;   /*= new added*/
+        url("/images/system/background.png") center / cover no-repeat fixed;   /*= new added*/
 }
 
 header, footer {
@@ -25,7 +25,7 @@ header, footer {
 header h1 {
     margin: 0;
     padding-left: 40px;
-    background: url(/images/logo.png) no-repeat left / 36px;
+    background: url(/images/system/logo.png) no-repeat left / 36px;
 }
 
 header a {
