@@ -3,8 +3,6 @@ require '../_base.php';
 
 if (is_post()) {
 
-    $_err = [];
-
     // Input
     $name       = req('name');
     $password   = req('password');
@@ -24,32 +22,24 @@ if (is_post()) {
         $_err['password'] = 'Maximum length 100';
     }
 
-    // Output
-    // if (!$_err) {
-    //     // TODO
-    //     $stm = $_db->prepare('INSERT INTO student
-    //                             (id, name, gender, program_id)
-    //                             VALUES(?, ?, ?, ?)');
-    //     $stm->execute([$id, $name, $gender, $program_id]);
-                                
-    //     temp('info', 'Record inserted');
-    //     redirect('/');
-    // }
-
     if (!$_err) {
 
-        foreach ($_user as $u) {
-            if ($u['name'] === $name && $u['password'] === $password) {
-                $_SESSION['user_id'] = $u['id'];
-                $_SESSION['user_name'] = $u['name'];
+        $stm = $_db -> prepare ('
+            SELECT * FROM users
+            WHERE name = ? AND password = SHA(?) AND role != "admin"
+        ');
+        $stm -> execute([$name, $password]);    
+        $u = $stm -> fetch();
 
-                temp('info', 'Login successful');
-                redirect('/page/home.php');
-                exit;
-            }
+        
+
+        if ($u) {
+            temp('info', 'Login Successfully');
+            login($u);
         }
-
-        $_err['general'] = temp('info', 'Invalid name or password');
+        else{
+            temp('info', "Login failed! Please try again!");
+        }
     }
 }
 
@@ -57,6 +47,8 @@ $_title = 'Login';
 include '../_head.php';
 
 ?>
+
+
    <form method="post" class="form">
     <?php if (!empty($_err['general'])): ?>
         <p style="color:red;"><?= $_err['general'] ?></p>
