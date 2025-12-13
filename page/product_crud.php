@@ -1,6 +1,61 @@
 <?php
 include '../_base.php';
 
+function export_products_csv() {
+    global $_db;
+
+    $temp_file = tmpFile();
+    fwrite($temp_file, "product_id,product_name,price,description,created_at,is_available,photo,sold,category_id\n");
+
+    $stm = $_db->prepare('SELECT * FROM products');
+    $stm->execute();
+    $products = $stm->fetchAll();
+
+    foreach ($products as $product) {
+        // product_id,product_name,price,description,created_at,is_available,photo,sold,category_id
+        fwrite($temp_file, "$product->product_id,$product->product_name,$product->price,$product->description,$product->created_at,$product->is_available,$product->photo,$product->sold,$product->category_id\n");
+    }
+
+    export($temp_file, "products.csv");
+}
+
+function import_products_csv() {
+    if ($_FILES['import']['type'] != 'text/csv') {
+        temp('info', 'Not a CSV file!');
+        redirect();
+    }
+
+    global $_db;
+
+    $header_row = true;
+
+    // $_FILES['userfile']['tmp_name']
+    //The temporary filename of the file in which the uploaded file was stored on the server
+    $handle = fopen($_FILES['import']['tmp_name'], 'r');
+
+    // product_id,product_name,price,description,created_at,is_available,photo,sold,category_id
+    while($data = fgetcsv($handle)) {
+        if ($header_row == true) {
+            $header_row = false;
+            continue;
+        }
+
+        // if (count($data) != 9) {
+        //     continue;
+        // }
+        
+        $stm = $_db->prepare('
+            INSERT INTO products (product_name, price, description, is_available, photo, category_id)
+            VALUES (?, ?, ?, ?, ?, ?)
+        ');
+        $stm->execute([$data[1], $data[2], $data[3], $data[5], $data[6], $data[8]]);            
+    }
+
+    fclose($handle);
+    temp('info', 'File Imported!');
+    redirect("product_crud.php");
+}
+
 // ----------------------------------------------------------------------------
 // (1) Sorting
 $fields = [
@@ -65,6 +120,14 @@ if (isset($_POST['new_cat'])) {
     $_db->prepare("INSERT INTO categories(category_name) VALUES(?)")
         ->execute([$_POST['new_cat']]);
     redirect("/page/product_crud.php");
+}
+
+if (isset($_POST['export'])) {
+    export_products_csv();
+}
+
+if (isset($_POST['import_submit'])) {
+    import_products_csv();
 }
 
 // ----------------------------------------------------------------------------
@@ -136,6 +199,31 @@ include '../_head.php';
     <button data-get="/page/product_insert.php">Insert</button>
     <button data-get="/page/admin_home.php">Back to Home</button>
 </p>
+
+<!-- Export -->
+<form method="POST">
+    <button type="submit" id="export" name="export">Export Table to CSV File</button>
+</form>
+<script>
+    //Select button by id
+    const export_button = document.getElementById('export');
+    //Add on click listener for button
+    export_button.addEventListener('click', function() {
+        //Select button by id, and then change it's value
+        document.getElementById('export').innerText = "File Exported!"
+    })
+</script>
+
+<!-- Batch insertion -->
+<form method="post" enctype="multipart/form-data">
+    <label for="import">Insert CSV File</label>
+    <?= html_file('import', '.csv') ?>
+    <?= err('import') ?>
+    <section>
+        <button type="submit" id="import_submit" name="import_submit">Submit</button>
+        <button type="reset">Reset</button>
+    </section>
+</form>
 
 <h2>Category</h2>
 <form method="post">

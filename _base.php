@@ -82,7 +82,6 @@ function save_photo($f, $folder, $width = 225, $height = 225) {
     return $photo;
 }
 
-
 // Is money?
 function is_money($value) {
     return preg_match('/^\-?\d+(\.\d{1,2})?$/', $value);
@@ -343,6 +342,12 @@ function auth(...$roles) {
     redirect('/login.php');
 }
 
+// Check Login
+function is_login()
+{
+    return isset($_SESSION['user_id']);
+}
+
 // ============================================================================
 // Email Functions
 // ============================================================================
@@ -427,83 +432,34 @@ function is_exists($value, $table, $field) {
 }
 
 // ============================================================================
-// Global Constants and Variables
+// Export Data
 // ============================================================================
 
-// old?
+// Usage: export($temp_file, "products.csv")
+function export($file, $exported_file_name) {
+    if ($file == null) {
+        temp('info', 'File not found!');
+        redirect();
+    }
 
-// Check Login
-function is_login()
-{
-    return isset($_SESSION['user_id']);
+    if ($exported_file_name == null) {
+        temp('info', 'Exported file name cannot be empty!');
+        redirect();
+    }
+
+    // Reset the file pointer to the start of the file
+    fseek($file, 0);
+    // Tell the browser we want to save it instead of displaying it
+    header("Content-Disposition: attachment; filename=$exported_file_name;");
+    // Make php send the remaining lines after pointer to the browser
+    fpassthru($file);
+    fclose($file);
+    // Flush buffer
+    ob_flush();
+    // Use exit to get rid of unexpected output afterward
+    exit();
 }
 
 // ============================================================================
 // Global Constants and Variables
 // ============================================================================
-
-$_genders = [
-    'F' => 'Female',
-    'M' => 'Male',
-];
-
-// TODO
-// $_programs = [
-//     'RDS' => 'Data Science',
-//     'REI' => 'Enterprise Information Systems',
-//     'RIS' => 'Information Security',
-//     'RSD' => 'Software Systems Development',
-//     'RST' => 'Interactive Software Technology',
-//     'RSW' => 'Software Engineering',
-// ];
-
-
-$_category = [
-        'Coffee'    => 'coffee',
-        'Bread'     => 'bread',
-        'Cake'      => 'cake',
-        'Ice cream' => 'ice_cream',
-];
-
-$_coffee = [
-        'Americano'     => 'americano',
-        'Latte'         => 'latte',
-        'Mocha'         => 'mocha',
-        'Cappuccino'    => 'cappuccino',
-];
-
-$_bread = [
-    'Bagel'     => 'bagel',
-    'Wholemeal' => 'wholemeal',
-    'Pita'      => 'pita',
-    'Flatbread' => 'flatbread',
-];
-
-$_cake = [
-    'Chocolate Cake'    => 'chocolate_cake',
-    'Cheese Cake'       => 'cheese_cake',
-    'Black Forest'      => 'black_forest',
-    'Tiramisu'          => 'tiramisu',
-];
-
-$_ice_cream = [
-    'Chocolate'     => 'chocolate',
-    'Vanilla'       => 'vanilla',
-    'Strawberry'    => 'strawberry',
-    'Green Tea'     => 'green_tea',
-];
-
-$_user = [
-    [
-        'id'        => '0',
-        'name'      => 'admin',
-        'password'  => '888888',
-    ],
-
-    [
-        'id'        => '1',
-        'name'      => 'tester1',
-        'password'  => '123123',
-    ],
-
-];
