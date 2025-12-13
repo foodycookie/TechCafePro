@@ -40,6 +40,7 @@ function import_products_csv() {
             continue;
         }
 
+        // IM NOT DOING THE VALIDATION :(((
         // if (count($data) != 9) {
         //     continue;
         // }
@@ -53,7 +54,7 @@ function import_products_csv() {
 
     fclose($handle);
     temp('info', 'File Imported!');
-    redirect("product_crud.php");
+    redirect();
 }
 
 // ----------------------------------------------------------------------------
@@ -142,6 +143,14 @@ if (isset($_POST['new_cat'])) {
     }
 }
 
+if (isset($_POST['export'])) {
+    export_products_csv();
+}
+
+if (isset($_POST['import_submit'])) {
+    import_products_csv();
+}
+
 // ----------------------------------------------------------------------------
 
 $_title = 'All product';
@@ -197,7 +206,7 @@ include '../_head.php';
         <td>
             <button data-get="/page/product_update.php?product_id=<?= $m->product_id ?>">Update</button>
             <button data-post="/page/product_delete.php?product_id=<?= $m->product_id ?>" data-confirm>Delete</button>
-            <img src="../images/placeholder/<?= $m->photo ?>" class="popup">
+            <img src="../images/menu_photos/<?= $m->photo ?>" class="popup">
         </td>
     </tr>
     <?php endforeach ?>

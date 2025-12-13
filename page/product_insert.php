@@ -57,7 +57,7 @@ if (is_post()) {
     // DB operation
     if (!$_err) {
         // Save photo
-        $photo = save_photo($f, '../images/placeholder');
+        $photo = save_photo($f, '../images/menu_photos');
 
         $stm = $_db->prepare('
             INSERT INTO products (product_name, price, description, category_id, photo)

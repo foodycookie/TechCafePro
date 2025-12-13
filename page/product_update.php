@@ -73,8 +73,8 @@ if (is_post()) {   // step3 SQL update
         //redirect(); 
         
         if ($f){
-            unlink("../images/placeholder/$photo");
-            $photo = save_photo($f, '../images/placeholder');
+            unlink("../images/menu_photos/$photo");
+            $photo = save_photo($f, '../images/menu_photos');
         }
         
         $stm = $_db->prepare('
@@ -128,7 +128,7 @@ include '../_head.php';
     <label for="photo">Photo</label>
     <label class="upload" tabindex="0">
         <?= html_file('photo', 'image/*', 'hidden') ?>
-        <img src="../images/placeholder/<?= $photo ?>">
+        <img src="../images/menu_photos/<?= $photo ?>">
     </label>
     <?= err('photo') ?>
 

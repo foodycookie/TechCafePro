@@ -63,10 +63,9 @@ if (is_post()) {
         $stm = $_db->prepare('SELECT * FROM users WHERE user_id = ?');
         $stm->execute([$_user->user_id]);
         $u = $stm->fetch();
-
         $m = get_mail();
         $m->addAddress($u->email, $u->name);
-        $m->addEmbeddedImage("./user_photos/$u->profile_image_path", 'photo');
+        $m->addEmbeddedImage("../images/user_photos/$u->profile_image_path", 'photo');
         $m->isHTML(true);
         $m->Subject = 'Change Password';
         $m->Body = "

@@ -44,7 +44,7 @@ if (is_post()) {
         // TODO: (5) Send email
         $m = get_mail();
         $m->addAddress($u->email, $u->name);
-        $m->addEmbeddedImage("./user_photos/$u->profile_image_path", 'photo');
+        $m->addEmbeddedImage("../images/user_photos/$u->profile_image_path", 'photo');
         $m->isHTML(true);
         $m->Subject = 'Reset Password';
         $m->Body = "

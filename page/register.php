@@ -65,7 +65,7 @@ if (is_post()) {
         //redirect(); // TODO: REMOVE THIS
 
         // (1) Save photo
-        $photo = save_photo($f, './user_photos');
+        $photo = save_photo($f, '../images/user_photos/');
         
         // (2) Insert user (member)
         // TODO

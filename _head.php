@@ -16,7 +16,7 @@
             <div>
                 <?= $_user -> name ?><br>
                 <?= $_user -> role ?>
-                <img src="./user_photos/<?= $_user -> profile_image_path ?>">
+                <img src="../images/user_photos/<?= $_user -> profile_image_path ?>">
             </div>
         <?php endif ?>
     </header>

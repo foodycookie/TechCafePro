@@ -67,7 +67,7 @@ include '../_head.php';
             <?php foreach ($products as $p): ?>
                 <div class="menu-card <?= $p->is_available ? '' : 'unavailable' ?>">
 
-                    <img src="../images/placeholder/<?= $p->photo ?>"
+                    <img src="../images/menu_photos/<?= $p->photo ?>"
                         alt="<?= encode($p->product_name) ?>" width="180">
 
                     <h3><?= encode($p->product_name) ?></h3>
