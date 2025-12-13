@@ -56,7 +56,6 @@ include '../_head.php';
 
 <div class="layout">
     <main class="menu-grid">
-
         <?php foreach ($grouped as $category_id => $data): ?>
             <?php $category_name = $data['category_name']; ?>
             <?php $items    = $data['items']; ?>
@@ -66,15 +65,12 @@ include '../_head.php';
             </h2>
 
             <div class="category-section">
-
                 <?php 
                     // Get top 5 products from this category
                     $top5 = array_slice($items, 0, 5);
                 ?>
-
                 <?php foreach ($top5 as $p): ?>  <!--top 5-->
                     <div class="menu-card <?= $p->is_available ? '' : 'unavailable' ?>">
-
                         <img src="../images/menu_photos/<?= $p->photo ?>" 
                              alt="<?= encode($p->product_name) ?>" width="180">
 
@@ -97,11 +93,8 @@ include '../_head.php';
 
                     </div>
                 <?php endforeach; ?>
-
             </div>
-
             <div style="clear:both;"></div>
-
             <!-- More button -->
             <div style="text-align:right; margin-bottom:40px;">
                 <button onclick="location.href='/page/category.php?category_id=<?= $category_id ?>'">

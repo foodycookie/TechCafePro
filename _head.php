@@ -54,7 +54,7 @@
             </div>
         <?php else: ?>
             <?php //echo $_SESSION['user_id']; ?>
-            <!--<a href="/page/product_crud.php">All products</a> use for check immediately-->
+            <a href="/page/product_crud.php">All products</a> <!--use for check immediately-->
             <a href="/page/home.php">Home</a>
             <a href="/page/menu.php">Menu</a>
             <a href="/page/register.php" class="right">Register</a>

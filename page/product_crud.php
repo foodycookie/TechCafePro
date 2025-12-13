@@ -315,7 +315,7 @@ include '../_head.php';
 <tr>
     <td><?= encode($c->category_name) ?></td>
     <td>
-        <button data-post="/page/category_delete.php?category_id=<?= $c->category_id ?>" data-confirm>Delete</button>
+        <button data-post="/page/product_delete.php?category_id=<?= $c->category_id ?>" data-confirm>Delete</button>
     </td>
 </tr>
 <?php endforeach; ?>
