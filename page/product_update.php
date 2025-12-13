@@ -55,6 +55,7 @@ if (is_post()) {   // step3 SQL update
         $_err['category_id'] = 'Required';
     }
 
+    // Validate: is_available
     if ($is_available == '') {
         $_err['is_available'] = 'Required';
     }
