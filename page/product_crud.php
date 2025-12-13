@@ -1,6 +1,46 @@
 <?php
 include '../_base.php';
 
+function update_availability() {
+    global $_db;
+
+    $product_id = req('product_id', []);
+    if (!is_array($product_id)) $product_id = [$product_id];
+
+    $stm = $_db->prepare('
+        SELECT is_available
+        FROM products
+        WHERE product_id = ?
+    ');
+
+    foreach ($product_id as $v) {
+        $stm->execute([$v]);
+        $data = $stm->fetch();
+
+        if ($data->is_available == 0) {
+            $availability = 1;
+            break;
+        }
+        else {
+            $availability = 0;
+        }
+    }
+
+    $stm = $_db->prepare('
+        UPDATE products
+        SET is_available = ?
+        WHERE product_id = ?
+    ');
+    $count = 0;
+
+    foreach ($product_id as $v) {
+        $count += $stm->execute([$availability, $v]);
+    }
+
+    temp('info', "$count record(s) updated!");
+    redirect();
+}
+
 function export_products_csv() {
     global $_db;
 
@@ -28,6 +68,11 @@ function import_products_csv() {
     global $_db;
 
     $header_row = true;
+    $stm = $_db->prepare('
+        INSERT INTO products (product_name, price, description, is_available, photo, category_id)
+        VALUES (?, ?, ?, ?, ?, ?)
+    ');
+    $count = 0;
 
     // $_FILES['userfile']['tmp_name']
     //The temporary filename of the file in which the uploaded file was stored on the server
@@ -45,15 +90,11 @@ function import_products_csv() {
         //     continue;
         // }
         
-        $stm = $_db->prepare('
-            INSERT INTO products (product_name, price, description, is_available, photo, category_id)
-            VALUES (?, ?, ?, ?, ?, ?)
-        ');
-        $stm->execute([$data[1], $data[2], $data[3], $data[5], $data[6], $data[8]]);            
+        $count += $stm->execute([$data[1], $data[2], $data[3], $data[5], $data[6], $data[8]]);            
     }
 
     fclose($handle);
-    temp('info', 'File Imported!');
+    temp('info', '$n record(s) inserted!');
     redirect();
 }
 
@@ -143,6 +184,10 @@ if (isset($_POST['new_cat'])) {
     }
 }
 
+if (isset($_POST['update_multiple'])) {
+    update_availability();
+}
+
 if (isset($_POST['export'])) {
     export_products_csv();
 }
@@ -180,6 +225,11 @@ include '../_head.php';
     <button>Search</button>
 </form>
 
+<form method="POST" id="modify_multiple">
+    <button type="submit" id="update_multiple" name="update_multiple" data-confirm>Update Multiple Availability</button>
+    <button formaction="product_delete.php" data-confirm>Delete Multiple</button>
+</form>
+
 <p>
     <?= $p->count ?> of <?= $p->item_count ?> record(s) |
     Page <?= $p->page ?> of <?= $p->page_count ?>
@@ -187,6 +237,7 @@ include '../_head.php';
 
 <table class="table">
     <tr>
+        <th></th>
         <?= table_headers(
                 $fields,
                 $sort,
@@ -197,6 +248,12 @@ include '../_head.php';
 
     <?php foreach ($arr as $m): ?>
     <tr>
+        <td>
+            <input type="checkbox"
+                   name="product_id[]"
+                   value="<?= $m->product_id ?>"
+                   form="modify_multiple">
+        </td>
         <td><?= $m->product_id ?></td>
         <td><?= $m->product_name ?></td>
         <td style="text-align: right;"><?= number_format($m->price, 2) ?></td>
@@ -205,7 +262,7 @@ include '../_head.php';
         <td><?= $m->is_available ?></td>
         <td>
             <button data-get="/page/product_update.php?product_id=<?= $m->product_id ?>">Update</button>
-            <button data-post="/page/product_delete.php?product_id=<?= $m->product_id ?>" data-confirm>Delete</button>
+            <button data-post="/page/product_delete.php?product_id=<?= $m->product_id ?>" id="delete" data-confirm>Delete</button>
             <img src="../images/menu_photos/<?= $m->photo ?>" class="popup">
         </td>
     </tr>

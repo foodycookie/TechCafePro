@@ -29,12 +29,13 @@ if (is_post()) {   // step3 SQL update
     $f              = get_file('photo');  // for new uploaded file
     $photo          = $_SESSION['photo']; // current photo filename
     $category_id    = req('category_id');
+    $is_available   = req('is_available');
 
     // Validate: name   
     if ($product_name == '') {
         $_err['product_name'] = 'Required';
     }
-    else if (strlen($pro_name) > 50) {
+    else if (strlen($product_name) > 50) {
         $_err['product_name'] = 'Maximum 50 characters';
     }
 
@@ -52,6 +53,10 @@ if (is_post()) {   // step3 SQL update
     // Validate: category
     if ($category_id == '') {
         $_err['category_id'] = 'Required';
+    }
+
+    if ($is_available == '') {
+        $_err['is_available'] = 'Required';
     }
 
     // Validate: photo (file)
@@ -79,10 +84,10 @@ if (is_post()) {   // step3 SQL update
         
         $stm = $_db->prepare('
             UPDATE products
-            SET product_name = ?, price = ?, description = ?, category_id = ?, photo = ?
+            SET product_name = ?, price = ?, description = ?, category_id = ?, is_available = ?, photo = ?
             WHERE product_id = ?
         ');
-        $stm->execute([$product_name, $price, $description, $category_id, $photo, $product_id]);
+        $stm->execute([$product_name, $price, $description, $category_id, $is_available, $photo, $product_id]);
 
         temp('info', 'Record updated');
         redirect('/page/product_crud.php');
@@ -124,6 +129,10 @@ include '../_head.php';
         <?php endforeach; ?>
     </select>
     <?= err('category_id') ?>
+
+    <label for="is_available">Availability</label>
+    <?= html_radios('is_available', array("1"=>"Available", "0"=>"Unavailable"), false) ?>
+    <?= err('is_available') ?>
 
     <label for="photo">Photo</label>
     <label class="upload" tabindex="0">

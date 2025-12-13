@@ -4,20 +4,28 @@ include '../_base.php';
 // ----------------------------------------------------------------------------
 
 if (is_post()) {
-    $product_id = req('product_id'); 
+    $product_id = req('product_id', []);
+    if (!is_array($product_id)) $product_id = [$product_id];
+
+    $stm = $_db->prepare('SELECT photo FROM products WHERE product_id = ?');
 
     // Delete photo
-    $stm = $_db->prepare('SELECT photo FROM products WHERE product_id = ?');
-    $stm->execute([$product_id]);
-    $photo = $stm->fetchColumn();
-    unlink("../images/menu_photos/$photo");  // remove from directory
-    //redirect('index.php'); 
+    foreach ($product_id as $v) {
+        $stm->execute([$v]);
+        $photo = $stm->fetchColumn();
+        unlink("../images/menu_photos/$photo");  // remove from directory
+    }
 
     $stm = $_db->prepare('DELETE FROM products WHERE product_id = ?');
-    $stm->execute([$product_id]);
-    temp('info', 'Record deleted');
-}
+    $count = 0;
+
+    foreach ($product_id as $v) {
+        $count += $stm->execute([$v]);
+    }
+
+    temp('info', "$count record(s) deleted!");
 
 redirect('/page/product_crud.php');
+}
 
 // ----------------------------------------------------------------------------
