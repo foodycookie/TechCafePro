@@ -19,7 +19,6 @@
                 <img src="./user_photos/<?= $_user -> profile_image_path ?>">
             </div>
         <?php endif ?>
-
     </header>
 
     <?php if ($msg = temp('info')): ?>
@@ -34,8 +33,7 @@
         if (in_array($role,['member','customer'])): ?>
             <?php //echo $_SESSION['user']; ?>
             <a href="/page/home.php">Home</a>
-            <a href="/page/menu.php">Menu</a>
-            <a href="/page/category.php">Category</a>  
+            <a href="/page/menu.php">Menu</a> 
             <div class="right">
                 <a href="/page/cart.php">Cart</a>
                 <a href="/page/profile.php">Profile</a>
@@ -43,6 +41,7 @@
         <?php elseif (in_array($role, ["admin"])): ?>
             <?php //echo $_SESSION['user']; ?>
             <a href="/page/admin_home.php">Home</a>
+            <a href="/page/menu.php">Menu</a>      <!--Admin also want to see menu?-->
             <a href="/page/order_crud.php">All orders</a>
             <a href="/page/product_crud.php">All products</a>
             <a href="/page/user_crud.php">All users</a>
@@ -50,14 +49,14 @@
             <a href="/page/update.php">Update</a>
             <a href="/page/delete.php">Delete</a> -->
             <div class="right">
-                <a href="/page/cart.php">Cart</a>
+                <a href="/page/cart.php">Cart</a>   
                 <a href="/page/profile.php">Profile</a>
             </div>
         <?php else: ?>
             <?php //echo $_SESSION['user_id']; ?>
+            <!--<a href="/page/product_crud.php">All products</a> use for check immediately-->
             <a href="/page/home.php">Home</a>
             <a href="/page/menu.php">Menu</a>
-            <a href="/page/category.php">Category</a>
             <a href="/page/register.php" class="right">Register</a>
             <a href="/page/login.php">Login</a>
         <?php endif; ?>

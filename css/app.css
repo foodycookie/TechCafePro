@@ -173,12 +173,35 @@ label.upload img {
     margin-bottom: 30px;
 }
 
+.menu-card.unavailable:hover{
+    opacity: 0.6;
+}
+
+.badge-unavailable:hover{
+    opacity: 0.8;
+}
+
+.badge-unavailable {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: bold;
+    color: white;
+    background: rgba(0, 0, 0, 0.6);
+    opacity: 0;
+    border-radius: 6px;
+}
+
 .menu-card {
     border: 1px solid #ddd;
     padding: 10px;
     border-radius: 6px;
     text-align: center;
     background: #fff;
+    position: relative;
 }
 
 .menu-card:hover {
@@ -222,7 +245,7 @@ html {
 }
 
 .search{
-    padding-bottom: 50px;
+    z-index: 1000;
     position: sticky;
     top: 25px;                   /* Sidebar stays visible while scrolling */
 }
@@ -236,6 +259,7 @@ html {
 .table th, .table td {
     border: 1px solid #333;
     padding: 5px;
+    background: linear-gradient(rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.5));
 }
 
 .table th {
@@ -283,13 +307,9 @@ html {
     content: ' ▾';
 }
 
-.admin div  {
-
-}
-
-/* Pager    TTY's maybe need
-.pager a {
-    outline: 1px solid #333;
+/* Pager    TTY's maybe need*/
+.pager{
+    background: linear-gradient(rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.5));
 }
 
 .pager a {
@@ -298,17 +318,17 @@ html {
     text-decoration: none;
     color: #333;
     border-radius: 4px;
-    transition: background-color 0.2s;
+    outline: 1px solid #333;
+    background: linear-gradient(rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.5));
 }
 
 .pager a:hover {
-    background-color: #f0f0f0;
+    background-color: burlywood;
 }
 
 .pager a.active {
-    background-color: #007bff;
-    color: white;
-    border-color: #007bff;
+    background-color: burlywood;
+    color: black;
+    border-color: burlywood;
     font-weight: bold;
-}*/
-
+}

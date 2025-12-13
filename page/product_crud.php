@@ -62,10 +62,31 @@ $cats = $_db->query("SELECT * FROM categories ORDER BY category_name")->fetchAll
 
 // Insert new category
 if (isset($_POST['new_cat'])) {
-    $_db->prepare("INSERT INTO categories(category_name) VALUES(?)")
-        ->execute([$_POST['new_cat']]);
-    redirect("/page/product_crud.php");
+    $new_cat = trim($_POST['new_cat']);
+
+    // Validation
+    if ($new_cat === '') {
+        temp('info', 'Category name is required');
+    } 
+    else if (strlen($new_cat) > 50) {
+        temp('info', 'Category name too long (max 50 chars)');
+    } 
+    else {
+        // Check uniqueness
+        $exists = $_db->prepare("SELECT 1 FROM categories WHERE category_name = ?");
+        $exists->execute([$new_cat]);
+        if ($exists->fetch()) {
+            temp('info', 'Category already exists');
+        } else {
+            // Insert
+            $_db->prepare("INSERT INTO categories(category_name) VALUES(?)")
+                ->execute([$new_cat]);
+            temp('info', 'Category added');
+            redirect("/page/product_crud.php"); // reload page
+        }
+    }
 }
+
 
 // ----------------------------------------------------------------------------
 
@@ -139,13 +160,19 @@ include '../_head.php';
 
 <h2>Category</h2>
 <form method="post">
-    <input type="text" name="new_cat" placeholder="New Category">
+    <input type="text" name="new_cat" placeholder="New Category"
+       value="<?= encode(req('new_cat')) ?>">
     <button>Add</button>
 </form>
 
 <table>
 <?php foreach ($cats as $c): ?>
-<tr><td><?= $c->category_name ?></td></tr>
+<tr>
+    <td><?= encode($c->category_name) ?></td>
+    <td>
+        <button data-post="/page/category_delete.php?category_id=<?= $c->category_id ?>" data-confirm>Delete</button>
+    </td>
+</tr>
 <?php endforeach; ?>
 </table>
 
