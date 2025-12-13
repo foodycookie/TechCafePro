@@ -23,6 +23,9 @@
         <button data-get="/page/update_profile_picture.php">Update profile pic</button>
         </div>
         <div style = "text-align:center; margin:50px auto;">
+        <button data-get="/page/change_password.php">Change Password</button>
+        </div>
+        <div style = "text-align:center; margin:50px auto;">
         <button data-get="/page/order_history.php">Order history</button>
         </div>
         <div style = "text-align:center; margin:50px auto;">

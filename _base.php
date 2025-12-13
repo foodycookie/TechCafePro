@@ -169,7 +169,7 @@ function encode($value) {
 
 // Generate <input type='hidden'>
 function html_hidden($key, $attr = '') {
-    $value ??= encode($GLOBALS[$key] ?? '');
+    $value = encode($GLOBALS[$key] ?? '');
     echo "<input type='hidden' id='$key' name='$key' value='$value' $attr>";
 }
 
@@ -316,11 +316,20 @@ $_user = $_SESSION['user'] ?? null;
 // Login user
 function login($user, $url = '/') {
     $_SESSION['user'] = $user;
+
+    if ($user -> role == "admin"){    
+        $url = '/page/admin6699/admin_home.php';
+    }
+    else {
+        $url = '/page/home.php';
+    }
+
     redirect($url);
+
 }
 
 // Logout user
-function logout($url = '/') {
+function logout($url = '/page/home.php') {
     unset($_SESSION['user']);
     redirect($url);
 }
@@ -369,10 +378,10 @@ function get_mail() {
     $m->SMTPAuth = true;
     $m->Host = 'smtp.gmail.com';
     $m->Port = 587;
-    $m->Username = 'AACS3173@gmail.com';
-    $m->Password = 'xxna ftdu plga hzxl';
+    $m->Username = 'techcafepro@gmail.com';
+    $m->Password = 'jhab fsnd helx fdrq';
     $m->CharSet = 'utf-8';
-    $m->setFrom($m->Username, '😺 Admin');
+    $m->setFrom($m->Username, '🍵 TechCafePro Admin');
 
     return $m;
 }
@@ -463,3 +472,69 @@ function export($file, $exported_file_name) {
 // ============================================================================
 // Global Constants and Variables
 // ============================================================================
+
+$_genders = [
+    'F' => 'Female',
+    'M' => 'Male',
+];
+
+// TODO
+// $_programs = [
+//     'RDS' => 'Data Science',
+//     'REI' => 'Enterprise Information Systems',
+//     'RIS' => 'Information Security',
+//     'RSD' => 'Software Systems Development',
+//     'RST' => 'Interactive Software Technology',
+//     'RSW' => 'Software Engineering',
+// ];
+
+
+$_category = [
+        'Coffee'    => 'coffee',
+        'Bread'     => 'bread',
+        'Cake'      => 'cake',
+        'Ice cream' => 'ice_cream',
+];
+
+$_coffee = [
+        'Americano'     => 'americano',
+        'Latte'         => 'latte',
+        'Mocha'         => 'mocha',
+        'Cappuccino'    => 'cappuccino',
+];
+
+$_bread = [
+    'Bagel'     => 'bagel',
+    'Wholemeal' => 'wholemeal',
+    'Pita'      => 'pita',
+    'Flatbread' => 'flatbread',
+];
+
+$_cake = [
+    'Chocolate Cake'    => 'chocolate_cake',
+    'Cheese Cake'       => 'cheese_cake',
+    'Black Forest'      => 'black_forest',
+    'Tiramisu'          => 'tiramisu',
+];
+
+$_ice_cream = [
+    'Chocolate'     => 'chocolate',
+    'Vanilla'       => 'vanilla',
+    'Strawberry'    => 'strawberry',
+    'Green Tea'     => 'green_tea',
+];
+
+$_user = [
+    [
+        'id'        => '0',
+        'name'      => 'admin',
+        'password'  => '888888',
+    ],
+
+    [
+        'id'        => '1',
+        'name'      => 'tester1',
+        'password'  => '123123',
+    ],
+
+];
