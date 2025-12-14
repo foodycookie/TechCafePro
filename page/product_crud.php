@@ -275,7 +275,7 @@ include '../_head.php';
 
 <p>
     <button data-get="/page/product_insert.php">Insert</button>
-    <button data-get="/page/admin_home.php">Back to Home</button>
+    <button data-get="/page/admin6699/admin_home.php">Back to Home</button>
 </p>
 
 <!-- Export -->
