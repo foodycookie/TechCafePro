@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <?php
 session_start();
 require_once __DIR__ . '/../config/database.php';
@@ -126,10 +127,13 @@ if (isset($_GET['success'])) {
 }
 ?>
 
+=======
+>>>>>>> e52c893b7447209813902a59cef01c24f0ec8fd9
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+<<<<<<< HEAD
     <title>My Profile</title>
 </head>
 <body>
