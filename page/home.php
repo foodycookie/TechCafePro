@@ -4,7 +4,6 @@ require '../_base.php';
 $_title = 'Page | Home';
 include '../_head.php';
 ?>
-
 <style>
     #img {
         width: 600px;

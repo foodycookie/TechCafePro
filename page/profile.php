@@ -1,113 +1,144 @@
-<<<<<<< HEAD
 <?php
-session_start();
-require_once __DIR__ . '/../config/database.php';
+include '../_base.php';
 
-if (!isset($_SESSION['user_id'])) {
-    header("Location: ../auth.php?action=login");
-    exit;
+$user_id = $_SESSION['user']->user_id;
+
+if (!$user_id) {
+    redirect('login.php');
 }
 
-$user_id = $_SESSION['user_id'];
-$errors = [];
-$success = "";
+// ----------------------------------------------------------------------------
+// GET: Fetch user + shipping address
+// ----------------------------------------------------------------------------
 
-/* =========================
-   HANDLE ACCOUNT DEACTIVATION
-========================= */
-if (isset($_POST['deactivate_account'])) {
+if (is_get()) {
 
-    $stmt = $conn->prepare("
-        UPDATE users 
-        SET is_active = 0 
-        WHERE user_id = ?
+    $stm = $_db->prepare("
+        SELECT 
+            u.user_id,
+            u.name,
+            u.email,
+            u.profile_image_path AS photo,
+            sa.address,
+            sa.city,
+            sa.postal_code,
+            sa.state,
+            sa.country
+        FROM users u
+        LEFT JOIN shipping_addresses sa ON u.user_id = sa.user_id
+        WHERE u.user_id = ?
     ");
-    $stmt->execute([$user_id]);
+    $stm->execute([$user_id]);
+    $u = $stm->fetch();
 
-    // End session after deactivation
-    session_destroy();
-
-    header("Location: ../auth.php?action=login&deactivated=1");
-    exit;
-}
-
-/* =========================
-   FETCH USER + ADDRESS
-========================= */
-$sql = "
-SELECT 
-    u.user_id, u.name, u.email, u.profile_image_path,
-    sa.address, sa.city, sa.postal_code, sa.state, sa.country
-FROM users u
-LEFT JOIN shipping_addresses sa ON u.user_id = sa.user_id
-WHERE u.user_id = ?
-";
-$stmt = $conn->prepare($sql);
-$stmt->execute([$user_id]);
-$user = $stmt->fetch(PDO::FETCH_ASSOC);
-
-if (!$user) {
-    die("User not found");
-}
-
-/* =========================
-   HANDLE UPDATE
-========================= */
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
-    $name        = trim($_POST['name']);
-    $email       = trim($_POST['email']);
-    $address     = trim($_POST['address']);
-    $city        = trim($_POST['city']);
-    $postal_code = trim($_POST['postal_code']);
-    $state       = trim($_POST['state']);
-    $country     = trim($_POST['country']);
-
-    if (strlen($name) < 2) {
-        $errors[] = "Name must be at least 2 characters";
+    if (!$u) {
+        redirect('login.php');
     }
 
-    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $errors[] = "Invalid email format";
+    extract((array)$u);
+
+    // Keep photo for POST
+    $_SESSION['photo'] = $photo;
+}
+
+// ----------------------------------------------------------------------------
+// POST: Update profile / Deactivate
+// ----------------------------------------------------------------------------
+
+if (is_post()) {
+
+    /* =====================
+       Deactivate account
+    ===================== */
+    if (req('deactivate_account')) {
+
+        $_db->prepare("
+            UPDATE users
+            SET is_active = 0
+            WHERE user_id = ?
+        ")->execute([$user_id]);
+
+        logout();
+        redirect('login.php?deactivated=1');
     }
 
-    /* ===== PROFILE IMAGE ===== */
-    $imagePath = $user['profile_image_path'];
+    /* =====================
+       Get inputs
+    ===================== */
+    $email  = req('email');
+    $name   = req('name');
+    $photo  = $_SESSION['photo'];
+    $f      = get_file('photo');
 
-    if (!empty($_FILES['profile_image']['name'])) {
-        $ext = strtolower(pathinfo($_FILES['profile_image']['name'], PATHINFO_EXTENSION));
-        $allowed = ['jpg','jpeg','png'];
+    $address     = req('address');
+    $city        = req('city');
+    $postal_code = req('postal_code');
+    $state       = req('state');
+    $country     = req('country');
 
-        if (!in_array($ext, $allowed)) {
-            $errors[] = "Only JPG, JPEG, PNG allowed";
-        } else {
-            $imagePath = "profile_" . $user_id . "_" . time() . "." . $ext;
-            move_uploaded_file(
-                $_FILES['profile_image']['tmp_name'],
-                "../uploads/profile_pics/" . $imagePath
-            );
+    /* =====================
+       Validate email
+    ===================== */
+    if ($email == '') {
+        $_err['email'] = 'Required';
+    }
+    else if (strlen($email) > 100) {
+        $_err['email'] = 'Maximum 100 characters';
+    }
+    else if (!is_email($email)) {
+        $_err['email'] = 'Invalid email';
+    }
+
+    /* =====================
+       Validate name
+    ===================== */
+    if ($name == '') {
+        $_err['name'] = 'Required';
+    }
+    else if (strlen($name) > 100) {
+        $_err['name'] = 'Maximum 100 characters';
+    }
+
+    /* =====================
+       Validate photo (optional)
+    ===================== */
+    if ($f) {
+        if (!str_starts_with($f->type, 'image/')) {
+            $_err['photo'] = 'Must be image';
+        }
+        else if ($f->size > 1 * 1024 * 1024) {
+            $_err['photo'] = 'Maximum 1MB';
         }
     }
 
-    if (empty($errors)) {
+    /* =====================
+       DB operations
+    ===================== */
+    if (!$_err) {
 
-        /* UPDATE USERS */
-        $stmt = $conn->prepare("
-            UPDATE users 
-            SET name = ?, email = ?, profile_image_path = ?
+        // (1) Save new photo
+        if ($f) {
+            if ($photo) {
+                @unlink("../uploads/profile_pics/$photo");
+            }
+            $photo = save_photo($f, '../uploads/profile_pics');
+        }
+
+        // (2) Update user
+        $_db->prepare("
+            UPDATE users
+            SET email = ?, name = ?, profile_image_path = ?
             WHERE user_id = ?
-        ");
-        $stmt->execute([$name, $email, $imagePath, $user_id]);
+        ")->execute([$email, $name, $photo, $user_id]);
 
-        /* SAVE SHIPPING ADDRESS */
-        $stmt = $conn->prepare("
+        // (3) Save shipping address (permanent)
+        $shipping_id = 'SA' . substr($user_id, -5);
+
+        $_db->prepare("
             REPLACE INTO shipping_addresses
             (shipping_address_id, address, city, postal_code, state, country, user_id)
             VALUES (?, ?, ?, ?, ?, ?, ?)
-        ");
-
-        $shipping_id = "SA" . substr($user_id, -5);
-        $stmt->execute([
+        ")->execute([
             $shipping_id,
             $address,
             $city,
@@ -117,77 +148,57 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $user_id
         ]);
 
-        header("Location: profile.php?success=1");
-        exit;
+        temp('info', 'Profile updated');
+        redirect('profile.php');
     }
 }
 
-if (isset($_GET['success'])) {
-    $success = "Profile updated successfully";
-}
+// ----------------------------------------------------------------------------
+
+$_title = 'User | Profile';
+include '../_head.php';
 ?>
 
-=======
->>>>>>> e52c893b7447209813902a59cef01c24f0ec8fd9
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-<<<<<<< HEAD
-    <title>My Profile</title>
-</head>
-<body>
+<form method="post" class="form" enctype="multipart/form-data">
 
-<h2>My Profile</h2>
+    <label>Email</label>
+    <?= html_text('email', 'maxlength="100"', $email ?? '') ?>
+    <?= err('email') ?>
 
-<?php foreach ($errors as $e): ?>
-    <p style="color:red"><?= $e ?></p>
-<?php endforeach; ?>
+    <label>Name</label>
+    <?= html_text('name', 'maxlength="100"', $name ?? '') ?>
+    <?= err('name') ?>
 
-<?php if ($success): ?>
-    <p style="color:green"><?= $success ?></p>
-<?php endif; ?>
+    <label>Photo</label>
+    <label class="upload">
+        <?= html_file('photo', 'image/*', 'hidden') ?>
+        <img src="../uploads/profile_pics/<?= $photo ?: 'default.png' ?>" width="120">
+    </label>
+    <?= err('photo') ?>
 
-<form method="post" enctype="multipart/form-data">
+    <label>Address</label>
+    <?= html_text('address', '', $address ?? '') ?>
 
-    <label>Profile Photo</label><br>
-    <?php if (!empty($user['profile_image_path'])): ?>
-        <img src="../uploads/profile_pics/<?= $user['profile_image_path'] ?>" width="100"><br>
-    <?php endif; ?>
-    <input type="file" name="profile_image"><br><br>
+    <?= html_text('city', 'placeholder="City"', $city ?? '') ?>
+    <?= html_text('postal_code', 'placeholder="Postal Code"', $postal_code ?? '') ?>
+    <?= html_text('state', 'placeholder="State"', $state ?? '') ?>
+    <?= html_text('country', 'placeholder="Country"', $country ?? '') ?>
 
-    <label>Name</label><br>
-    <input type="text" name="name" value="<?= htmlspecialchars($user['name']) ?>" required><br>
-
-    <label>Email</label><br>
-    <input type="email" name="email" value="<?= htmlspecialchars($user['email']) ?>" required><br>
-
-    <label>Address</label><br>
-    <input type="text" name="address" value="<?= $user['address'] ?? '' ?>"><br>
-
-    <input type="text" name="city" placeholder="City" value="<?= $user['city'] ?? '' ?>"><br>
-    <input type="text" name="postal_code" placeholder="Postal Code" value="<?= $user['postal_code'] ?? '' ?>"><br>
-    <input type="text" name="state" placeholder="State" value="<?= $user['state'] ?? '' ?>"><br>
-    <input type="text" name="country" placeholder="Country" value="<?= $user['country'] ?? '' ?>"><br><br>
-
-    <button type="submit">Update Profile</button>
-
+    <section>
+        <button>Save</button>
+        <button type="reset">Reset</button>
+    </section>
 </form>
 
 <hr>
 
-<h3 style="color:red;">Danger Zone</h3>
+<form method="post"
+      onsubmit="return confirm('Deactivate your account permanently?')">
 
-<form method="post" 
-      onsubmit="return confirm('Are you sure you want to deactivate your account? This action cannot be undone.')">
-
-    <button type="submit" 
-            name="deactivate_account"
-            style="background:red;color:white;padding:10px;">
+    <button name="deactivate_account" class="danger">
         Deactivate Account
     </button>
-
 </form>
 
-</body>
-</html>
+<?php
+include '../_foot.php';
