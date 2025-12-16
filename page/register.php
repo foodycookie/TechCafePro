@@ -48,6 +48,9 @@ if (is_post()) {
     else if (strlen($name) > 100) {
         $_err['name'] = 'Maximum 100 characters';
     }
+    else if (!is_unique($name, 'users', 'name')) {
+        $_err['name'] = 'Duplicated';
+    }
 
     // Validate: photo (file)
     if (!$f) {

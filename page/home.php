@@ -18,6 +18,7 @@ include '../_head.php';
 
 <p id="p">Image 1 of 4</p>
 <img id="img" src="../images/system/placeholder.jpg">
+<button onclick="location.href='/page/admin6699/admin_login.php'">Admin Login</button>
 
 <script>
     const arr = [
