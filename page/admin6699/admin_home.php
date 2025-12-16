@@ -1,6 +1,6 @@
 <?php
 require '../../_base.php';
-auth("admin");
+$user_id = $_SESSION['user']->user_id ?? null;
 
 $_title = 'Page | Home';
 include '../../_head.php';
@@ -91,7 +91,7 @@ include '../../_head.php';
             <tr>
                 <td style="justify-content : center">
                     <div class="button-container">
-                        <button class="icon-btn">
+                        <button class="icon-btn"  onclick="location.href='../customer_crud.php'">
                             <img src="../../images/system/customer_icon.jpg" alt="Customer Icon">
                             <span>Customer</span>
                             <div class="badge-group">
@@ -121,7 +121,7 @@ include '../../_head.php';
                                 </div>
                             </div>
                         </button>
-
+                        <?php if ($user_id == 1):?>
                         <button class="icon-btn" onclick="location.href='./admin_crud.php'">
                             <img src="../../images/system/admin_icon.jpg" alt="Admin Icon">
                             <span>Admin</span>
@@ -150,6 +150,7 @@ include '../../_head.php';
                                 </div>
                             </div>
                         </button>
+                        <?php endif?>
 
                         <button class="icon-btn" onclick="location.href='/page/product_crud.php'">
                             <img src="../../images/system/product_icon.png" alt="Product Icon">

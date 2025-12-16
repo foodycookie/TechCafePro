@@ -1,5 +1,6 @@
 <?php
-include '../../_base.php';
+include '../_base.php';
+
 function update_availability() {
     global $_db;
 
@@ -9,7 +10,7 @@ function update_availability() {
     $stm = $_db->prepare('
         SELECT status
         FROM users
-        WHERE user_id = ? AND role = "admin"
+        WHERE user_id = ? AND (role = "customer" OR role = "member")
     ');
 
     foreach ($user_id as $v) {
@@ -28,7 +29,7 @@ function update_availability() {
     $stm = $_db->prepare('
         UPDATE users
         SET status = ?
-        WHERE user_id = ? AND role = "admin"
+        WHERE user_id = ? AND (role = "customer" OR role = "member")
     ');
     $count = 0;
 
@@ -37,7 +38,7 @@ function update_availability() {
     }
 
     temp('info', "$count record(s) updated!");
-    redirect("/page/admin6699/admin_crud.php");
+    redirect("./customer_crud.php");
 }
 // ----------------------------------------------------------------------------
 // (1) Sorting
@@ -62,11 +63,11 @@ $user_id = req('user_id', '');
 // (3) Paging
 $page = req('page', 1);
 
-require_once '../../lib/SimplePager.php';
+require_once '../lib/SimplePager.php';
 
 // ----------------------------------------------------------------------------
 // Build SQL for SimplePager
-$baseSQL = "FROM users WHERE role = 'admin' AND name LIKE ?";
+$baseSQL = "FROM users WHERE (role = 'customer' OR role = 'member') AND name LIKE ?";
 $params = ["%$name%"];
 
 // Sorting applied after pagination
@@ -93,8 +94,8 @@ if (isset($_POST['update_multiple'])) {
 
 // ----------------------------------------------------------------------------
 
-$_title = 'All admin';
-include '../../_head.php';
+$_title = 'All customer';
+include '../_head.php';
 ?>
 
 <style>
@@ -109,10 +110,9 @@ include '../../_head.php';
 
     <button>Search</button>
 </form>
-
 <form method="POST" id="modify_multiple">
     <button type="submit" id="update_multiple" name="update_multiple" data-confirm>Update Multiple Availability</button>
-    <button formaction="admin_delete.php" data-confirm>Delete Multiple</button>
+    <button formaction="customer_delete.php" data-confirm>Delete Multiple</button>
 </form>
 
 <p>
@@ -145,8 +145,8 @@ include '../../_head.php';
         <td><?= $m->role ?></td>
         <td><?= $m->status ?></td>
         <td>
-            <button data-get="/page/admin6699/admin_update.php?user_id=<?= $m->user_id ?>">Update</button>
-            <button data-post="/page/admin6699/admin_delete.php?user_id=<?= $m->user_id ?>" id="delete" data-confirm>Delete</button>
+            <button data-get="/page/customer_update.php?user_id=<?= $m->user_id ?>">Update</button>
+            <button data-post="/page/customer_delete.php?user_id=<?= $m->user_id ?>" id="delete" data-confirm>Delete</button>
             <img src="../../images/user_photos/<?= $m->photo ?>" class="popup">
         </td>
     </tr>
@@ -158,11 +158,11 @@ include '../../_head.php';
 <?= $p->html("sort=$sort&dir=$dir&name=$name&user_id=$user_id") ?>
 
 <p>
-    <button data-get="/page/admin6699/admin_insert.php">Insert</button>
+    <!-- <button data-get="/customer_insert.php">Insert</button> -->
     <button data-get="/page/admin6699/admin_home.php">Back to Home</button>
 </p>
 
 
 <?php
-include '../../_foot.php';
+include '../_foot.php';
 ?>

@@ -6,6 +6,7 @@ if (is_post()) {
     // Input
     $name       = req('name');
     $password   = req('password');
+    $status     = req('status');
 
     // Validate name
     if ($name == '') {
@@ -32,14 +33,17 @@ if (is_post()) {
         $u = $stm -> fetch();
 
         if ($u) {
-            temp('info', 'Login Successfully');
-            login($u);
-        }
-        else{
-            print_r($u);
-            temp('info', "Login Failed! Please try again");
-        }
-    }
+            if ($u->status == 0) {
+                temp('info', 'Account Freeze');
+            } else {
+                temp('info', 'Login Successfully');
+                login($u);
+            }
+        } 
+        else {
+            temp('info', 'Login Failed! Please try again');
+                }
+            }
 }
 
 $_title = 'Login';
@@ -60,6 +64,8 @@ include '../../_head.php';
     <label for="password">Password</label>
     <?= html_password('password', 'maxlength="100" autocomplete="off"') ?>
     <?= err('password') ?>
+
+    
 
     <section>
         <button type="submit">Submit</button>

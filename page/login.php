@@ -31,15 +31,17 @@ if (is_post()) {
         $stm -> execute([$name, $password]);    
         $u = $stm -> fetch();
 
-        
-
         if ($u) {
-            temp('info', 'Login Successfully');
-            login($u);
-        }
-        else{
-            temp('info', "Login failed! Please try again!");
-        }
+            if ($u->status == 0) {
+                temp('info', 'Account Freeze');
+            } else {
+                temp('info', 'Login Successfully');
+                login($u);
+            }
+        } 
+        else {
+            temp('info', 'Login Failed! Please try again');
+            }
     }
 }
 

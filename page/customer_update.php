@@ -1,5 +1,7 @@
 <?php
-include '../../_base.php';
+include '../_base.php';
+$_title = 'Admin | user Update';
+include '../_head.php';
 
 // ----------------------------------------------------------------------------
 
@@ -9,36 +11,33 @@ $user_id = req('user_id');
     $stm->execute([$user_id]);
     $old_data = $stm->fetch();
 
-if ($user_id == 1) {
-    $status = $old_data->status;
-} else {
-    $status = req('status');
-}
-
-if (is_get()) {  // step1 SQL select
+if (is_get()) {
     $user_id = req('user_id');
 
-    $stm = $_db->prepare('SELECT * FROM users WHERE user_id = ?');
-    $stm->execute([$user_id]);
-    $u = $stm->fetch();
+$stm = $_db->prepare('SELECT * FROM users WHERE user_id = ?');
+$stm->execute([$user_id]);
+$u = $stm->fetch();
 
-    if (!$u) {   // if no record found, go /page/user_crud.php
-        temp('info', 'No Record');
-        redirect('/page/admin6699/admin_crud.php');
+
+if (!$u) {
+    temp('info', 'No Record');
+    redirect('/page/admin6699/admin_crud.php');
+}
+
+    extract((array)$u); 
+
+    $photo = $profile_image_path ?: 'placeholder.jpg';
+    $_SESSION['photo'] = $photo;
+
     }
 
-    extract((array)$u);
-    $photo  = $u->profile_image_path ?: 'placeholder.jpg';
-
-    $_SESSION['photo'] = $photo;
-}
-  
 if (is_post()) {   // step3 SQL update
-    $user_id = req('user_id');
-    $name   = req('name');  
-    $email  = req('email'); 
-    $f      = get_file('photo');
-    $photo  = $_SESSION['photo'] ?? 'placeholder.jpg';
+    $user_id    = req('user_id');
+    $name       = req('name');  
+    $email      = req('email'); 
+    $role       = req('role');
+    $f          = get_file('photo');
+    $photo      = $_SESSION['photo'] ?? 'placeholder.jpg';
 
     // PROTECT user_id 1 from changing status
     if ($user_id == 1) {
@@ -89,8 +88,8 @@ if (is_post()) {   // step3 SQL update
     // DB operation
     if (!$_err) {
         if ($f){
-            unlink("../../images/user_photos/$photo");
-            $photo = save_photo($f, '../../images/user_photos');
+            unlink("../images/user_photos/$photo");
+            $photo = save_photo($f, '../images/user_photos');
         }
         $stm = $_db->prepare('
             UPDATE users
@@ -100,18 +99,17 @@ if (is_post()) {   // step3 SQL update
         $stm->execute([$name, $email, $status, $photo, $user_id]);
 
         temp('info', 'Record updated');
-        redirect('/page/admin6699/admin_crud.php');
+        redirect('/page/customer_crud.php');
     }
     $_SESSION['photo'] = $photo;
 }
 
 // ----------------------------------------------------------------------------
 
-$_title = 'Admin | user Update';
-include '../../_head.php';
-
 ?>
+
 <form method="post" class="form" enctype="multipart/form-data" novalidate> 
+
     <label for="user_id">Id</label> 
     <b><?= $user_id ?></b> 
     <br> 
@@ -124,9 +122,8 @@ include '../../_head.php';
     <?= html_text('email', 'maxlength="100"') ?>
     <?= err('email') ?>
 
-    <label for="role">Role</label>
+    <label>Role</label>
     <b><?= htmlspecialchars($role) ?></b>
-    <?= html_hidden('role', $role) ?>
     <?= err('role') ?>
 
     <?php if ($user_id == 1): ?>
@@ -142,7 +139,7 @@ include '../../_head.php';
     <label for="photo">Photo</label> 
     <label class="upload" tabindex="0" style="display:inline-block;"> 
         <?= html_file('photo', 'image/*', 'hidden') ?> 
-        <img src="../../images/user_photos/<?= htmlspecialchars($photo) ?>" alt="Photo">
+        <img src="../images/user_photos/<?= htmlspecialchars($photo) ?>" alt="Photo">
     </label> 
     <?= err('photo') ?> 
 
@@ -153,7 +150,8 @@ include '../../_head.php';
 </form>
 
 <p>
-    <button data-get="/page/admin6699/admin_crud.php">Back</button>
+    <button data-get="/page/customer_crud.php">Back</button>
 </p>
 <?php
-include '../../_foot.php';
+include '../_foot.php';
+?>
