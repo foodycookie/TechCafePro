@@ -192,6 +192,13 @@ include '../_head.php';
 
 <hr>
 
+<p>
+    <button data-get="order_history.php">
+        📦 Order History
+    </button>
+</p>
+
+
 <form method="post"
       onsubmit="return confirm('Deactivate your account permanently?')">
 
@@ -202,3 +209,5 @@ include '../_head.php';
 
 <?php
 include '../_foot.php';
+
+

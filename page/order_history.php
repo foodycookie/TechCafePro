@@ -1,125 +1,120 @@
 <?php
-session_start();
+include '../_base.php';
 
-if (!isset($_SESSION['user_id'])) {
-    header("Location: ../page/login.php");
-    exit;
+// ----------------------------------------------------------------------------
+// (1) Authorization (member / customer)
+// ----------------------------------------------------------------------------
+
+$user_id = $_SESSION['user']->user_id ?? null;
+
+if (!$user_id) {
+    redirect('login.php');
 }
 
-$user_id = $_SESSION['user_id'];
+// ----------------------------------------------------------------------------
+// Date filter inputs
+// ----------------------------------------------------------------------------
 
-/* =========================
-   FILTER / SORT / PAGING
-========================= */
-$from = $_GET['from'] ?? '';
-$to   = $_GET['to'] ?? '';
-$sort = $_GET['sort'] ?? 'date_desc';
+$from = req('from');
+$to   = req('to');
 
-$orderBy = "created_at DESC";
-if ($sort === 'date_asc') $orderBy = "created_at ASC";
-if ($sort === 'amount_desc') $orderBy = "total_amount DESC";
-if ($sort === 'amount_asc') $orderBy = "total_amount ASC";
+// ----------------------------------------------------------------------------
+// (2) Return orders belong to the user (descending)
+// ----------------------------------------------------------------------------
+// orders table:
+// - order_id
+// - created_at
+// - total_amount
+// - user_id
+// order_items table:
+// - order_id
+// - quantity
 
-$page  = max(1, intval($_GET['page'] ?? 1));
-$limit = 5;
-$offset = ($page - 1) * $limit;
+$sql = "
+    SELECT 
+        o.order_id        AS id,
+        o.created_at      AS datetime,
+        SUM(oi.unit)  AS count,
+        o.total_amount    AS total
+    FROM orders o
+    JOIN order_items oi ON o.order_id = oi.order_id
+    WHERE o.user_id = ?
+";
 
-/* =========================
-   BUILD SQL
-========================= */
-$where = "WHERE user_id = ?";
 $params = [$user_id];
 
 if ($from) {
-    $where .= " AND created_at >= ?";
-    $params[] = $from . " 00:00:00";
+    $sql .= " AND o.created_at >= ?";
+    $params[] = $from . ' 00:00:00';
 }
+
 if ($to) {
-    $where .= " AND created_at <= ?";
-    $params[] = $to . " 23:59:59";
+    $sql .= " AND o.created_at <= ?";
+    $params[] = $to . ' 23:59:59';
 }
 
-/* COUNT */
-$countStmt = $conn->prepare("SELECT COUNT(*) FROM orders $where");
-$countStmt->execute($params);
-$total = $countStmt->fetchColumn();
-$totalPages = ceil($total / $limit);
+$sql .= "
+    GROUP BY o.order_id, o.created_at, o.total_amount
+    ORDER BY o.created_at DESC
+";
 
-/* FETCH */
-$stmt = $conn->prepare("
-    SELECT order_id, total_amount, created_at
-    FROM orders
-    $where
-    ORDER BY $orderBy
-    LIMIT $limit OFFSET $offset
-");
-$stmt->execute($params);
-$orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$stm = $_db->prepare($sql);
+$stm->execute($params);
+$arr = $stm->fetchAll();
+
+// ----------------------------------------------------------------------------
+
+$_title = 'Order | History';
+include '../_head.php';
 ?>
 
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Order History</title>
-</head>
-<body>
+<!-- (B) EXTRA: CSS (optional but nice) -->
+<style>
+.right { text-align: right; }
+.table td, .table th { vertical-align: middle; }
+</style>
 
-<h2>My Order History</h2>
+<form method="get" class="form" style="margin-bottom:20px">
+    <label>From</label>
+    <?= html_date('from') ?>
 
-<form method="get">
-    From:
-    <input type="date" name="from" value="<?= htmlspecialchars($from) ?>">
-    To:
-    <input type="date" name="to" value="<?= htmlspecialchars($to) ?>">
+    <label>To</label>
+    <?= html_date('to') ?>
 
-    Sort:
-    <select name="sort">
-        <option value="date_desc" <?= $sort=='date_desc'?'selected':'' ?>>Newest</option>
-        <option value="date_asc" <?= $sort=='date_asc'?'selected':'' ?>>Oldest</option>
-        <option value="amount_desc" <?= $sort=='amount_desc'?'selected':'' ?>>Amount High → Low</option>
-        <option value="amount_asc" <?= $sort=='amount_asc'?'selected':'' ?>>Amount Low → High</option>
-    </select>
-
-    <button type="submit">Apply</button>
+    <button>Filter</button>
 </form>
 
-<br>
+<p><?= count($arr) ?> record(s)</p>
 
-<table border="1" cellpadding="8">
+<?php if (!$arr): ?>
+    <p class="alert">
+        You have no orders<?= ($from || $to) ? ' in this period' : '' ?>.
+    </p>
+<?php endif; ?>
+
+<table class="table">
     <tr>
-        <th>Order ID</th>
-        <th>Date</th>
+        <th>Id</th>
+        <th>Datetime</th>
+        <th>Count</th>
         <th>Total (RM)</th>
-        <th>Action</th>
+        <th></th>
     </tr>
 
-    <?php if (empty($orders)): ?>
-        <tr><td colspan="4">No orders found</td></tr>
-    <?php endif; ?>
-
-    <?php foreach ($orders as $o): ?>
-        <tr>
-            <td><?= $o['order_id'] ?></td>
-            <td><?= $o['created_at'] ?></td>
-            <td><?= number_format($o['total_amount'], 2) ?></td>
-            <td>
-                <a href="order_detail.php?order_id=<?= $o['order_id'] ?>">View</a>
-            </td>
-        </tr>
-    <?php endforeach; ?>
+    <?php foreach ($arr as $o): ?>
+    <tr>
+        <td><?= encode($o->id) ?></td>
+        <td><?= date('d-m-Y H:i', strtotime($o->datetime)) ?></td>
+        <td class="right"><?= $o->count ?></td>
+        <td class="right"><?= number_format($o->total, 2) ?></td>
+        <td>
+            <button data-get="order_detail.php?order_id=<?= $o->id ?>">
+                Detail
+            </button>
+        </td>
+    </tr>
+    <?php endforeach ?>
 </table>
 
-<!-- PAGING -->
-<div style="margin-top:15px;">
-<?php for ($i=1; $i<=$totalPages; $i++): ?>
-    <a href="?page=<?= $i ?>&from=<?= $from ?>&to=<?= $to ?>&sort=<?= $sort ?>">
-        <?= $i ?>
-    </a>
-<?php endfor; ?>
-</div>
-
-<br>
-<a href="profile.php">Back to Profile</a>
-
-</body>
-</html>
+<?php
+include '../_foot.php';
