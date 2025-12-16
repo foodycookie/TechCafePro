@@ -1,6 +1,15 @@
 <?php
 include '../_base.php';
 
+if (session_status() === PHP_SESSION_NONE) session_start();
+
+// Handle Add to Cart
+if (is_post() && isset($_POST['product_id'])) {
+    $id = (int)$_POST['product_id'];
+    cart_add($id, 1); // use newly defined function
+    redirect('/page/cart.php');
+}
+
 // ----------------------------------------------------------------------------
 
 // Load categories
@@ -23,6 +32,7 @@ $stm = $_db->prepare('SELECT p.*, c.category_name
                       LEFT JOIN categories c ON p.category_id = c.category_id
                       WHERE p.product_name LIKE ?
                       AND p.is_active = 1
+                      AND c.is_active = 1
                       ORDER BY c.category_name, p.sold DESC, p.product_name ASC');
 
 $stm->execute(["%$product_name%"]);

@@ -96,16 +96,14 @@ if (is_post()) {
         ');
         $stm->execute([$product_name, $price, $description, $category_id, $is_available, $is_active, $photo]);
 
-        $stm = $_db->prepare("SELECT product_id FROM products WHERE product_name = ?");
-        $stm->execute(["$product_name"]);
-        $inserted_product_id = $stm->fetch();
+        $last_inserted_product_id = $_db->lastInsertId();
 
         foreach ($tag_id as $individual_tag_id) {
             $stm = $_db->prepare('
                 INSERT INTO product_tags (product_id, tag_id)
                 VALUES (?, ?)
             ');
-            $stm->execute([$inserted_product_id->product_id, $individual_tag_id]);
+            $stm->execute([$last_inserted_product_id, $individual_tag_id]);
         }
 
         temp('info', 'Record inserted');

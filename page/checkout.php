@@ -1,14 +1,83 @@
 <?php
-require '../_base.php';
+include '../_base.php';
 
+// ----------------------------------------------------------------------------
+// Head
 $_title = 'Checkout';
 include '../_head.php';
 ?>
 
-<html>
-    <button type="button" onclick="window.location.href='/page/payment.php'">Go to payment</button>
-    <button type="button" onclick="window.location.href='/page/home.php'">Cancel</button>
-</html>
+<h1>Checkout Page</h1>
+
+<?php
+// Only members can checkout
+auth2('Member');
+
+// Get shopping cart from session
+$cart = get_cart();
+if (!$cart) {
+    echo '<p>Your cart is empty. <a href="cart.php">Go back to cart</a></p>';
+    include '../_foot.php';
+    exit;
+}
+
+
+// echo '<pre>'; 
+// print_r($cart); 
+// echo '</pre>';
+
+// Skip invalid entries at the start if any
+$cart = array_filter($cart, fn($unit) => $unit > 0); // remove empty or 0 units
+
+try {
+    $_db->beginTransaction(); // START TRANSACTION
+
+    // Insert new order
+    $stm = $_db->prepare('INSERT INTO orders (user_id, created_at) VALUES (?, NOW())');
+    $stm->execute([$_user->user_id]);
+    $order_id = $_db->lastInsertId(); // new order ID
+
+    // Insert each cart item into order_items
+    $stm = $_db->prepare('INSERT INTO order_items (order_id, product_id, price, unit, subtotal) VALUES (?, ?, ?, ?, ?)');
+    foreach ($cart as $product_id => $unit) {
+        // Get product info
+        $p_stm = $_db->prepare('SELECT price FROM products WHERE product_id = ?');
+        $p_stm->execute([$product_id]);
+        $product = $p_stm->fetch();
+        if (!$product) {
+            // Skip invalid product IDs instead of throwing
+            continue;
+        }
+
+        $price = $product->price;
+        $subtotal = $price * $unit;
+
+        $stm->execute([$order_id, $product_id, $price, $unit, $subtotal]); // Insert order item
+    }
+
+    // Update order totals
+    $stm = $_db->prepare('
+        UPDATE orders
+        SET count = (SELECT SUM(unit) FROM order_items WHERE order_id = ?),
+            total_amount = (SELECT SUM(subtotal) FROM order_items WHERE order_id = ?)
+        WHERE order_id = ?
+    ');
+    $stm->execute([$order_id, $order_id, $order_id]);
+
+
+ 
+    // Commit transaction
+    $_db->commit();
+
+    set_cart([]); // Clear cart
+
+    redirect("payment.php?order_id=$order_id");
+
+} catch (Exception $e) {
+    $_db->rollBack();
+    echo "<p>Error processing order: " . $e->getMessage() . "</p>";
+} // END TRANSACTION
+?>
 
 <?php
 include '../_foot.php';

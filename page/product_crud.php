@@ -83,16 +83,49 @@ function update_multiple() {
 function export_products_csv() {
     global $_db;
 
-    $temp_file = tmpFile();
-    fwrite($temp_file, "product_id,product_name,price,description,created_at,is_available,photo,sold,category_id\n");
+    // Check if there is any buffer open
+    if (ob_get_level()) {
+        // Stop the current output buffer without sending its content to the browser
+        // Clear anything that has ben output, so the CSV file exported will not have extra script
+        ob_end_clean();
+    }
 
-    $stm = $_db->prepare('SELECT * FROM products');
-    $stm->execute();
-    $products = $stm->fetchAll();
+    // Create temp_file (delete when close)
+    $temp_file = tmpFile();
+
+    // Header
+    fputcsv($temp_file, ['product_id','product_name','price','description','created_at','is_available','photo','sold','is_active','category_id','product_tags']);
+
+    $products = $_db->query('SELECT * FROM products')->fetchAll();
+    $product_tags = $_db->query('SELECT * FROM product_tags')->fetchAll();
+
+    // 2D associative array:
+    // $tags_lookup = [
+    //     378 => [0 => 43, 1 => 44, 2 => 45],
+    //     379 => [0 => 44],
+    //     380 => []
+    // ]
+    // $tags_lookup[378] = [43, 44, 45]
+    // $tags_lookup[378][0] = 43
+    $tags_lookup = [];
+    foreach ($product_tags as $product_tag) {
+        $tags_lookup[$product_tag->product_id][] = $product_tag->tag_id;
+    }
 
     foreach ($products as $product) {
-        // product_id,product_name,price,description,created_at,is_available,photo,sold,category_id
-        fwrite($temp_file, "$product->product_id,$product->product_name,$product->price,$product->description,$product->created_at,$product->is_available,$product->photo,$product->sold,$product->category_id\n");
+        $product_tags_array = $tags_lookup[$product->product_id] ?? [];
+        
+        fputcsv($temp_file, [$product->product_id,
+                             $product->product_name,
+                             $product->price,
+                             $product->description,
+                             $product->created_at,
+                             $product->is_available,
+                             $product->photo,
+                             $product->sold,
+                             $product->is_active,
+                             $product->category_id,
+                             implode("|", $product_tags_array)]);
     }
 
     export($temp_file, "products.csv");
@@ -107,33 +140,127 @@ function import_products_csv() {
     global $_db;
 
     $header_row = true;
-    $stm = $_db->prepare('
-        INSERT INTO products (product_name, price, description, is_available, photo, category_id)
-        VALUES (?, ?, ?, ?, ?, ?)
-    ');
-    $count = 0;
+    $stm1 = $_db->prepare('INSERT INTO products (product_name, price, description, is_available, photo, sold, is_active, category_id)
+                           VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
+    $stm2 = $_db->prepare('INSERT INTO product_tags (product_id, tag_id)
+                           VALUES (?, ?)');
+    $exist_product_tag_ids = $_db->query('SELECT tag_id FROM tags')->fetchAll(PDO::FETCH_COLUMN);
+    $exist_category_ids    = $_db->query('SELECT category_id FROM categories')->fetchAll(PDO::FETCH_COLUMN);
+    $success_count = 0;
+    $failed_count = 0;
+    $success_tag_count = 0;
+    $failed_tag_count = 0;
 
-    // $_FILES['userfile']['tmp_name']
+    // $_FILES['userfile']['tmp_name (or any attribute)']
     //The temporary filename of the file in which the uploaded file was stored on the server
     $handle = fopen($_FILES['import']['tmp_name'], 'r');
 
-    // product_id,product_name,price,description,created_at,is_available,photo,sold,category_id
     while($data = fgetcsv($handle)) {
         if ($header_row == true) {
             $header_row = false;
             continue;
         }
 
-        // IM NOT DOING THE VALIDATION :(((
-        // if (count($data) != 9) {
+        if (count($data) != 11) {
+            $failed_count++;
+            continue;
+        }
+
+        $product_id = trim($data[0]);
+        $product_name = trim($data[1]);
+        $price = trim($data[2]);
+        $description = trim($data[3]);
+        $created_at = trim($data[4]);
+        $is_available = trim($data[5]);
+        $photo = trim($data[6]);
+        $sold = trim($data[7]);
+        $is_active = trim($data[8]);
+        $category_id = trim($data[9]);
+        $product_tag_ids = trim($data[10]);
+
+        // Validation: product_name
+        if (($product_name === '') || (strlen($product_name) > 50) || (!is_unique($product_name, 'products', 'product_name'))) {
+            $failed_count++;
+            continue;
+        }
+
+        // Validation: price
+        if (($price === '') || (!is_money($price)) || (((float)$price < 0.01 || (float)$price > 99.99))) {
+            $failed_count++;
+            continue;
+        }
+
+        // Validation: description
+        if (($description === '') || (strlen($description) > 500)) {
+            $failed_count++;
+            continue;
+        }
+
+        // Validation: is_available
+        if (($is_available === '') || ($is_available !== '0' && $is_available !== '1')) {
+            $failed_count++;
+            continue;
+        }
+
+        // Validation: sold
+        if (($sold === '') || (!ctype_digit($sold))) {
+            $failed_count++;
+            continue;
+        }
+
+        // Validation: is_active
+        if (($is_active === '') || ($is_active !== '0' && $is_active !== '1')) {
+            $failed_count++;
+            continue;
+        }
+
+        // Validation: category_id
+        if (($category_id === '') || (!ctype_digit($category_id)) || ((int)$category_id <= 0) || (!in_array($category_id, $exist_category_ids))) {
+            $failed_count++;
+            continue;
+        }
+
+        // TODO: // Validation: photo
+        // if (() || () || ()) {
+        //     $failed_count++;
         //     continue;
         // }
-        
-        $count += $stm->execute([$data[1], $data[2], $data[3], $data[5], $data[6], $data[8]]);            
+
+        // TODO: Process photo
+
+        $success_count += $stm1->execute([$product_name, $price, $description, $is_available, $photo, $sold, $is_active, $category_id]);
+
+        $last_inserted_product_id = $_db->lastInsertId();
+
+        if ($product_tag_ids !== '') {
+            $product_tag_ids = explode('|', $product_tag_ids);
+
+            foreach ($product_tag_ids as $product_tag_id) {
+                // Validation: product_tags
+                $product_tag_id = trim($product_tag_id);
+
+                // ctype_digit(): Check whether a string consists entirely of digits (0–9)
+                // After (int):
+                // "43"    = 43
+                // "abc"   = 0
+                // ""      = 0
+                // "12abc" = 12
+                // "0"     = 0
+                // in_array: Check if a value exists in an array
+                if ((ctype_digit($product_tag_id)) && ((int)$product_tag_id > 0) && (in_array($product_tag_id, $exist_product_tag_ids))) {
+                    $success_tag_count += $stm2->execute([$last_inserted_product_id, $product_tag_id]);
+                }
+
+                else {
+                    $failed_tag_count++;
+                    continue;
+                }
+            }
+        }
     }
 
     fclose($handle);
-    temp('info', '$n record(s) inserted!');
+    temp('info', "$success_count record(s) inserted, $failed_count record(s) failed, $success_tag_count tag(s) inserted, $failed_tag_count tag(s) failed!");
     redirect();
 }
 

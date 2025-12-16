@@ -351,6 +351,23 @@ function auth(...$roles) {
     redirect('/page/login.php');
 }
 
+// Authorization
+function auth2(...$roles) {
+    global $_user;
+    if ($_user) {
+        if ($roles) {
+            if (in_array($_user->role, $roles)) {
+                return true; // OK
+            }
+        }
+        else {
+            return true; // OK
+        }
+    }
+    
+    return false;
+}
+
 // Check Login
 function is_login()
 {
@@ -415,6 +432,32 @@ function update_cart($id, $unit) {
     set_cart($cart);
 }
 
+// Add product to cart
+function cart_add($id, $qty = 1) {
+    $cart = get_cart();
+    if (isset($cart[$id])) {
+        $cart[$id] += $qty;
+        if ($cart[$id] > 10) $cart[$id] = 10; // Max 10
+    } else {
+        $cart[$id] = $qty;
+    }
+    set_cart($cart); 
+}
+
+// Remove product from cart
+function cart_remove($id) {
+    $cart = get_cart();
+    unset($cart[$id]);
+    set_cart($cart);
+}
+
+// ============================================================================
+// Payment Gateway Functions
+// ============================================================================
+
+define('STRIPE_SECRET_KEY', 'sk_test_51SevAT0o7LaBu7HImnNfHt2OkAvHEYEy2LQLwlKUZ17qFNWMQdosFU6pdceGZzDm4LgNtPeTiqsPK5ZRPdWFSGdV00i9vIo62c');
+define('STRIPE_PUBLISHABLE_KEY', 'pk_test_51SevAT0o7LaBu7HIANYhjsbMyI1UpSnARa7k7zogSIHWOHBMm8XPG4gM83dj3OtsWWBZJowmUm8AZoBeCCY8iTb60081x4dWFd');
+
 // ============================================================================
 // Database Setups and Functions
 // ============================================================================
@@ -463,8 +506,6 @@ function export($file, $exported_file_name) {
     // Make php send the remaining lines after pointer to the browser
     fpassthru($file);
     fclose($file);
-    // Flush buffer
-    ob_flush();
     // Use exit to get rid of unexpected output afterward
     exit();
 }
