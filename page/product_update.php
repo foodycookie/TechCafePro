@@ -3,6 +3,12 @@ include '../_base.php';
 
 // ----------------------------------------------------------------------------
 
+$product_id     = req('product_id');
+
+$stm = $_db->prepare('SELECT product_name FROM products WHERE product_id = ?');
+$stm->execute([$product_id]);
+$old_product = $stm->fetch();
+
 if (is_get()) {  // step1 SQL select
     $product_id = req('product_id'); //P009
 
@@ -17,8 +23,13 @@ if (is_get()) {  // step1 SQL select
 
     extract((array)$p);
 
-    $_SESSION['photo'] = $p->photo; 
+    $_SESSION['photo'] = $p->photo;
 
+    $stm = $_db->prepare('SELECT tag_id FROM product_tags WHERE product_id = ?');
+    $stm->execute([$product_id]);
+    // Fetch a single column [1, 2]
+    // instead of an associative array [['tag_id' => 1],['tag_id' => 2]]
+    $tag_id = $stm->fetchAll(PDO::FETCH_COLUMN);
 }
 
 if (is_post()) {   // step3 SQL update
@@ -30,13 +41,18 @@ if (is_post()) {   // step3 SQL update
     $photo          = $_SESSION['photo']; // current photo filename
     $category_id    = req('category_id');
     $is_available   = req('is_available');
-
+    $is_active      = req('is_active');
+    $tag_id         = req('tag_id', []);
+    
     // Validate: name   
     if ($product_name == '') {
         $_err['product_name'] = 'Required';
     }
     else if (strlen($product_name) > 50) {
         $_err['product_name'] = 'Maximum 50 characters';
+    }
+    else if ((strcasecmp($product_name, $old_product->product_name) != 0) && (!is_unique($product_name, 'products', 'product_name'))) {
+        $_err['product_name'] = 'Duplicated';
     }
 
     // Validate: price
@@ -60,6 +76,11 @@ if (is_post()) {   // step3 SQL update
         $_err['is_available'] = 'Required';
     }
 
+    // Validate: is_active
+    if ($is_active == '') {
+        $_err['is_active'] = 'Required';
+    }
+
     // Validate: photo (file)
     // ** Only if a file is selected **
     if ($f) {  // user got selectnew file to upload
@@ -70,6 +91,20 @@ if (is_post()) {   // step3 SQL update
             $_err['photo'] = 'Maximum 2MB';
         }
     }
+
+    // Validate: tags
+    if (!is_array($tag_id)) {
+        $_err['choose_tags'] = 'Not an array';
+    }
+    // elseif (!$tag_id) {
+    //     $_err['choose_tags'] = 'Required';
+    // }
+    // else if (!array_all($tag_id, fn($v) => key_exists($v, $)) && !array_all($tag_id, fn($v) => key_exists($v, $base_tag_array)) && !array_all($tag_id, fn($v) => key_exists($v, $flavour_tag_array))) {
+    //     $_err['choose_tags'] = 'Invalid item found';
+    // }
+    // else if (count($tag_id) < 3) {
+    //     $_err['choose_tags'] = 'Minimum 3 tags';
+    // }
 
     // DB operation
     if (!$_err) {
@@ -85,10 +120,21 @@ if (is_post()) {   // step3 SQL update
         
         $stm = $_db->prepare('
             UPDATE products
-            SET product_name = ?, price = ?, description = ?, category_id = ?, is_available = ?, photo = ?
+            SET product_name = ?, price = ?, description = ?, category_id = ?, is_available = ?, is_active = ?, photo = ?
             WHERE product_id = ?
         ');
-        $stm->execute([$product_name, $price, $description, $category_id, $is_available, $photo, $product_id]);
+        $stm->execute([$product_name, $price, $description, $category_id, $is_available, $is_active, $photo, $product_id]);
+
+        $stm = $_db->prepare('DELETE FROM product_tags WHERE product_id = ?');
+        $stm->execute([$product_id]);
+
+        foreach ($tag_id as $individual_tag_id) {
+            $stm = $_db->prepare('
+                INSERT INTO product_tags (product_id, tag_id)
+                VALUES (?, ?)
+            ');
+            $stm->execute([$product_id, $individual_tag_id]);
+        }
 
         temp('info', 'Record updated');
         redirect('/page/product_crud.php');
@@ -96,6 +142,12 @@ if (is_post()) {   // step3 SQL update
 }
 
 $cats = $_db->query("SELECT * FROM categories ORDER BY category_name")->fetchAll();
+// ----------------------------------------------------------------------------
+
+$temperature_tags = $_db->query("SELECT * FROM tags WHERE category = 'Temperature'")->fetchAll();
+$base_tags        = $_db->query("SELECT * FROM tags WHERE category = 'Base'")       ->fetchAll();
+$flavour_tags     = $_db->query("SELECT * FROM tags WHERE category = 'Flavour'")    ->fetchAll();
+
 // ----------------------------------------------------------------------------
 
 $_title = 'Admin | Product Update';
@@ -134,6 +186,38 @@ include '../_head.php';
     <label for="is_available">Availability</label>
     <?= html_radios('is_available', array("1"=>"Available", "0"=>"Unavailable"), false) ?>
     <?= err('is_available') ?>
+
+    <label for="is_active">Active</label>
+    <?= html_radios('is_active', array("1"=>"Active", "0"=>"Inactive"), false) ?>
+    <?= err('is_active') ?>
+
+    <br>
+    <button type="button" id="choose_tags" name="choose_tags" onclick="toggle_visibility('insert_product_tags')">Choose Tags</button>
+    <?= err('choose_tags') ?>
+    <div class="filter_popup" id="insert_product_tags" name="insert_product_tags">
+        <h2>Filter Menu</h2>
+
+        <h3>Temperature</h3>
+            <?php foreach ($temperature_tags as $temperature_tag): ?>
+                <?php $temperature_tag_array["$temperature_tag->tag_id"] = "$temperature_tag->name"; ?>
+            <?php endforeach; ?>
+            <?= html_checkboxes('tag_id', $temperature_tag_array, false); ?>
+
+        <h3>Base</h3>
+            <?php foreach ($base_tags as $base_tag): ?>
+                <?php $base_tag_array["$base_tag->tag_id"] = "$base_tag->name"; ?>
+            <?php endforeach; ?>
+            <?= html_checkboxes('tag_id', $base_tag_array, false) ?>
+
+        <h3>Flavour</h3>
+            <?php foreach ($flavour_tags as $flavour_tag): ?>
+                <?php $flavour_tag_array["$flavour_tag->tag_id"] = "$flavour_tag->name"; ?>
+            <?php endforeach; ?>
+            <?= html_checkboxes('tag_id', $flavour_tag_array, false) ?>
+
+        <br>
+        <button type="button" onclick="toggle_visibility('insert_product_tags')">Close</button>
+    </div>
 
     <label for="photo">Photo</label>
     <label class="upload" tabindex="0">

@@ -470,5 +470,22 @@ function export($file, $exported_file_name) {
 }
 
 // ============================================================================
+// Some JS
+// ============================================================================
+?>
+
+<script>
+    function toggle_visibility(target) {
+        var element = document.getElementById(target);
+        if (element.style.visibility=='visible') {
+            element.style.visibility = 'hidden';
+        }
+        else
+            element.style.visibility = 'visible';
+    }
+</script>
+
+<?php
+// ============================================================================
 // Global Constants and Variables
 // ============================================================================

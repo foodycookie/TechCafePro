@@ -4,7 +4,15 @@ include '../_base.php';
 // ----------------------------------------------------------------------------
 
 // Load categories
-$cats = $_db->query("SELECT * FROM categories ORDER BY category_name")->fetchAll();
+$cats = $_db->query("SELECT *
+                     FROM categories
+                     WHERE EXISTS (
+                        SELECT product_id 
+                        FROM products 
+                        WHERE products.category_id = categories.category_id)
+                     AND categories.is_active = 1
+                     ORDER BY category_name")
+                     ->fetchAll();
 
 // Search keyword
 $product_name = req('product_name', '');
@@ -14,6 +22,7 @@ $stm = $_db->prepare('SELECT p.*, c.category_name
                       FROM products p 
                       LEFT JOIN categories c ON p.category_id = c.category_id
                       WHERE p.product_name LIKE ?
+                      AND p.is_active = 1
                       ORDER BY c.category_name, p.sold DESC, p.product_name ASC');
 
 $stm->execute(["%$product_name%"]);
