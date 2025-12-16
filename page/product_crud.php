@@ -1,44 +1,83 @@
 <?php
 include '../_base.php';
 
-function update_availability() {
+function update_multiple() {
     global $_db;
 
     $product_id = req('product_id', []);
-    if (!is_array($product_id)) $product_id = [$product_id];
+    if (!is_array($product_id)) {
+        $product_id = [$product_id];
+    }
+    $selected_field_to_update = req('selected_field_to_update');
 
-    $stm = $_db->prepare('
-        SELECT is_available
-        FROM products
-        WHERE product_id = ?
-    ');
-
-    foreach ($product_id as $v) {
-        $stm->execute([$v]);
-        $data = $stm->fetch();
-
-        if ($data->is_available == 0) {
-            $availability = 1;
-            break;
-        }
-        else {
+    if ($selected_field_to_update != '') {
+        $count = 0;
+        
+        if ($selected_field_to_update == 'availability') {
             $availability = 0;
+
+            $stm = $_db->prepare('SELECT is_available
+                                  FROM products
+                                  WHERE product_id = ?');
+
+            foreach ($product_id as $pid) {
+                $stm->execute([$pid]);
+                $data = $stm->fetch();
+
+                if ($data->is_available == 0) {
+                    $availability = 1;
+                    break;
+                }
+                else {
+                    $availability = 0;
+                }
+            }
+
+            $stm = $_db->prepare('
+                UPDATE products
+                SET is_available = ?
+                WHERE product_id = ?
+            ');
+
+            foreach ($product_id as $pid) {
+                $count += $stm->execute([$availability, $pid]);
+            }
         }
+
+        elseif ($selected_field_to_update == 'active') {
+            $active = 0;
+
+            $stm = $_db->prepare('SELECT is_active
+                                  FROM products
+                                  WHERE product_id = ?');
+
+            foreach ($product_id as $pid) {
+                $stm->execute([$pid]);
+                $data = $stm->fetch();
+
+                if ($data->is_active == 0) {
+                    $active = 1;
+                    break;
+                }
+                else {
+                    $active = 0;
+                }
+            }
+
+            $stm = $_db->prepare('
+                UPDATE products
+                SET is_active = ?
+                WHERE product_id = ?
+            ');
+
+            foreach ($product_id as $pid) {
+                $count += $stm->execute([$active, $pid]);
+            }
+        }
+
+        temp('info', "$count record(s) $selected_field_to_update updated!");
+        redirect();
     }
-
-    $stm = $_db->prepare('
-        UPDATE products
-        SET is_available = ?
-        WHERE product_id = ?
-    ');
-    $count = 0;
-
-    foreach ($product_id as $v) {
-        $count += $stm->execute([$availability, $v]);
-    }
-
-    temp('info', "$count record(s) updated!");
-    redirect();
 }
 
 function export_products_csv() {
@@ -106,7 +145,8 @@ $fields = [
     'price'          => 'Price',
     'description'    => 'Description',
     'category_id'    => 'Category',
-    'is_available'   => 'Available'
+    'is_available'   => 'Available',
+    'is_active'      => 'Active'
 ];
 
 $sort = req('sort');
@@ -157,35 +197,8 @@ foreach ($p->result as $row) {
 // Fetch all categories for dropdown
 $cats = $_db->query("SELECT * FROM categories ORDER BY category_name")->fetchAll();
 
-// Insert new category
-if (isset($_POST['new_cat'])) {
-    $new_cat = trim($_POST['new_cat']);
-
-    // Validation
-    if ($new_cat === '') {
-        temp('info', 'Category name is required');
-    } 
-    else if (strlen($new_cat) > 50) {
-        temp('info', 'Category name too long (max 50 chars)');
-    } 
-    else {
-        // Check uniqueness
-        $exists = $_db->prepare("SELECT 1 FROM categories WHERE category_name = ?");
-        $exists->execute([$new_cat]);
-        if ($exists->fetch()) {
-            temp('info', 'Category already exists');
-        } else {
-            // Insert
-            $_db->prepare("INSERT INTO categories(category_name) VALUES(?)")
-                ->execute([$new_cat]);
-            temp('info', 'Category added');
-            redirect("/page/product_crud.php"); // reload page
-        }
-    }
-}
-
 if (isset($_POST['update_multiple'])) {
-    update_availability();
+    update_multiple();
 }
 
 if (isset($_POST['export'])) {
@@ -226,8 +239,14 @@ include '../_head.php';
 </form>
 
 <form method="POST" id="modify_multiple">
-    <button type="submit" id="update_multiple" name="update_multiple" data-confirm>Update Multiple Availability</button>
-    <button formaction="product_delete.php" data-confirm>Delete Multiple</button>
+    <select name="selected_field_to_update">
+        <option value="">Select Field</option>
+        <option value="availability">Availability</option>
+        <option value="active">Active</option>
+    </select>
+
+    <button type="submit" id="update_multiple" name="update_multiple" data-confirm>Update Multiple</button>
+    <!-- <button formaction="product_delete.php" data-confirm>Delete Multiple</button> -->
 </form>
 
 <p>
@@ -260,9 +279,10 @@ include '../_head.php';
         <td><?= $m->description ?></td>
         <td><?= $m->category_name ?></td>
         <td><?= $m->is_available ?></td>
+        <td><?= $m->is_active ?></td>
         <td>
             <button data-get="/page/product_update.php?product_id=<?= $m->product_id ?>">Update</button>
-            <button data-post="/page/product_delete.php?product_id=<?= $m->product_id ?>" id="delete" data-confirm>Delete</button>
+            <!-- <button data-post="/page/product_delete.php?product_id=<?= $m->product_id ?>" id="delete" data-confirm>Delete</button> -->
             <img src="../images/menu_photos/<?= $m->photo ?>" class="popup">
         </td>
     </tr>
@@ -302,24 +322,6 @@ include '../_head.php';
         <button type="reset">Reset</button>
     </section>
 </form>
-
-<h2>Category</h2>
-<form method="post">
-    <input type="text" name="new_cat" placeholder="New Category"
-       value="<?= encode(req('new_cat')) ?>">
-    <button>Add</button>
-</form>
-
-<table>
-<?php foreach ($cats as $c): ?>
-<tr>
-    <td><?= encode($c->category_name) ?></td>
-    <td>
-        <button data-post="/page/product_delete.php?category_id=<?= $c->category_id ?>" data-confirm>Delete</button>
-    </td>
-</tr>
-<?php endforeach; ?>
-</table>
 
 <?php
 include '../_foot.php';

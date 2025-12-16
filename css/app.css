@@ -332,3 +332,15 @@ html {
     border-color: burlywood;
     font-weight: bold;
 }
+
+/* Filter popup */
+.filter_popup {
+    background-color: lightcoral;
+    position: absolute;
+    z-index: 1000;
+    width: 50%;
+    height: 500px;
+    visibility: hidden;
+    border-radius: 6px;
+    top: 13%;
+}

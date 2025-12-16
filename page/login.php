@@ -1,6 +1,7 @@
 <?php
 require '../_base.php';
 
+print_r($_SESSION);
 if (is_post()) {
 
     // Input
