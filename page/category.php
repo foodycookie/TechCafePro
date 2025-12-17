@@ -15,7 +15,7 @@ if (isset($_POST['submit'])) {
     }
 
     foreach ($product_id as $pid) {
-        if ($quantity > 0) {
+        if ($quantity[$pid] > 0) {
             add_cart($pid, $quantity[$pid]);
             $count++;
         }
@@ -44,7 +44,7 @@ if (!$category_id) {
 }
 
 // Get category info
-$stm = $_db->prepare("SELECT * FROM categories WHERE category_id = ? AND is_active = 1");
+$stm = $_db->prepare("SELECT * FROM categories WHERE category_id = ? AND status = 1");
 $stm->execute([$category_id]);
 $cat = $stm->fetch();
 
@@ -110,7 +110,7 @@ $sql_query = "SELECT products.*, categories.category_name
               $tag_join_query
               WHERE products.category_id = ?
               AND products.product_name LIKE ?
-              AND products.is_active = 1
+              AND products.status = 1
               $price_query
               $tag_group_by_query
               $tag_order_by_query";
@@ -150,7 +150,9 @@ include '../_head.php';
             
             <button type="button" id="filter_popup_filter_button" name="filter_popup_filter_button" onclick="toggle_visibility('filter_popup')">Filter Menu</button>
 
-            <button style="background-color: yellow;">Search and Filter Product</button>
+            <button style="background-color: aqua;">Search and Filter Product</button>
+
+            <button type="submit" name="submit" form="add_to_cart" style="background-color: gold; float: right">Add Selected Item(s) To Cart</button>
 
             <div class="filter_popup" id="filter_popup" name="filter_popup">
                 <input type="hidden" name="category_id" value="<?= $category_id ?>">
@@ -192,9 +194,7 @@ include '../_head.php';
     </div>
 </div>
 
-<form method="post">
-    <button type="submit" name="submit">Add Selected Item(s) To Cart</button>
-
+<form method="post" id="add_to_cart">
     <?php if ($no_result): ?>
         <div class="alert alert-warning">
             <h2>Product not found, please search again.</h2>

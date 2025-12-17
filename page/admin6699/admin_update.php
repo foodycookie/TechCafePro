@@ -131,7 +131,7 @@ include '../../_head.php';
 
     <?php if ($user_id == 1): ?>
     <label>Status</label>
-    <b> <?= $status == 1 ? 'Available' : 'Unavailable' ?></b>
+    <b> <?= $status == 1 ? 'Active' : 'Inactive' ?></b>
     <?= err('status') ?>
     <?php else :?>
     <label for="status">Status</label>

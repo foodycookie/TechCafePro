@@ -539,6 +539,11 @@ function export($file, $exported_file_name) {
         else
             element.style.visibility = 'visible';
     }
+
+    function toggleAll(source, target) {
+        document.querySelectorAll('input[name="' + target + '"]')
+            .forEach(cb => cb.checked = source.checked);
+    }
 </script>
 
 <?php

@@ -1,45 +1,43 @@
 <?php
 include '../_base.php';
 
-function update_availability() {
+function update_multiple() {
     global $_db;
 
     $user_id = req('user_id', []);
-    if (!is_array($user_id)) $user_id = [$user_id];
-
-    $stm = $_db->prepare('
-        SELECT status
-        FROM users
-        WHERE user_id = ? AND (role = "customer" OR role = "member")
-    ');
-
-    foreach ($user_id as $v) {
-        $stm->execute([$v]);
-        $data = $stm->fetch();
-
-        if ($data->status == 0) {
-            $availability = 1;
-            break;
-        }
-        else {
-            $availability = 0;
-        }
+    if (!is_array($user_id)) {
+        $user_id = [$user_id];
     }
+    $selected_field_to_update = req('selected_field_to_update');
 
-    $stm = $_db->prepare('
-        UPDATE users
-        SET status = ?
-        WHERE user_id = ? AND (role = "customer" OR role = "member")
-    ');
-    $count = 0;
+    if ($selected_field_to_update != '') {
+        $count = 0;
 
-    foreach ($user_id as $v) {
-        $count += $stm->execute([$availability, $v]);
+        if ($selected_field_to_update == 'active') {
+            $stm = $_db->prepare('
+                UPDATE users
+                SET status = 1
+                WHERE user_id = ? AND (role = "customer" OR role = "member")
+            ');
+        }
+
+        elseif ($selected_field_to_update == 'inactive') {
+            $stm = $_db->prepare('
+                UPDATE users
+                SET status = 0
+                WHERE user_id = ? AND (role = "customer" OR role = "member")
+            ');
+        }
+
+        foreach ($user_id as $uid) {
+            $count += $stm->execute([$uid]);
+        }
+
+        temp('info', "$count record(s) updated to $selected_field_to_update!");
+        redirect();
     }
-
-    temp('info', "$count record(s) updated!");
-    redirect("./customer_crud.php");
 }
+
 // ----------------------------------------------------------------------------
 // (1) Sorting
 $fields = [
@@ -58,7 +56,7 @@ in_array($dir, ['asc', 'desc']) || $dir = 'asc';
 
 // (2) Filtering
 $name   = req('name', '');
-$user_id = req('user_id', '');
+// $user_id = req('user_id', '');
 
 // (3) Paging
 $page = req('page', 1);
@@ -89,7 +87,7 @@ foreach ($p->result as $row) {
 }
 
 if (isset($_POST['update_multiple'])) {
-    update_availability();
+    update_multiple();
 }
 
 // ----------------------------------------------------------------------------
@@ -111,8 +109,14 @@ include '../_head.php';
     <button>Search</button>
 </form>
 <form method="POST" id="modify_multiple">
-    <button type="submit" id="update_multiple" name="update_multiple" data-confirm>Update Multiple Availability</button>
-    <button formaction="customer_delete.php" data-confirm>Delete Multiple</button>
+    <select name="selected_field_to_update">
+        <option value="">Select Field</option>
+        <option value="active">Update: To Active</option>
+        <option value="inactive">Update: To Inactive</option>
+    </select>
+
+    <button type="submit" id="update_multiple" name="update_multiple" data-confirm>Update Multiple</button>
+    <!-- <button formaction="customer_delete.php" data-confirm>Delete Multiple</button> -->
 </form>
 
 <p>
@@ -122,7 +126,7 @@ include '../_head.php';
 
 <table class="table">
     <tr>
-        <th></th>
+        <th><input type="checkbox" onclick="toggleAll(this, 'user_id[]')"></th>
         <?= table_headers(
                 $fields,
                 $sort,
@@ -143,10 +147,10 @@ include '../_head.php';
         <td><?= $m->name ?></td>
         <td><?= $m->email ?></td>
         <td><?= $m->role ?></td>
-        <td><?= $m->status ?></td>
+        <td><?= (int)$m->status === 1 ? 'Active' : 'Inactive' ?></td>
         <td>
             <button data-get="/page/customer_update.php?user_id=<?= $m->user_id ?>">Update</button>
-            <button data-post="/page/customer_delete.php?user_id=<?= $m->user_id ?>" id="delete" data-confirm>Delete</button>
+            <!-- <button data-post="/page/customer_delete.php?user_id=<?= $m->user_id ?>" id="delete" data-confirm>Delete</button> -->
             <img src="../../images/user_photos/<?= $m->photo ?>" class="popup">
         </td>
     </tr>
@@ -155,7 +159,8 @@ include '../_head.php';
 
 <br>
 
-<?= $p->html("sort=$sort&dir=$dir&name=$name&user_id=$user_id") ?>
+<!-- <//?= $p->html("sort=$sort&dir=$dir&name=$name&user_id=$user_id") ?> -->
+<?= $p->html("sort=$sort&dir=$dir&name=$name") ?>
 
 <p>
     <!-- <button data-get="/customer_insert.php">Insert</button> -->

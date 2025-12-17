@@ -5,7 +5,7 @@ include '../_base.php';
 
 if (is_post()) {
     $category_name = req('category_name');
-    $is_active = req('is_active');
+    $status = req('status');
 
     if ($category_name == '') {
         $_err['category_name'] = 'Required';
@@ -17,13 +17,13 @@ if (is_post()) {
         $_err['category_name'] = 'Duplicated';
     }
 
-    if ($is_active == '') {
-        $_err['is_active'] = 'Required';
+    if ($status == '') {
+        $_err['status'] = 'Required';
     }
 
     if (!$_err) {
         $stm = $_db->prepare('
-            INSERT INTO categories (category_name, is_active)
+            INSERT INTO categories (category_name, status)
             VALUES (?, ?)
         ');
         $stm->execute([$category_name]);
@@ -44,9 +44,9 @@ include '../_head.php';
     <?= html_text('category_name', 'maxlength="50"') ?>
     <?= err('category_name') ?>
 
-    <label for="is_active">Active</label>
-    <?= html_radios('is_active', array("1"=>"Active", "0"=>"Inactive"), false) ?>
-    <?= err('is_active') ?>
+    <label for="status">Status</label>
+    <?= html_radios('status', array("1"=>"Active", "0"=>"Inactive"), false) ?>
+    <?= err('status') ?>
     
     <section>
         <button>Submit</button>

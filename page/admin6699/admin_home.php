@@ -159,7 +159,7 @@ include '../../_head.php';
                                 <div class="badge_available">
                                     <?php $stm = $_db -> prepare('
                                         SELECT COUNT(*) FROM products
-                                        WHERE is_active = 1
+                                        WHERE status = 1
                                     ');
                                     $stm -> execute();
                                     $p_active_amount = $stm -> fetchColumn();
@@ -170,7 +170,7 @@ include '../../_head.php';
                                 <div class="badge_unavailable">
                                     <?php $stm = $_db -> prepare('
                                         SELECT COUNT(*) FROM products
-                                        WHERE is_active = 0
+                                        WHERE status = 0
                                     ');
                                     $stm -> execute();
                                     $p_unactive_amount = $stm -> fetchColumn();
@@ -215,7 +215,7 @@ include '../../_head.php';
                                 <div class="badge_available">
                                     <?php $stm = $_db -> prepare('
                                         SELECT COUNT(*) FROM categories
-                                        WHERE is_active = 1
+                                        WHERE status = 1
                                     ');
                                     $stm -> execute();
                                     $p_active_amount = $stm -> fetchColumn();
@@ -226,7 +226,7 @@ include '../../_head.php';
                                 <div class="badge_unavailable">
                                     <?php $stm = $_db -> prepare('
                                         SELECT COUNT(*) FROM categories
-                                        WHERE is_active = 0
+                                        WHERE status = 0
                                     ');
                                     $stm -> execute();
                                     $p_unactive_amount = $stm -> fetchColumn();

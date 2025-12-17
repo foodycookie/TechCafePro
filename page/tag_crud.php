@@ -13,6 +13,8 @@ key_exists($sort, $fields) || $sort = 'tag_id';
 $dir = req('dir');
 in_array($dir, ['asc', 'desc']) || $dir = 'asc';
 
+$category = req('category', '');
+
 $name = req('name', '');
 
 $page = req('page', 1);
@@ -20,8 +22,16 @@ $page = req('page', 1);
 require_once '../lib/SimplePager.php';
 
 // ----------------------------------------------------------------------------
+
+$categories = ["Temperature", "Base", "Flavour"]; 
+
 $baseSQL = "FROM tags WHERE name LIKE ?";
 $params = ["%$name%"];
+
+if ($category !== '') {
+    $baseSQL .= " AND category = ?";
+    $params[] = $category;
+}
 
 $sql = "SELECT tag_id $baseSQL ORDER BY $sort $dir";
 
@@ -53,6 +63,17 @@ include '../_head.php';
 
 <form>
     <?= html_search('name','placeholder="Search tag..."') ?>
+
+    <select name="category">
+        <option value="">All Categories</option>
+        <?php foreach ($categories as $c): ?>
+            <option value="<?= $c ?>"
+                <?= $category == $c ? 'selected' : '' ?>>
+                <?= encode($c) ?>
+            </option>
+        <?php endforeach ?>
+    </select>
+
     <button>Search</button>
 </form>
 
@@ -67,7 +88,7 @@ include '../_head.php';
 
 <table class="table">
     <tr>
-        <th></th>
+        <th><input type="checkbox" onclick="toggleAll(this, 'tag_id[]')"></th>
         <?= table_headers(
                 $fields,
                 $sort,
@@ -101,7 +122,7 @@ include '../_head.php';
 
 <p>
     <button data-get="/page/tag_insert.php">Insert</button>
-    <button data-get="/page/admin_home.php">Back to Home</button>
+    <button data-get="/page/admin6699/admin_home.php">Back to Home</button>
 </p>
 
 <?php

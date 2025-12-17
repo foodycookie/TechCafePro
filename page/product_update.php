@@ -41,7 +41,7 @@ if (is_post()) {   // step3 SQL update
     $photo          = $_SESSION['photo']; // current photo filename
     $category_id    = req('category_id');
     $is_available   = req('is_available');
-    $is_active      = req('is_active');
+    $status         = req('status');
     $tag_id         = req('tag_id', []);
     
     // Validate: name   
@@ -76,9 +76,9 @@ if (is_post()) {   // step3 SQL update
         $_err['is_available'] = 'Required';
     }
 
-    // Validate: is_active
-    if ($is_active == '') {
-        $_err['is_active'] = 'Required';
+    // Validate: status
+    if ($status == '') {
+        $_err['status'] = 'Required';
     }
 
     // Validate: photo (file)
@@ -120,10 +120,10 @@ if (is_post()) {   // step3 SQL update
         
         $stm = $_db->prepare('
             UPDATE products
-            SET product_name = ?, price = ?, description = ?, category_id = ?, is_available = ?, is_active = ?, photo = ?
+            SET product_name = ?, price = ?, description = ?, category_id = ?, is_available = ?, status = ?, photo = ?
             WHERE product_id = ?
         ');
-        $stm->execute([$product_name, $price, $description, $category_id, $is_available, $is_active, $photo, $product_id]);
+        $stm->execute([$product_name, $price, $description, $category_id, $is_available, $status, $photo, $product_id]);
 
         $stm = $_db->prepare('DELETE FROM product_tags WHERE product_id = ?');
         $stm->execute([$product_id]);
@@ -187,9 +187,9 @@ include '../_head.php';
     <?= html_radios('is_available', array("1"=>"Available", "0"=>"Unavailable"), false) ?>
     <?= err('is_available') ?>
 
-    <label for="is_active">Active</label>
-    <?= html_radios('is_active', array("1"=>"Active", "0"=>"Inactive"), false) ?>
-    <?= err('is_active') ?>
+    <label for="status">Status</label>
+    <?= html_radios('status', array("1"=>"Active", "0"=>"Inactive"), false) ?>
+    <?= err('status') ?>
 
     <br>
     <button type="button" id="choose_tags" name="choose_tags" onclick="toggle_visibility('insert_product_tags')">Choose Tags</button>

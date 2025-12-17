@@ -10,7 +10,7 @@ if (is_post()) {
     $description   = req('description');
     $category_id   = req('category_id');
     $is_available  = req('is_available');
-    $is_active     = req('is_active');
+    $status        = req('status');
     $f             = get_file('photo');
     $tag_id        = req('tag_id', []);
 
@@ -55,9 +55,9 @@ if (is_post()) {
         $_err['is_available'] = 'Required';
     }
 
-    // Validate: is_active
-    if ($is_active == '') {
-        $_err['is_active'] = 'Required';
+    // Validate: status
+    if ($status == '') {
+        $_err['status'] = 'Required';
     }
 
     // Validate: photo (file)
@@ -91,10 +91,10 @@ if (is_post()) {
         $photo = save_photo($f, '../images/menu_photos');
 
         $stm = $_db->prepare('
-            INSERT INTO products (product_name, price, description, category_id, is_available, is_active, photo)
+            INSERT INTO products (product_name, price, description, category_id, is_available, status, photo)
             VALUES (?, ?, ?, ?, ?, ?, ?)
         ');
-        $stm->execute([$product_name, $price, $description, $category_id, $is_available, $is_active, $photo]);
+        $stm->execute([$product_name, $price, $description, $category_id, $is_available, $status, $photo]);
 
         $last_inserted_product_id = $_db->lastInsertId();
 
@@ -155,9 +155,9 @@ include '../_head.php';
     <?= html_radios('is_available', array("1"=>"Available", "0"=>"Unavailable"), false) ?>
     <?= err('is_available') ?>
 
-    <label for="is_active">Active</label>
-    <?= html_radios('is_active', array("1"=>"Active", "0"=>"Inactive"), false) ?>
-    <?= err('is_active') ?>
+    <label for="status">Status</label>
+    <?= html_radios('status', array("1"=>"Active", "0"=>"Inactive"), false) ?>
+    <?= err('status') ?>
 
     <br>
     <button type="button" id="choose_tags" name="choose_tags" onclick="toggle_visibility('insert_product_tags')">Choose Tags</button>

@@ -43,6 +43,7 @@
                     ?>
                 </a>
                 <a href="/page/profile.php">Profile</a>
+                <a href="/page/logout.php">Logout</a>
             </div>
         <?php elseif (in_array($role, ["admin"])): ?>
             <?php //echo $_SESSION['user']; ?>
@@ -57,6 +58,7 @@
             <a href="/page/delete.php">Delete</a> -->
             <div class="right">
                 <a href="/page/profile.php">Profile</a>
+                <a href="/page/logout.php">Logout</a>
             </div>
         <?php else: ?>
             <?php //echo $_SESSION['user_id']; ?>

@@ -14,37 +14,26 @@ function update_multiple() {
         $count = 0;
 
         if ($selected_field_to_update == 'active') {
-            $active = 0;
-
-            $stm = $_db->prepare('SELECT is_active
-                                  FROM categories
-                                  WHERE category_id = ?');
-
-            foreach ($category_id as $cid) {
-                $stm->execute([$cid]);
-                $data = $stm->fetch();
-
-                if ($data->is_active == 0) {
-                    $active = 1;
-                    break;
-                }
-                else {
-                    $active = 0;
-                }
-            }
-
             $stm = $_db->prepare('
                 UPDATE categories
-                SET is_active = ?
+                SET status = 1
                 WHERE category_id = ?
             ');
-
-            foreach ($category_id as $cid) {
-                $count += $stm->execute([$active, $cid]);
-            }
         }
 
-        temp('info', "$count record(s) $selected_field_to_update updated!");
+        elseif ($selected_field_to_update == 'inactive') {
+            $stm = $_db->prepare('
+                UPDATE categories
+                SET status = 0
+                WHERE category_id = ?
+            ');
+        }
+
+        foreach ($category_id as $cid) {
+            $count += $stm->execute([$cid]);
+        }
+
+        temp('info', "$count record(s) updated to $selected_field_to_update!");
         redirect();
     }
 }
@@ -52,7 +41,7 @@ function update_multiple() {
 $fields = [
     'category_id' => 'Id',
     'category_name' => 'Name',
-    'is_active' => 'Active'
+    'status' => 'Status'
 ];
 
 $sort = req('sort');
@@ -111,7 +100,8 @@ include '../_head.php';
 <form method="POST" id="modify_multiple">
     <select name="selected_field_to_update">
         <option value="">Select Field</option>
-        <option value="active">Active</option>
+        <option value="active">Update: To Active</option>
+        <option value="inactive">Update: To Inactive</option>
     </select>
 
     <button type="submit" id="update_multiple" name="update_multiple" data-confirm>Update Multiple</button>
@@ -125,7 +115,7 @@ include '../_head.php';
 
 <table class="table">
     <tr>
-        <th></th>
+        <th><input type="checkbox" onclick="toggleAll(this, 'category_id[]')"></th>
         <?= table_headers(
                 $fields,
                 $sort,
@@ -144,7 +134,8 @@ include '../_head.php';
         </td>
         <td><?= $m->category_id ?></td>
         <td><?= $m->category_name ?></td>
-        <td><?= $m->is_active ?></td>
+        <td><?= (int)$m->status === 1 ? 'Active' : 'Inactive' ?></td>
+        
         <td>
             <button data-get="/page/category_update.php?category_id=<?= $m->category_id ?>">Update</button>
             <!-- <button data-post="/page/category_delete.php?category_id=<?= $m->category_id ?>" data-confirm>Delete</button> -->
@@ -159,7 +150,7 @@ include '../_head.php';
 
 <p>
     <button data-get="/page/category_insert.php">Insert</button>
-    <button data-get="/page/admin_home.php">Back to Home</button>
+    <button data-get="/page/admin6699/admin_home.php">Back to Home</button>
 </p>
 
 <?php

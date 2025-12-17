@@ -12,70 +12,44 @@ function update_multiple() {
 
     if ($selected_field_to_update != '') {
         $count = 0;
+
+        if ($selected_field_to_update == 'available') {
+            $stm = $_db->prepare('
+                UPDATE products
+                SET is_available = 1
+                WHERE product_id = ?
+            ');
+        }
+
+        elseif ($selected_field_to_update == 'unavailable') {
+            $stm = $_db->prepare('
+                UPDATE products
+                SET is_available = 0
+                WHERE product_id = ?
+            ');
+        }
         
-        if ($selected_field_to_update == 'availability') {
-            $availability = 0;
-
-            $stm = $_db->prepare('SELECT is_available
-                                  FROM products
-                                  WHERE product_id = ?');
-
-            foreach ($product_id as $pid) {
-                $stm->execute([$pid]);
-                $data = $stm->fetch();
-
-                if ($data->is_available == 0) {
-                    $availability = 1;
-                    break;
-                }
-                else {
-                    $availability = 0;
-                }
-            }
-
-            $stm = $_db->prepare('
-                UPDATE products
-                SET is_available = ?
-                WHERE product_id = ?
-            ');
-
-            foreach ($product_id as $pid) {
-                $count += $stm->execute([$availability, $pid]);
-            }
-        }
-
         elseif ($selected_field_to_update == 'active') {
-            $active = 0;
-
-            $stm = $_db->prepare('SELECT is_active
-                                  FROM products
-                                  WHERE product_id = ?');
-
-            foreach ($product_id as $pid) {
-                $stm->execute([$pid]);
-                $data = $stm->fetch();
-
-                if ($data->is_active == 0) {
-                    $active = 1;
-                    break;
-                }
-                else {
-                    $active = 0;
-                }
-            }
-
             $stm = $_db->prepare('
                 UPDATE products
-                SET is_active = ?
+                SET status = 1
                 WHERE product_id = ?
             ');
-
-            foreach ($product_id as $pid) {
-                $count += $stm->execute([$active, $pid]);
-            }
         }
 
-        temp('info', "$count record(s) $selected_field_to_update updated!");
+        elseif ($selected_field_to_update == 'inactive') {
+            $stm = $_db->prepare('
+                UPDATE products
+                SET status = 0
+                WHERE product_id = ?
+            ');
+        }
+
+        foreach ($product_id as $pid) {
+            $count += $stm->execute([$pid]);
+        }
+
+        temp('info', "$count record(s) updated to $selected_field_to_update!");
         redirect();
     }
 }
@@ -94,7 +68,7 @@ function export_products_csv() {
     $temp_file = tmpFile();
 
     // Header
-    fputcsv($temp_file, ['product_id','product_name','price','description','created_at','is_available','photo','sold','is_active','category_id','product_tags']);
+    fputcsv($temp_file, ['product_id','product_name','price','description','created_at','is_available','photo','sold','status','category_id','product_tags']);
 
     $products = $_db->query('SELECT * FROM products')->fetchAll();
     $product_tags = $_db->query('SELECT * FROM product_tags')->fetchAll();
@@ -123,7 +97,7 @@ function export_products_csv() {
                              $product->is_available,
                              $product->photo,
                              $product->sold,
-                             $product->is_active,
+                             $product->status,
                              $product->category_id,
                              implode("|", $product_tags_array)]);
     }
@@ -140,7 +114,7 @@ function import_products_csv() {
     global $_db;
 
     $header_row = true;
-    $stm1 = $_db->prepare('INSERT INTO products (product_name, price, description, is_available, photo, sold, is_active, category_id)
+    $stm1 = $_db->prepare('INSERT INTO products (product_name, price, description, is_available, photo, sold, status, category_id)
                            VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
     $stm2 = $_db->prepare('INSERT INTO product_tags (product_id, tag_id)
                            VALUES (?, ?)');
@@ -174,7 +148,7 @@ function import_products_csv() {
         $is_available = trim($data[5]);
         $photo = trim($data[6]);
         $sold = trim($data[7]);
-        $is_active = trim($data[8]);
+        $status = trim($data[8]);
         $category_id = trim($data[9]);
         $product_tag_ids = trim($data[10]);
 
@@ -208,8 +182,8 @@ function import_products_csv() {
             continue;
         }
 
-        // Validation: is_active
-        if (($is_active === '') || ($is_active !== '0' && $is_active !== '1')) {
+        // Validation: status
+        if (($status === '') || ($status !== '0' && $status !== '1')) {
             $failed_count++;
             continue;
         }
@@ -228,7 +202,7 @@ function import_products_csv() {
 
         // TODO: Process photo
 
-        $success_count += $stm1->execute([$product_name, $price, $description, $is_available, $photo, $sold, $is_active, $category_id]);
+        $success_count += $stm1->execute([$product_name, $price, $description, $is_available, $photo, $sold, $status, $category_id]);
 
         $last_inserted_product_id = $_db->lastInsertId();
 
@@ -273,7 +247,7 @@ $fields = [
     'description'    => 'Description',
     'category_id'    => 'Category',
     'is_available'   => 'Available',
-    'is_active'      => 'Active'
+    'status'         => 'Status'
 ];
 
 $sort = req('sort');
@@ -292,6 +266,7 @@ $page = req('page', 1);
 require_once '../lib/SimplePager.php';
 
 // ----------------------------------------------------------------------------
+
 // Build SQL for SimplePager
 $baseSQL = "FROM products WHERE product_name LIKE ?";
 $params = ["%$product_name%"];
@@ -368,8 +343,10 @@ include '../_head.php';
 <form method="POST" id="modify_multiple">
     <select name="selected_field_to_update">
         <option value="">Select Field</option>
-        <option value="availability">Availability</option>
-        <option value="active">Active</option>
+        <option value="available">Update: To Available</option>
+        <option value="unavailable">Update: To Unavailable</option>
+        <option value="active">Update: To Active</option>
+        <option value="inactive">Update: To Inactive</option>
     </select>
 
     <button type="submit" id="update_multiple" name="update_multiple" data-confirm>Update Multiple</button>
@@ -383,7 +360,7 @@ include '../_head.php';
 
 <table class="table">
     <tr>
-        <th></th>
+        <th><input type="checkbox" onclick="toggleAll(this, 'product_id[]')"></th>
         <?= table_headers(
                 $fields,
                 $sort,
@@ -405,8 +382,8 @@ include '../_head.php';
         <td style="text-align: right;"><?= number_format($m->price, 2) ?></td>
         <td><?= $m->description ?></td>
         <td><?= $m->category_name ?></td>
-        <td><?= $m->is_available ?></td>
-        <td><?= $m->is_active ?></td>
+        <td><?= (int)$m->is_available === 1 ? 'Available' : 'Unavailable' ?></td>
+        <td><?= (int)$m->status === 1 ? 'Active' : 'Inactive' ?></td>
         <td>
             <button data-get="/page/product_update.php?product_id=<?= $m->product_id ?>">Update</button>
             <!-- <button data-post="/page/product_delete.php?product_id=<?= $m->product_id ?>" id="delete" data-confirm>Delete</button> -->

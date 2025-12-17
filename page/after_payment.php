@@ -97,6 +97,9 @@ set_cart();
     </div>
 
     <p>
+        <button onclick="window.location.href='/page/order_history.php'" style="text-decoration:none; cursor:pointer;">
+            View Order History
+        </button>
         <button onclick="window.location.href='/page/menu.php'" style="text-decoration:none; cursor:pointer;">
             Continue Shopping
         </button>
