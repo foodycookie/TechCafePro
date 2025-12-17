@@ -421,7 +421,7 @@ function set_cart($cart = []) {
 function update_cart($id, $unit) {
     $cart = get_cart();
 
-    if ($unit >= 1 && $unit <= 10 && is_exists($id, 'product', 'id')) {
+    if ($unit >= 1 && $unit <= 99 && is_exists($id, 'products', 'product_id')) {
         $cart[$id] = $unit;
         ksort($cart);
     }
@@ -432,24 +432,39 @@ function update_cart($id, $unit) {
     set_cart($cart);
 }
 
-// Add product to cart
-function cart_add($id, $qty = 1) {
+// Add to shopping cart
+function add_cart($id, $unit) {
     $cart = get_cart();
-    if (isset($cart[$id])) {
-        $cart[$id] += $qty;
-        if ($cart[$id] > 10) $cart[$id] = 10; // Max 10
-    } else {
-        $cart[$id] = $qty;
-    }
-    set_cart($cart); 
-}
 
-// Remove product from cart
-function cart_remove($id) {
-    $cart = get_cart();
-    unset($cart[$id]);
+    if ($unit >= 1 && $unit <= 99 && is_exists($id, 'products', 'product_id')) {
+        $cart[$id] += $unit;
+        ksort($cart);
+    }
+    else {
+        unset($cart[$id]);
+    }
+
     set_cart($cart);
 }
+
+// Add product to cart
+// function cart_add($id, $qty = 1) {
+//     $cart = get_cart();
+//     if (isset($cart[$id])) {
+//         $cart[$id] += $qty;
+//         if ($cart[$id] > 10) $cart[$id] = 10; // Max 10
+//     } else {
+//         $cart[$id] = $qty;
+//     }
+//     set_cart($cart); 
+// }
+
+// Remove product from cart
+// function cart_remove($id) {
+//     $cart = get_cart();
+//     unset($cart[$id]);
+//     set_cart($cart);
+// }
 
 // ============================================================================
 // Payment Gateway Functions

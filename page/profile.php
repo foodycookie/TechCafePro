@@ -4,7 +4,7 @@ include '../_base.php';
 $user_id = $_SESSION['user']->user_id;
 
 if (!$user_id) {
-    redirect('login.php');
+    redirect('/page/login.php');
 }
 
 // ----------------------------------------------------------------------------
@@ -32,7 +32,7 @@ if (is_get()) {
     $u = $stm->fetch();
 
     if (!$u) {
-        redirect('login.php');
+        redirect('/page/login.php');
     }
 
     extract((array)$u);
@@ -45,22 +45,22 @@ if (is_get()) {
 // POST: Update profile / Deactivate
 // ----------------------------------------------------------------------------
 
+/* =====================
+    Deactivate account
+===================== */
+if (isset($_POST['deactivate_account'])) {
+    $_db->prepare("
+        UPDATE users
+        SET status = 0
+        WHERE user_id = ?
+    ")->execute([$user_id]);
+
+    session_unset();
+    temp('info', 'goodbye son');
+    redirect('/page/home.php');
+}
+
 if (is_post()) {
-
-    /* =====================
-       Deactivate account
-    ===================== */
-    if (req('deactivate_account')) {
-
-        $_db->prepare("
-            UPDATE users
-            SET is_active = 0
-            WHERE user_id = ?
-        ")->execute([$user_id]);
-
-        logout();
-        redirect('login.php?deactivated=1');
-    }
 
     /* =====================
        Get inputs
@@ -119,9 +119,9 @@ if (is_post()) {
         // (1) Save new photo
         if ($f) {
             if ($photo) {
-                @unlink("../uploads/profile_pics/$photo");
+                @unlink("../images/user_photos/$photo");
             }
-            $photo = save_photo($f, '../uploads/profile_pics');
+            $photo = save_photo($f, '../images/user_photos');
         }
 
         // (2) Update user
@@ -132,14 +132,11 @@ if (is_post()) {
         ")->execute([$email, $name, $photo, $user_id]);
 
         // (3) Save shipping address (permanent)
-        $shipping_id = 'SA' . substr($user_id, -5);
-
         $_db->prepare("
-            REPLACE INTO shipping_addresses
-            (shipping_address_id, address, city, postal_code, state, country, user_id)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            UPDATE shipping_addresses
+            SET address = ?, city = ?, postal_code = ?, state = ?, country = ?
+            WHERE user_id = ?
         ")->execute([
-            $shipping_id,
             $address,
             $city,
             $postal_code,
@@ -149,7 +146,7 @@ if (is_post()) {
         ]);
 
         temp('info', 'Profile updated');
-        redirect('profile.php');
+        redirect('/page/profile.php');
     }
 }
 
@@ -172,7 +169,7 @@ include '../_head.php';
     <label>Photo</label>
     <label class="upload">
         <?= html_file('photo', 'image/*', 'hidden') ?>
-        <img src="../uploads/profile_pics/<?= $photo ?: 'default.png' ?>" width="120">
+        <img src="../images/user_photos/<?= $photo ?: '../images/user_photos/placeholder.png' ?>" width="120">
     </label>
     <?= err('photo') ?>
 
@@ -197,6 +194,8 @@ include '../_head.php';
         📦 Order History
     </button>
 </p>
+
+<button onclick="location.href='/page/logout.php'">Logout</button>
 
 
 <form method="post"

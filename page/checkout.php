@@ -63,13 +63,9 @@ try {
         WHERE order_id = ?
     ');
     $stm->execute([$order_id, $order_id, $order_id]);
-
-
  
     // Commit transaction
     $_db->commit();
-
-    set_cart([]); // Clear cart
 
     redirect("payment.php?order_id=$order_id");
 

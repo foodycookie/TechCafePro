@@ -1,6 +1,33 @@
 <?php
 include '../_base.php';
 
+if (isset($_POST['submit'])) {
+    $product_id = req('selected', []);
+    $quantity = req('quantity', []);
+    $count = 0;
+
+    if (!is_array($product_id)) {
+        $product_id = [$product_id];
+    }
+
+    if (!is_array($quantity)) {
+        $quantity = [$quantity];
+    }
+
+    foreach ($product_id as $pid) {
+        if ($quantity > 0) {
+            add_cart($pid, $quantity[$pid]);
+            $count++;
+        }
+    }
+
+    if ($count > 0) {
+        temp('info', "$count item(s) added to cart!");
+    }
+
+    redirect();
+}
+
 // Get category ID from URL
 $category_id = req('category_id');
 $product_name = req('product_name');
@@ -165,51 +192,53 @@ include '../_head.php';
     </div>
 </div>
 
+<form method="post">
+    <button type="submit" name="submit">Add Selected Item(s) To Cart</button>
 
-
-<?php if ($no_result): ?>
-    <div class="alert alert-warning">
-        <h2>Product not found, please search again.</h2>
-    </div>
-    <button onclick="location.href='category.php?category_id=<?= $category_id ?>'" style="margin-bottom: 40px;">
-        Back
-    </button>
-
-<?php else: ?>
-    <div class="menu-grid">
-        <div class="category-section">
-            <?php foreach ($products as $p): ?>
-                <div class="menu-card <?= $p->is_available ? '' : 'unavailable' ?>">
-
-                    <img src="../images/menu_photos/<?= $p->photo ?>"
-                        alt="<?= encode($p->product_name) ?>" width="180">
-
-                    <h3><?= encode($p->product_name) ?></h3>
-                    <p class="price">RM <?= number_format($p->price, 2) ?></p>
-
-                    <?php if (!$p->is_available): ?>
-                        <div class="badge-unavailable">Unavailable</div>
-                    <?php endif; ?>
-
-                    <?php if ($p->is_available): ?>
-                        <?php if (in_array($role,['member','customer'])): ?>
-                            <button data-post="/page/cart.php?id=<?= $p->product_id ?>">
-                                Add to Cart
-                            </button>
-                        <?php else: ?>
-                            <button onclick="location.href='login.php'">
-                                Login to Order
-                            </button>
-                        <?php endif; ?>
-                    <?php endif; ?>
-                </div>
-            <?php endforeach; ?>
+    <?php if ($no_result): ?>
+        <div class="alert alert-warning">
+            <h2>Product not found, please search again.</h2>
         </div>
-        <button onclick="location.href='/page/menu.php'" style="margin-bottom: 40px;">
-            &laquo; Back to Menu
+        <button type="button" onclick="location.href='category.php?category_id=<?= $category_id ?>'" style="margin-bottom: 40px;">
+            Back
         </button>
-    </div>
-<?php endif; ?>
+
+    <?php else: ?>
+        <div class="menu-grid">
+            <div class="category-section">
+                <?php foreach ($products as $p): ?>
+                    <div class="menu-card <?= $p->is_available ? '' : 'unavailable' ?>">
+
+                        <img src="../images/menu_photos/<?= $p->photo ?>"
+                            alt="<?= encode($p->product_name) ?>" width="180">
+
+                        <h3><?= encode($p->product_name) ?></h3>
+                        <p class="price">RM <?= number_format($p->price, 2) ?></p>
+
+                        <?php if (!$p->is_available): ?>
+                            <div class="badge-unavailable">Unavailable</div>
+                        <?php endif; ?>
+
+                        <?php if ($p->is_available): ?>
+                            <?php if (in_array($role,['member','customer'])): ?>
+                                <input type="hidden" name="selected[]" value="<?= $p->product_id ?>">
+                                <input type='number' name='quantity[<?= $p->product_id ?>]' value='0'
+                                        min='0' max='99' step='1'>
+                            <?php else: ?>
+                                <button type="button" onclick="location.href='login.php'">
+                                    Login to Order
+                                </button>
+                            <?php endif; ?>
+                        <?php endif; ?>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+            <button type="button" onclick="location.href='/page/menu.php'" style="margin-bottom: 40px;">
+                &laquo; Back to Menu
+            </button>
+        </div>
+    <?php endif; ?>
+</form>
 
 <?php
 include '../_foot.php';

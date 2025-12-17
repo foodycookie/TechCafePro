@@ -78,7 +78,13 @@ if (is_post()) {
         ');
         $stm->execute([$name, $email, $password, $photo]);
 
-        temp('info', 'Record inserted');
+        $stm = $_db->prepare('
+            INSERT INTO shipping_addresses (user_id)
+            VALUES (?)
+        ');
+        $stm->execute([$_db->lastInsertId()]);  
+
+        temp('info', 'Thank you for registering!');
         redirect('./login.php');
     }
 }

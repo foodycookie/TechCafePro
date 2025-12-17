@@ -1,161 +1,118 @@
 <?php
-require '../_base.php';
+include '../_base.php';
 
-if (session_status() === PHP_SESSION_NONE) session_start();
+// ----------------------------------------------------------------------------
 
-// Only customer/member can access
-auth('customer', 'member');
+if (isset($_POST['clear_button'])) {
+    set_cart();
+    redirect();
+}
 
-$cart = get_cart();
+if (isset($_POST['update_button'])) {
+    $product_id = req('product_id_to_be_updated', []);
+    $quantity = req('quantity_to_be_updated', []);
 
-/* ===============================
-   HANDLE BULK ACTIONS
-   =============================== */
-
-// Update quantities (bulk)
-if (is_post() && ($_POST['action'] ?? '') === 'update' && isset($_POST['qty'])) {
-    foreach ($_POST['qty'] as $id => $unit) {
-        $id   = (int)$id;
-        $unit = (int)$unit;
-
-        if ($unit > 0) {
-            update_cart($id, $unit);
-        } else {
-            cart_remove($id);
-        }
+    if (!is_array($product_id)) {
+        $product_id = [$product_id];
     }
-    redirect('/page/cart.php');
-}
 
-// Remove selected items
-if (is_post() && ($_POST['action'] ?? '') === 'remove' && !empty($_POST['selected'])) {
-    foreach ($_POST['selected'] as $id) {
-        cart_remove((int)$id);
+    if (!is_array($quantity)) {
+        $quantity = [$quantity];
     }
-    redirect('/page/cart.php');
+
+    for ($i=0; $i < count($product_id); $i++) { 
+        update_cart($product_id[$i], $quantity[$i]);
+    }
+        
+    redirect();
 }
 
-// Checkout selected items only
-if (is_post() && ($_POST['action'] ?? '') === 'checkout' && !empty($_POST['selected'])) {
-    $_SESSION['checkout_selected'] = array_map('intval', $_POST['selected']);
-    redirect('/page/checkout.php');
+if (isset($_POST['delete_button'])) {
+    $product_id = req('delete_button');
+
+    update_cart($product_id, 0);
+
+    redirect();
 }
 
-/* ===============================
-   FETCH PRODUCT DETAILS
-   =============================== */
+// ----------------------------------------------------------------------------
 
-$ids = array_keys($cart);
-$items = [];
-
-if ($ids) {
-    $placeholders = str_repeat('?,', count($ids) - 1) . '?';
-    $stm = $_db->prepare("
-        SELECT p.*, c.category_name
-        FROM products p
-        JOIN categories c ON p.category_id = c.category_id
-        WHERE p.product_id IN ($placeholders)
-        ORDER BY p.product_name
-    ");
-    $stm->execute($ids);
-    $items = $stm->fetchAll();
-}
-
-$total = 0;
-$_title = 'Shopping Cart';
+$_title = 'Order | Shopping Cart';
 include '../_head.php';
 ?>
 
-<h2>Your Cart (<?= count($cart) ?> item<?= count($cart) > 1 ? 's' : '' ?>)</h2>
-
-<?php if (!$items): ?>
-    <p>Your cart is empty. <a href="/page/menu.php">Go shopping</a></p>
-<?php else: ?>
+<style>
+    .popup {
+        width: 100px;
+        height: 100px;
+    }
+</style>
 
 <form method="post">
-
-<table class="table">
-    <thead>
+    <table class="table">
         <tr>
-            <th><input type="checkbox" onclick="toggleAll(this)"></th>
-            <th>Photo</th>
-            <th>Product</th>
-            <th>Price</th>
+            <th>Id</th>
+            <th>Name</th>
+            <th>Price (RM)</th>
             <th>Quantity</th>
-            <th>Subtotal</th>
+            <th>Subtotal (RM)</th>
         </tr>
-    </thead>
-
-    <tbody>
-        <?php foreach ($items as $p): 
-            $qty = $cart[$p->product_id];
-            $sub = $p->price * $qty;
-            $total += $sub;
+        <?php
+            $count = 0;
+            $total = 0; 
+            
+            $stm = $_db->prepare('SELECT * FROM products WHERE product_id = ?');
+            $cart = get_cart();
+            
+            foreach ($cart as $product_id => $quantity):
+                $stm->execute([$product_id]);
+                $p = $stm->fetch();
+                
+                $subtotal = $p->price * $quantity;
+                $count += $quantity;
+                $total += $subtotal; 
         ?>
-        <tr>
-            <td>
-                <input type="checkbox" name="selected[]" value="<?= $p->product_id ?>">
-            </td>
+            <tr>
+                <td><?= $p->product_id ?></td>
+                <td><?= $p->product_name ?></td>
+                <td class="right"><?= $p->price ?></td>
+                <td>
+                    <input type="hidden"name="product_id_to_be_updated[]" value="<?= $p->product_id ?>">
+                    <input type='number' name='quantity_to_be_updated[]' value="<?= $quantity ?>"
+                           min='0' max='99' step='1'>
+                </td>
+                <td class="right">
+                    <?= sprintf('%.2f', $subtotal) ?>
+                </td>
+                <td>
+                    <button type="submit" name="delete_button" value="<?= $p->product_id ?>">Delete</button>
+                    <img src="../images/menu_photos/<?= $p->photo ?>" class="popup">
+                </td>
+            </tr>
+        <?php endforeach ?>
+            <tr>
+                <th colspan="3"></th>
+                <th class="right"><?= $count ?></th>
+                <th class="right"><?= sprintf('%.2f', $total) ?></th>
+            </tr>
+    </table>
 
-            <td>
-                <img src="/images/placeholder/<?= $p->photo ?>" width="80">
-            </td>
-
-            <td><?= htmlspecialchars($p->product_name) ?></td>
-
-            <td>RM <?= number_format($p->price, 2) ?></td>
-
-            <td>
-                <input
-                    type="number"
-                    name="qty[<?= $p->product_id ?>]"
-                    value="<?= $qty ?>"
-                    min="1"
-                    style="width:70px"
-                >
-            </td>
-
-            <td>RM <?= number_format($sub, 2) ?></td>
-        </tr>
-        <?php endforeach; ?>
-    </tbody>
-
-    <tfoot>
-        <tr>
-            <th colspan="5" style="text-align:right">Total</th>
-            <th>RM <?= number_format($total, 2) ?></th>
-        </tr>
-    </tfoot>
-</table>
-
-<div style="margin:20px 0; text-align:right">
-    <button type="submit" name="action" value="update">
-        Update Quantity
-    </button>
-
-    <button type="submit" name="action" value="remove"
-        onclick="return confirm('Remove selected items?')">
-        Remove Selected
-    </button>
-
-    <button type="submit" name="action" value="checkout">
-        Checkout Selected
-    </button>
-
-    <button type="button" onclick="location.href='/page/menu.php'">
-        Continue Shopping
-    </button>
-</div>
-
+    <p>
+        <?php if ($cart): ?>
+            <button type="submit" name="clear_button">Clear</button>
+            <button type="submit" name="update_button">Update Amount</button>
+            <?php if (in_array($role,['member','customer'])): ?>
+                <button data-post="checkout.php">Checkout</button>
+            <?php else: ?>
+                Please <a href="/login.php">login</a> as member to checkout
+            <?php endif ?>
+        <?php endif ?>
+    </p>
 </form>
 
-<?php endif; ?>
-
 <script>
-function toggleAll(source) {
-    document.querySelectorAll("input[name='selected[]']")
-        .forEach(cb => cb.checked = source.checked);
-}
+    $('select').on('change', e => e.target.form.submit());
 </script>
 
-<?php include '../_foot.php'; ?>
+<?php
+include '../_foot.php';

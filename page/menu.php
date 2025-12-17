@@ -1,13 +1,34 @@
 <?php
 include '../_base.php';
 
-if (session_status() === PHP_SESSION_NONE) session_start();
+if (isset($_POST['submit'])) {
+    $product_id = req('selected', []);
+    $quantity = req('quantity', []);
+    $count = 0;
 
-// Handle Add to Cart
-if (is_post() && isset($_POST['product_id'])) {
-    $id = (int)$_POST['product_id'];
-    cart_add($id, 1); // use newly defined function
-    redirect('/page/cart.php');
+    print_r($product_id);
+    print_r($quantity);
+
+    if (!is_array($product_id)) {
+        $product_id = [$product_id];
+    }
+
+    if (!is_array($quantity)) {
+        $quantity = [$quantity];
+    }
+
+    foreach ($product_id as $pid) {
+        if ($quantity[$pid] > 0) {
+            add_cart($pid, $quantity[$pid]);
+            $count++;
+        }
+    }
+
+    if ($count > 0) {
+        temp('info', "$count item(s) added to cart!");
+    }
+
+    redirect();
 }
 
 // ----------------------------------------------------------------------------
@@ -73,56 +94,55 @@ include '../_head.php';
     </div>
 </div>
 
-<div class="layout">
-    <main class="menu-grid">
-        <?php foreach ($grouped as $category_id => $data): ?>
-            <?php $category_name = $data['category_name']; ?>
-            <?php $items    = $data['items']; ?>
+<form method="post">
+    <div class="layout">
+        <main class="menu-grid">
+                <button type="submit" name="submit">Add Selected Item(s) To Cart</button>
+                <?php foreach ($grouped as $category_id => $data): ?>
+                    <?php $category_name = $data['category_name']; ?>
+                    <?php $items    = $data['items']; ?>
+                    <h2 id="cat-<?= $category_id ?>" style="font-size: 35px; clear:both;">
+                        <?= encode($category_name) ?>
+                    </h2>
+                    <div class="category-section">
+                        <?php 
+                            // Get top 5 products from this category
+                            $top5 = array_slice($items, 0, 5);
+                        ?>
+                        <?php foreach ($top5 as $p): ?>  <!--top 5-->
+                            <div class="menu-card <?= $p->is_available ? '' : 'unavailable' ?>">
+                                <img src="../images/menu_photos/<?= $p->photo ?>" 
+                                    alt="<?= encode($p->product_name) ?>" width="180">
+                                <h3><?= encode($p->product_name) ?></h3>
+                                <p class="price">RM <?= number_format($p->price, 2) ?></p>
+                                <?php if (!$p->is_available): ?>
+                                    <div class="badge-unavailable">Unavailable</div>
+                                <?php else: ?>
+                                    <?php if (in_array($role,['member','customer'])): ?> <!--must change follow teammate-->
+                                        <input type="hidden" name="selected[]" value="<?= $p->product_id ?>">
+                                        <input type='number' name='quantity[<?= $p->product_id ?>]' value='0'
+                                            min='0' max='99' step='1'>
+                                    <?php else: ?>
+                                        <button type="button" onclick="location.href='login.php'">
+                                            Login to Order
+                                        </button>
+                                    <?php endif; ?>
+                                <?php endif; ?>
 
-            <h2 id="cat-<?= $category_id ?>" style="font-size: 35px; clear:both;">
-                <?= encode($category_name) ?>
-            </h2>
-
-            <div class="category-section">
-                <?php 
-                    // Get top 5 products from this category
-                    $top5 = array_slice($items, 0, 5);
-                ?>
-                <?php foreach ($top5 as $p): ?>  <!--top 5-->
-                    <div class="menu-card <?= $p->is_available ? '' : 'unavailable' ?>">
-                        <img src="../images/menu_photos/<?= $p->photo ?>" 
-                             alt="<?= encode($p->product_name) ?>" width="180">
-
-                        <h3><?= encode($p->product_name) ?></h3>
-                        <p class="price">RM <?= number_format($p->price, 2) ?></p>
-
-                        <?php if (!$p->is_available): ?>
-                            <div class="badge-unavailable">Unavailable</div>
-                        <?php else: ?>
-                            <?php if (in_array($role,['member','customer'])): ?> <!--must change follow teammate-->
-                                <button data-post="/page/cart.php?id=<?= $p->product_id ?>">
-                                    Add to Cart
-                                </button>
-                            <?php else: ?>
-                                <button onclick="location.href='login.php'">
-                                    Login to Order
-                                </button>
-                            <?php endif; ?>
-                        <?php endif; ?>
-
-                    </div>
-                <?php endforeach; ?>
-            </div>
-            <div style="clear:both;"></div>
-            <!-- More button -->
-            <div style="text-align:right; margin-bottom:40px;">
-                <button onclick="location.href='/page/category.php?category_id=<?= $category_id ?>'">
-                    More &raquo;
-                </button>
-            </div>
-        <?php endforeach; ?>
-    </main>
-</div>
+                            </div>
+                        <?php endforeach; ?>
+                </div>
+                <div style="clear:both;"></div>
+                <!-- More button -->
+                <div style="text-align:right; margin-bottom:40px;">
+                    <button type="button" onclick="location.href='/page/category.php?category_id=<?= $category_id ?>'">
+                        More &raquo;
+                    </button>
+                </div>
+            <?php endforeach; ?>
+        </main>
+    </div>
+</form>
 
 <?php
 include '../_foot.php';

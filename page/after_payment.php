@@ -32,7 +32,11 @@ $items = $stm->fetchAll();
 $stm = $_db->prepare('SELECT * FROM payments WHERE order_id = ?');
 $stm->execute([$order_id]);
 $payment = $stm->fetch();
+
+set_cart();
 ?>
+
+
 
 
 

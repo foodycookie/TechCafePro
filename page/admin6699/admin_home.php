@@ -159,7 +159,7 @@ include '../../_head.php';
                                 <div class="badge_available">
                                     <?php $stm = $_db -> prepare('
                                         SELECT COUNT(*) FROM products
-                                        WHERE is_available = 1
+                                        WHERE is_active = 1
                                     ');
                                     $stm -> execute();
                                     $p_active_amount = $stm -> fetchColumn();
@@ -170,7 +170,7 @@ include '../../_head.php';
                                 <div class="badge_unavailable">
                                     <?php $stm = $_db -> prepare('
                                         SELECT COUNT(*) FROM products
-                                        WHERE is_available = 0
+                                        WHERE is_active = 0
                                     ');
                                     $stm -> execute();
                                     $p_unactive_amount = $stm -> fetchColumn();
@@ -181,7 +181,7 @@ include '../../_head.php';
                             </div>
                         </button>
 
-                        <button class="icon-btn">
+                        <button class="icon-btn" onclick="location.href='/page/order_crud.php'">
                             <img src="../../images/system/order_icon.png" alt="Order Icon">
                             <span>Order</span>
                             <div class="badge-group">
@@ -203,6 +203,52 @@ include '../../_head.php';
                                     $o_unactive_amount = $stm -> fetchColumn();
 
                                     echo $o_unactive_amount;
+                                    ?>
+                                </div>
+                            </div>
+                        </button>
+
+                        <button class="icon-btn" onclick="location.href='/page/category_crud.php'">
+                            <img src="../../images/system/product_icon.png" alt="Product Icon">
+                            <span>Category</span>
+                            <div class="badge-group">
+                                <div class="badge_available">
+                                    <?php $stm = $_db -> prepare('
+                                        SELECT COUNT(*) FROM categories
+                                        WHERE is_active = 1
+                                    ');
+                                    $stm -> execute();
+                                    $p_active_amount = $stm -> fetchColumn();
+
+                                    echo $p_active_amount;
+                                    ?>
+                                </div>
+                                <div class="badge_unavailable">
+                                    <?php $stm = $_db -> prepare('
+                                        SELECT COUNT(*) FROM categories
+                                        WHERE is_active = 0
+                                    ');
+                                    $stm -> execute();
+                                    $p_unactive_amount = $stm -> fetchColumn();
+
+                                    echo $p_unactive_amount;
+                                    ?>
+                                </div>
+                            </div>
+                        </button>
+
+                        <button class="icon-btn" onclick="location.href='/page/tag_crud.php'">
+                            <img src="../../images/system/order_icon.png" alt="Order Icon">
+                            <span>Tag</span>
+                            <div class="badge-group">
+                                <div class="badge_available">
+                                    <?php $stm = $_db -> prepare('
+                                        SELECT COUNT(*) FROM tags
+                                    ');
+                                    $stm -> execute();
+                                    $o_active_amount = $stm -> fetchColumn();
+
+                                    echo $o_active_amount;
                                     ?>
                                 </div>
                             </div>

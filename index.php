@@ -1,3 +1,7 @@
+<?php
+require '_base.php'; // set KL time
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -17,14 +21,15 @@
 
     <main>
         <div style = "text-align:center; margin:50px auto;">
-        <button data-get="/page/home.php">Let's Start</button>
+        <?php if (in_array($_SESSION['user'] -> role ?? null, ['admin'])): ?>
+            <button data-get="/page/admin6699/admin_home.php">Let's Start</button>
+        <?php else: ?>
+            <button data-get="/page/home.php">Let's Start</button>
+        <?php endif; ?>
         </div>
     </main>
 </body>
 </html>
-<?php
-require '_base.php'; // set KL time
-?>
 
 <?php
 include '_foot.php';
