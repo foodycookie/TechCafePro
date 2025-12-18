@@ -197,23 +197,33 @@ include '../_head.php';
     <div class="filter_popup" id="insert_product_tags" name="insert_product_tags">
         <h2>Filter Menu</h2>
 
-        <h3>Temperature</h3>
+        <?php if (!empty($temperature_tags)): ?>
+            <h3>Temperature</h3>
             <?php foreach ($temperature_tags as $temperature_tag): ?>
                 <?php $temperature_tag_array["$temperature_tag->tag_id"] = "$temperature_tag->name"; ?>
             <?php endforeach; ?>
             <?= html_checkboxes('tag_id', $temperature_tag_array, false); ?>
+        <?php endif ?>
 
-        <h3>Base</h3>
+        <?php if (!empty($base_tags)): ?>
+            <h3>Base</h3>
             <?php foreach ($base_tags as $base_tag): ?>
                 <?php $base_tag_array["$base_tag->tag_id"] = "$base_tag->name"; ?>
             <?php endforeach; ?>
             <?= html_checkboxes('tag_id', $base_tag_array, false) ?>
+        <?php endif ?>
 
-        <h3>Flavour</h3>
+        <?php if (!empty($flavour_tags)): ?>
+            <h3>Flavour</h3>
             <?php foreach ($flavour_tags as $flavour_tag): ?>
                 <?php $flavour_tag_array["$flavour_tag->tag_id"] = "$flavour_tag->name"; ?>
             <?php endforeach; ?>
             <?= html_checkboxes('tag_id', $flavour_tag_array, false) ?>
+        <?php endif ?>
+
+        <?php if ((count($temperature_tags) == 0) && (count($base_tags) == 0) && (count($flavour_tags) == 0)): ?>
+            <h3>No Tag Available!</h3>
+        <?php endif; ?>
 
         <br>
         <button type="button" onclick="toggle_visibility('insert_product_tags')">Close</button>

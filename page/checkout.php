@@ -14,9 +14,9 @@ include '../_head.php';
 auth2('Member');
 
 // Get shopping cart from session
-$cart = get_cart();
+$cart = get_chosen_cart_item_for_order();
 if (!$cart) {
-    echo '<p>Your cart is empty. <a href="cart.php">Go back to cart</a></p>';
+    echo '<p>You have not choose any item for purchase yet. <a href="cart.php">Go back to cart</a></p>';
     include '../_foot.php';
     exit;
 }
@@ -63,7 +63,7 @@ try {
         WHERE order_id = ?
     ');
     $stm->execute([$order_id, $order_id, $order_id]);
- 
+
     // Commit transaction
     $_db->commit();
 
@@ -73,6 +73,7 @@ try {
     $_db->rollBack();
     echo "<p>Error processing order: " . $e->getMessage() . "</p>";
 } // END TRANSACTION
+
 ?>
 
 <?php

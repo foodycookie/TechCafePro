@@ -78,7 +78,7 @@ include '../_head.php';
 </form>
 
 <form method="POST" id="modify_multiple">
-    <button formaction="tag_delete.php" data-confirm>Delete Multiple</button>
+    <button formaction="tag_delete.php" data-confirm>Delete Selected</button>
 </form>
 
 <p>

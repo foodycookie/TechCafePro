@@ -202,6 +202,7 @@ label.upload img {
     text-align: center;
     background: #fff;
     position: relative;
+    cursor: pointer;
 }
 
 .menu-card:hover {

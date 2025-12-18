@@ -107,7 +107,8 @@ include '../_head.php';
                         $top5 = array_slice($items, 0, 5);
                     ?>
                     <?php foreach ($top5 as $p): ?>  <!--top 5-->
-                        <div class="menu-card <?= $p->is_available ? '' : 'unavailable' ?>">
+                        <div class="menu-card <?= $p->is_available ? '' : 'unavailable' ?>"
+                             onclick="window.location.href='/page/product_detail.php?product_id=<?= $p->product_id ?>'">
                             <img src="../images/menu_photos/<?= $p->photo ?>" 
                                 alt="<?= encode($p->product_name) ?>" width="180">
                             <h3><?= encode($p->product_name) ?></h3>
@@ -116,9 +117,9 @@ include '../_head.php';
                                 <div class="badge-unavailable">Unavailable</div>
                             <?php else: ?>
                                 <?php if (in_array($role,['member','customer'])): ?> <!--must change follow teammate-->
-                                    <input type="hidden" name="selected[]" value="<?= $p->product_id ?>">
+                                    <input type="hidden" name="selected[]" value="<?= $p->product_id ?>" onclick="event.stopPropagation()">
                                     <input type='number' name='quantity[<?= $p->product_id ?>]' value='0'
-                                        min='0' max='99' step='1'>
+                                        min='0' max='99' step='1' onclick="event.stopPropagation()">
                                 <?php else: ?>
                                     <button type="button" onclick="location.href='login.php'">
                                         Login to Order

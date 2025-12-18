@@ -155,32 +155,31 @@ include '../_head.php';
             <button type="submit" name="submit" form="add_to_cart" style="background-color: gold; float: right">Add Selected Item(s) To Cart</button>
 
             <div class="filter_popup" id="filter_popup" name="filter_popup">
-                <input type="hidden" name="category_id" value="<?= $category_id ?>">
                 <h2>Filter Menu</h2>
 
-                <?php if (count($temperature_tags) > 0): ?>
+                <?php if (!empty($temperature_tags)): ?>
                     <h3>Temperature</h3>
-                        <?php foreach ($temperature_tags as $temperature_tag): ?>
-                            <?php $temperature_tag_array["$temperature_tag->tag_id"] = "$temperature_tag->name"; ?>
-                        <?php endforeach; ?>
-                        <?= html_checkboxes('tag_id', $temperature_tag_array, false); ?>
-                <?php endif; ?>
+                    <?php foreach ($temperature_tags as $temperature_tag): ?>
+                        <?php $temperature_tag_array["$temperature_tag->tag_id"] = "$temperature_tag->name"; ?>
+                    <?php endforeach; ?>
+                    <?= html_checkboxes('tag_id', $temperature_tag_array, false); ?>
+                <?php endif ?>
 
-                <?php if (count($base_tags) > 0): ?>
+                <?php if (!empty($base_tags)): ?>
                     <h3>Base</h3>
-                        <?php foreach ($base_tags as $base_tag): ?>
-                            <?php $base_tag_array["$base_tag->tag_id"] = "$base_tag->name"; ?>
-                        <?php endforeach; ?>
-                        <?= html_checkboxes('tag_id', $base_tag_array, false) ?>
-                <?php endif; ?>
+                    <?php foreach ($base_tags as $base_tag): ?>
+                        <?php $base_tag_array["$base_tag->tag_id"] = "$base_tag->name"; ?>
+                    <?php endforeach; ?>
+                    <?= html_checkboxes('tag_id', $base_tag_array, false) ?>
+                <?php endif ?>
 
-                <?php if (count($flavour_tags) > 0): ?>
+                <?php if (!empty($flavour_tags)): ?>
                     <h3>Flavour</h3>
-                        <?php foreach ($flavour_tags as $flavour_tag): ?>
-                            <?php $flavour_tag_array["$flavour_tag->tag_id"] = "$flavour_tag->name"; ?>
-                        <?php endforeach; ?>
-                        <?= html_checkboxes('tag_id', $flavour_tag_array, false) ?>
-                <?php endif; ?>
+                    <?php foreach ($flavour_tags as $flavour_tag): ?>
+                        <?php $flavour_tag_array["$flavour_tag->tag_id"] = "$flavour_tag->name"; ?>
+                    <?php endforeach; ?>
+                    <?= html_checkboxes('tag_id', $flavour_tag_array, false) ?>
+                <?php endif ?>
 
                 <?php if ((count($temperature_tags) == 0) && (count($base_tags) == 0) && (count($flavour_tags) == 0)): ?>
                     <h3>No Tag Available!</h3>
@@ -207,7 +206,8 @@ include '../_head.php';
         <div class="menu-grid">
             <div class="category-section">
                 <?php foreach ($products as $p): ?>
-                    <div class="menu-card <?= $p->is_available ? '' : 'unavailable' ?>">
+                    <div class="menu-card <?= $p->is_available ? '' : 'unavailable' ?>"
+                         onclick="window.location.href='/page/product_detail.php?product_id=<?= $p->product_id ?>'">
 
                         <img src="../images/menu_photos/<?= $p->photo ?>"
                             alt="<?= encode($p->product_name) ?>" width="180">
@@ -221,9 +221,9 @@ include '../_head.php';
 
                         <?php if ($p->is_available): ?>
                             <?php if (in_array($role,['member','customer'])): ?>
-                                <input type="hidden" name="selected[]" value="<?= $p->product_id ?>">
+                                <input type="hidden" name="selected[]" value="<?= $p->product_id ?>" onclick="event.stopPropagation()">
                                 <input type='number' name='quantity[<?= $p->product_id ?>]' value='0'
-                                        min='0' max='99' step='1'>
+                                        min='0' max='99' step='1' onclick="event.stopPropagation()">
                             <?php else: ?>
                                 <button type="button" onclick="location.href='login.php'">
                                     Login to Order

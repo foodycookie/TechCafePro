@@ -33,7 +33,13 @@ $stm = $_db->prepare('SELECT * FROM payments WHERE order_id = ?');
 $stm->execute([$order_id]);
 $payment = $stm->fetch();
 
-set_cart();
+if (!empty(get_chosen_cart_item_for_order())) {
+    foreach (get_chosen_cart_item_for_order() as $product_id => $quantity) {
+        update_cart($product_id, 0);
+    }
+}
+
+set_chosen_cart_item_for_order();
 ?>
 
 

@@ -116,11 +116,11 @@ include '../../_head.php';
 <form method="POST" id="modify_multiple">
     <select name="selected_field_to_update">
         <option value="">Select Field</option>
-        <option value="active">Update: To Active</option>
-        <option value="inactive">Update: To Inactive</option>
+        <option value="active">Update: Status to Active</option>
+        <option value="inactive">Update: Status to Inactive</option>
     </select>
 
-    <button type="submit" id="update_multiple" name="update_multiple" data-confirm>Update Multiple</button>
+    <button type="submit" id="update_multiple" name="update_multiple" data-confirm>Update Selected</button>
     <!-- <button formaction="admin_delete.php" data-confirm>Delete Multiple</button> -->
 </form>
 

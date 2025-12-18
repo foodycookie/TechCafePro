@@ -423,6 +423,11 @@ function update_cart($id, $unit) {
 
     if ($unit >= 1 && $unit <= 99 && is_exists($id, 'products', 'product_id')) {
         $cart[$id] = $unit;
+
+        if ($cart[$id] > 99) {
+            $cart[$id] = 99;
+        }
+
         ksort($cart);
     }
     else {
@@ -438,6 +443,11 @@ function add_cart($id, $unit) {
 
     if ($unit >= 1 && $unit <= 99 && is_exists($id, 'products', 'product_id')) {
         $cart[$id] += $unit;
+
+        if ($cart[$id] > 99) {
+            $cart[$id] = 99;
+        }
+        
         ksort($cart);
     }
     else {
@@ -465,6 +475,28 @@ function add_cart($id, $unit) {
 //     unset($cart[$id]);
 //     set_cart($cart);
 // }
+
+function get_chosen_cart_item_for_order() {
+    return $_SESSION['chosen_cart_item_for_order'] ?? [];
+}
+
+function set_chosen_cart_item_for_order($chosen_cart_item_for_order = []) {
+    $_SESSION['chosen_cart_item_for_order'] = $chosen_cart_item_for_order;
+}
+
+function update_chosen_cart_item_for_order($id, $unit) {
+    $chosen_cart_item_for_order = get_chosen_cart_item_for_order();
+
+    if ($unit >= 1 && $unit <= 99 && is_exists($id, 'products', 'product_id')) {
+        $chosen_cart_item_for_order[$id] = $unit;
+        ksort($chosen_cart_item_for_order);
+    }
+    else {
+        unset($chosen_cart_item_for_order[$id]);
+    }
+
+    set_chosen_cart_item_for_order($chosen_cart_item_for_order);
+}
 
 // ============================================================================
 // Payment Gateway Functions
@@ -543,6 +575,12 @@ function export($file, $exported_file_name) {
     function toggleAll(source, target) {
         document.querySelectorAll('input[name="' + target + '"]')
             .forEach(cb => cb.checked = source.checked);
+    }
+
+    function toggleAllForNameStartedWith(source, nameStartedWith) {
+        document.querySelectorAll('input[name^="'+ nameStartedWith +'"]').forEach(cb => {
+            cb.checked = source.checked;
+        });
     }
 </script>
 

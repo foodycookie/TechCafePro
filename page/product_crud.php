@@ -246,7 +246,7 @@ $fields = [
     'price'          => 'Price',
     'description'    => 'Description',
     'category_id'    => 'Category',
-    'is_available'   => 'Available',
+    'is_available'   => 'Availability',
     'status'         => 'Status'
 ];
 
@@ -343,13 +343,13 @@ include '../_head.php';
 <form method="POST" id="modify_multiple">
     <select name="selected_field_to_update">
         <option value="">Select Field</option>
-        <option value="available">Update: To Available</option>
-        <option value="unavailable">Update: To Unavailable</option>
-        <option value="active">Update: To Active</option>
-        <option value="inactive">Update: To Inactive</option>
+        <option value="available">Update: Availability to Available</option>
+        <option value="unavailable">Update: Availability to Unavailable</option>
+        <option value="active">Update: Status to Active</option>
+        <option value="inactive">Update: Status to Inactive</option>
     </select>
 
-    <button type="submit" id="update_multiple" name="update_multiple" data-confirm>Update Multiple</button>
+    <button type="submit" id="update_multiple" name="update_multiple" data-confirm>Update Selected</button>
     <!-- <button formaction="product_delete.php" data-confirm>Delete Multiple</button> -->
 </form>
 
