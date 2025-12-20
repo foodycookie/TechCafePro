@@ -116,20 +116,19 @@ function import_photo_file($_PHOTO) {
     else if ($_PHOTO->size > 1 * 1024 * 1024) {
         $_err['photo'] = 'Maximum 1MB';
     }
-    
-        $path = "../../images/user_photos/";
 
-        $name = $_PHOTO['files']['name'];
-        $tmp_names = $_PHOTO['files']['tmp_name'];
+    $path = "../../images/user_photos/";
 
-        $files_array = array_combine($tmp_names, $name);
+    $name = $_PHOTO['files']['name'];
+    $tmp_names = $_PHOTO['files']['tmp_name'];
 
-        foreach($files_array as $tmp_names => $image_name) {
-            move_uploaded_file($tmp_names, $path.$image_name);
-        }
+    $files_array = array_combine($tmp_names, $name);
 
-        return "success";
-    
+    foreach($files_array as $tmp_names => $image_name) {
+        move_uploaded_file($tmp_names, $path.$image_name);
+    }
+
+    return "success";
 }
 
 function import_users_with_photos() {
@@ -143,6 +142,11 @@ function import_users_with_photos() {
     $failed_user_count   = 0; // users skipped (duplicate or incomplete)
     $photo_success_count = 0; // photos successfully uploaded
     $failed_photo_count  = 0; // photos skipped (duplicate or not matched)
+
+    if ($_FILES['import_csv']['type'] != 'text/csv') {
+        temp('info', 'Not a CSV file!');
+        redirect();
+    }
 
     // 1️⃣ Read CSV
     if (!isset($_FILES['import_csv']) || $_FILES['import_csv']['error'] !== UPLOAD_ERR_OK) {
@@ -239,40 +243,8 @@ function import_users_with_photos() {
         $failed_photo_count photo(s) skipped (duplicate/not matched).
     ";
 
-temp('info', nl2br($temp_msg));
+    temp('info', nl2br($temp_msg));
     redirect();
-}
-
-function upload_user_photos($photos, $new_users) {
-    global $_err;
-
-    $path = $_SERVER['DOCUMENT_ROOT'] . '/images/user_photos/';
-    if (!is_dir($path)) mkdir($path, 0755, true);
-
-    if (count($photos['name']) > 25) {
-        $_err['photos'] = 'Maximum 25 photos per upload';
-        return false;
-    }
-
-    $allowed = ['image/jpeg','image/png','image/gif','image/webp'];
-
-    $user_photos = array_column($new_users, 'photo');
-
-    foreach ($photos['name'] as $i => $name) {
-
-        if (!in_array($photos['type'][$i], $allowed)) continue;
-        if ($photos['size'][$i] > 1 * 1024 * 1024) continue;
-
-        $filename = basename($name);
-
-        // Skip if file is not in new_users or already exists
-        if (!in_array($filename, $user_photos)) continue;
-        if (file_exists($path . $filename)) continue;
-
-        move_uploaded_file($photos['tmp_name'][$i], $path . $filename);
-    }
-
-    return true;
 }
 
 $fields = [
@@ -431,16 +403,6 @@ include '../../_head.php';
         <input type="file" name="photos[]" multiple accept="image/*">
     <section>
         <button type="submit" name="import_users">Import Users</button>
-    </section>
-</form>
-
-<form method="post" enctype="multipart/form-data">
-    <label>Insert Admin Photo</label>
-    <?= html_file('photo', 'accept="image/*"') ?>
-    <?= err('photo') ?>
-    <section>
-        <button type="submit" name="import_photo">Submit</button>
-        <button type="reset">Reset</button>
     </section>
 </form>
 

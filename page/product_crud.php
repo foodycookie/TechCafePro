@@ -114,8 +114,8 @@ function import_products_csv() {
     global $_db;
 
     $header_row = true;
-    $stm1 = $_db->prepare('INSERT INTO products (product_name, price, description, is_available, photo, sold, status, category_id)
-                           VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
+    $stm1 = $_db->prepare('INSERT INTO products (product_name, price, description, is_available, sold, status, category_id)
+                           VALUES (?, ?, ?, ?, ?, ?, ?)');
     $stm2 = $_db->prepare('INSERT INTO product_tags (product_id, tag_id)
                            VALUES (?, ?)');
     $exist_product_tag_ids = $_db->query('SELECT tag_id FROM tags')->fetchAll(PDO::FETCH_COLUMN);
@@ -194,15 +194,7 @@ function import_products_csv() {
             continue;
         }
 
-        // TODO: // Validation: photo
-        // if (() || () || ()) {
-        //     $failed_count++;
-        //     continue;
-        // }
-
-        // TODO: Process photo
-
-        $success_count += $stm1->execute([$product_name, $price, $description, $is_available, $photo, $sold, $status, $category_id]);
+        $success_count += $stm1->execute([$product_name, $price, $description, $is_available, $sold, $status, $category_id]);
 
         $last_inserted_product_id = $_db->lastInsertId();
 

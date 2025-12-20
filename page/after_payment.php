@@ -33,6 +33,27 @@ $stm = $_db->prepare('SELECT * FROM payments WHERE order_id = ?');
 $stm->execute([$order_id]);
 $payment = $stm->fetch();
 
+// reward points
+if ($_user->role === 'member' && !$order->reward_given) {
+
+    $points = floor($order->total_amount);
+
+    $_db->prepare("
+        UPDATE users
+        SET reward_points = reward_points + ?
+        WHERE user_id = ?
+    ")->execute([$points, $_user->user_id]);
+
+    $_db->prepare("
+        UPDATE orders
+        SET reward_given = 1
+        WHERE order_id = ?
+    ")->execute([$order_id]);
+
+    $_user->reward_points += $points;
+    $_SESSION['user'] = $_user;
+}
+
 if (!empty(get_chosen_cart_item_for_order())) {
     foreach (get_chosen_cart_item_for_order() as $product_id => $quantity) {
         update_cart($product_id, 0);
@@ -41,11 +62,6 @@ if (!empty(get_chosen_cart_item_for_order())) {
 
 set_chosen_cart_item_for_order();
 ?>
-
-
-
-
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -68,6 +84,12 @@ set_chosen_cart_item_for_order();
             <p><strong>Order ID:</strong> #<?= htmlspecialchars($order->order_id) ?></p>
             <p><strong>Date:</strong> <?= htmlspecialchars($order->created_at) ?></p>
             <p><strong>Payment Method:</strong> <?= htmlspecialchars($payment->method ?? 'Pending') ?></p>
+
+            <?php if ($order->total_amount == 0): ?>
+                <p style="color:#2e7d32; font-weight:bold;">
+                    🎁 This is a reward redemption order
+                </p>
+            <?php endif; ?>
         </div>
 
         <table class="receipt-table">

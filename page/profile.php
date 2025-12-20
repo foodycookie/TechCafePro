@@ -56,7 +56,7 @@ if (isset($_POST['deactivate_account'])) {
     ")->execute([$user_id]);
 
     session_unset();
-    temp('info', 'goodbye son');
+    temp('info', 'Account deactivated');
     redirect('/page/home.php');
 }
 
@@ -197,7 +197,6 @@ include '../_head.php';
 
 <button onclick="location.href='/page/logout.php'">Logout</button>
 
-
 <form method="post"
       onsubmit="return confirm('Deactivate your account permanently?')">
 
@@ -206,7 +205,48 @@ include '../_head.php';
     </button>
 </form>
 
+<hr>
+
+<!-- ================= MEMBERSHIP SECTION ================= -->
+
+<section style="margin-top:30px; padding:15px; border:1px solid #ddd;">
+    <h3>🎉 Membership</h3>
+
+    <?php if ($_SESSION['user']->role === 'customer'): ?>
+        <p>Status: <b>Customer</b></p>
+        <p>Upgrade to member and earn reward points.</p>
+
+        <button onclick="location.href='membership.php'">
+            Join Membership
+        </button>
+
+    <?php else: ?>
+        <p><b>Status:</b> Member</p>
+
+        <p>
+            <b>Reward Points:</b>
+            <?= (int)($_SESSION['user']->reward_points ?? 0) ?> pts
+        </p>
+
+        <p>
+            <b>Member Since:</b>
+            <?= date('d-m-Y', strtotime($_SESSION['user']->member_since)) ?>
+        </p>
+
+        <p style="font-size:13px; color:#666;">
+            Earn 1 point for every RM1 spent.
+        </p>
+
+    <?php if ($_SESSION['user']->role === 'member'): ?>
+    <section style="margin-top:20px">
+        <button onclick="location.href='reward_redeem.php'">
+            🎁 Redeem Rewards
+        </button>
+    </section>
+    <?php endif; ?>
+
+    <?php endif; ?>
+</section>
+
 <?php
 include '../_foot.php';
-
-

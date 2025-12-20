@@ -30,17 +30,10 @@ $stm = $_db->prepare("
         o.order_id,
         o.created_at,
         o.total_amount,
-        d.status,
-        sa.address,
-        sa.city,
-        sa.postal_code,
-        sa.state,
-        sa.country
+        d.status
     FROM orders o
     LEFT JOIN deliveries d 
         ON o.order_id = d.order_id
-    LEFT JOIN shipping_addresses sa 
-        ON d.shipping_address_id = sa.shipping_address_id
     WHERE o.order_id = ?
       AND o.user_id = ?
 ");
@@ -57,9 +50,9 @@ if (!$order) {
 
 $stm = $_db->prepare("
     SELECT 
-        p.name,
+        p.product_name,
         p.price,
-        oi.unit,
+        oi.unit
     FROM order_items oi
     JOIN products p ON oi.product_id = p.product_id
     WHERE oi.order_id = ?
@@ -96,16 +89,6 @@ include '../_head.php';
     </tr>
 </table>
 
-<!-- ================= SHIPPING ADDRESS ================= -->
-
-<h3>Shipping Address</h3>
-
-<p>
-    <?= encode($order->address) ?><br>
-    <?= encode($order->postal_code) ?> <?= encode($order->city) ?><br>
-    <?= encode($order->state) ?>, <?= encode($order->country) ?>
-</p>
-
 <!-- ================= ORDER ITEMS ================= -->
 
 <h3>Items</h3>
@@ -120,7 +103,7 @@ include '../_head.php';
 
     <?php foreach ($items as $i): ?>
     <tr>
-        <td><?= encode($i->name) ?></td>
+        <td><?= encode($i->product_name) ?></td>
         <td class="right"><?= number_format($i->price, 2) ?></td>
         <td class="right"><?= $i->unit ?></td>
         <td class="right">
