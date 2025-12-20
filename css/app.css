@@ -413,3 +413,308 @@ html {
     font-size: 13px;
     color: #666;
 }
+
+
+/* Shopping Cart ----------------------------------------------------------- */
+/* Layout Container */
+.cart-container {
+    display: flex;
+    gap: 50px;
+    max-width: 1200px;
+    margin: 40px auto;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+}
+
+.cart-items { flex: 2.5; }
+.order-summary { 
+    flex: 1; 
+    background: #f9f9f9; 
+    padding: 30px; 
+    border-radius: 4px;
+    height: fit-content;
+}
+
+.cart-header {
+    display: flex;
+    align-items: center;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+    color: #888;
+}
+
+/* 2. Define the Columns (Use these for both Header Spans and Row Divs) */
+
+/* Col 1: Checkbox */
+.col-check { flex: 0 0 40px; }
+
+/* Col 2: Product (Image + Info) 
+   We lock this to 400px so it never pushes the Quantity box. */
+.col-product { 
+    flex: 0 0 400px; 
+    display: flex; 
+    align-items: center; 
+    gap: 20px; 
+}
+
+/* Col 3: Quantity */
+.col-qty { 
+    flex: 0 0 120px; 
+    text-align: center; 
+    display: flex; 
+    justify-content: center; 
+}
+
+/* Col 4: Subtotal (Takes remaining space) */
+.col-total { 
+    flex: 1; 
+    text-align: right; 
+}
+
+/* 3. Update Product Row to match the grid */
+.product-row {
+    display: flex;
+    align-items: center;
+    padding: 25px 0;
+    border-bottom: 1px solid #eee;
+}
+
+/* Standard Text Limiting (No Webkit) */
+.product-info {
+    overflow: hidden;
+    width: 300px;
+    margin-right: 20px;
+}
+
+.product-info h4 {
+    margin: 0;
+    font-size: 16px;
+    white-space: nowrap;     /* Standard: Keep on one line */
+    overflow: hidden;        /* Standard: Hide extra text */
+    text-overflow: ellipsis; /* Standard: Add the "..." dots */
+    max-width: 280px;        /* Prevent name from growing too long */
+}
+
+/* 3. LIMITING META/PRICE LENGTH */
+.product-meta {
+    font-size: 13px;
+    color: #666;
+    white-space: nowrap;     /* Force text into a single line */
+    overflow: hidden;        /* Hide what doesn't fit */
+    text-overflow: ellipsis; /* Add "..." automatically */
+}
+
+.product-img { 
+    width: 80px; 
+    height: 80px; 
+    object-fit: cover; 
+    margin-right: 20px; 
+    flex-shrink: 0; /* Prevents image from being squashed */
+}
+
+/* Inputs & Buttons */
+.qty-control input {
+    width: 50px;
+    padding: 8px;
+    border: 1px solid #ddd;
+    text-align: center;
+}
+
+/* Force the quantity and subtotal to stay in their lanes */
+.qty-wrapper {
+    width: 100px;
+    text-align: center;
+}
+
+.remove-btn {
+    background: none;
+    border: none;
+    font-size: 20px;
+    color: #ccc;
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+.remove-btn:hover { color: red; }
+
+.checkout-btn {
+    width: 100%;
+    background: #000;
+    color: #fff;
+    padding: 15px;
+    border: none;
+    font-weight: bold;
+    letter-spacing: 1px;
+    cursor: pointer;
+    margin-top: 20px;
+}
+
+.secondary-btn {
+    background: #fff;
+    border: 1px solid #ddd;
+    padding: 8px 15px;
+    font-size: 12px;
+    cursor: pointer;
+    margin-right: 5px;
+}
+
+/* Summary Details */
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+.subtotal {
+    border-top: 1px solid #ddd;
+    padding-top: 15px;
+    font-size: 20px;
+}
+
+.tax-info { font-size: 12px; color: #999; margin-top: 15px; }
+
+/* Container for the background blur effect */
+.cart-wrapper-container {
+    padding: 20px;
+    max-width: 1250px;
+    margin: 0 auto;
+}
+
+/* Rounded Card Style */
+.card-rounded {
+    background: rgba(255, 255, 255, 0.95); /* Slight transparency to see background */
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    padding: 30px;
+}
+
+.cart-container {
+    display: flex;
+    gap: 30px;
+    align-items: flex-start;
+}
+
+/* Sidebar Action Buttons Design */
+.summary-actions {
+    margin-top: 25px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.action-btn {
+    padding: 10px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+}
+
+/* Update Button - Full Width */
+.action-btn.update {
+    background-color: #f0f0f0;
+    color: #333;
+    border-color: #ddd;
+}
+
+.action-btn.update:hover {
+    background-color: #e0e0e0;
+}
+
+/* Delete & Clear - Side by Side */
+.action-group {
+    display: flex;
+    gap: 10px;
+}
+
+.action-group .action-btn {
+    flex: 1;
+}
+
+.action-btn.delete {
+    background-color: #fff;
+    color: #e74c3c;
+    border-color: #facdcd;
+}
+
+.action-btn.delete:hover {
+    background-color: #e74c3c;
+    color: #fff;
+}
+
+.action-btn.clear {
+    background-color: #fff;
+    color: #666;
+    border-color: #ddd;
+}
+
+.action-btn.clear:hover {
+    background-color: #333;
+    color: #fff;
+}
+
+/* Checkout Button Enhancements */
+.checkout-btn {
+    border-radius: 8px;
+    transition: transform 0.2s;
+}
+
+.checkout-btn:hover {
+    transform: translateY(-2px);
+}
+
+/* 1. Refined Heading Typography */
+.cart-items h1 {
+    font-family: 'Times New Roman', serif; /* Matching the source image aesthetic */
+    font-size: 36px;
+    font-weight: 400;
+    margin-bottom: 25px;
+    color: #1a1a1a;
+}
+
+/* 2. Dimmer Gray "Continue Shopping" Link */
+.continue-link { 
+    display: inline-block; 
+    margin-top: 20px; 
+    color: #888; /* Initial Gray color */
+    font-size: 14px; 
+    text-decoration: underline; 
+    text-underline-offset: 4px;
+    transition: color 0.3s ease, opacity 0.3s ease; /* Smooth transition */
+}
+
+.continue-link:hover {
+    color: #555; /* Darker gray on hover */
+    opacity: 0.6; /* Dimmer effect */
+}
+
+/* 3. Responsive Layout Logic */
+@media screen and (max-width: 992px) {
+    .cart-container {
+        flex-direction: column; /* Stacks columns vertically */
+        gap: 20px;
+    }
+
+    .cart-items, .order-summary {
+        flex: none;
+        width: 100%; /* Makes both cards full width */
+    }
+
+    /* Adjusting product row for smaller screens */
+    .product-row {
+        flex-wrap: wrap; 
+    }
+    
+    .total-price {
+        width: 120px;
+        text-align: right;
+        margin-top: 10px; /* Spacing from quantity input */
+        padding-left: 105px; /* Aligns price under the text */
+    }
+}

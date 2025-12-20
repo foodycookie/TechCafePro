@@ -84,6 +84,19 @@ if (is_post() && post('method') === 'stripe') {
     }
 
     try {
+        $check_stm = $_db->prepare('SELECT * FROM payments WHERE order_id = ? AND method = "Stripe"');
+        $check_stm->execute([$order_id]);
+
+        if ($check_stm->rowCount() == 0) {
+            $pay_stm = $_db->prepare('
+                INSERT INTO payments (order_id, method, status, amount, paid_at) 
+                VALUES (?, "Stripe", "Pending", ?, NOW())
+            ');
+            $pay_stm->execute([$order_id, $order->total_amount]);
+        }
+
+
+
         $session = \Stripe\Checkout\Session::create([
             'payment_method_types' => ['card'],  // Add 'fpx' for Malaysian bank if enabled in dashboard
             'line_items' => $line_items,
