@@ -8,7 +8,7 @@ require_once '../vendor/autoload.php';  // Stripe library
 // Authorization: only members can pay
 auth2('Member');
 
-// Get order_id (use the fixed version from previous advice: pass via URL)
+// Get order_id (pass via URL)
 $order_id = get('order_id');
 if (!$order_id || !is_numeric($order_id)) {
     redirect('cart.php');
@@ -52,6 +52,11 @@ if (is_post() && post('method') === 'cod') {
         ');
         $stm->execute([$order_id, $order->total_amount]);
 
+        $stm = $_db->prepare('UPDATE products SET sold = sold + ? WHERE product_id = ?');
+        foreach ($items as $item) {
+            $stm->execute([$item->unit, $item->product_id]);
+        }
+
         $_db->commit();
 
         redirect("after_payment.php?order_id=$order_id");
@@ -79,6 +84,19 @@ if (is_post() && post('method') === 'stripe') {
     }
 
     try {
+        $check_stm = $_db->prepare('SELECT * FROM payments WHERE order_id = ? AND method = "Stripe"');
+        $check_stm->execute([$order_id]);
+
+        if ($check_stm->rowCount() == 0) {
+            $pay_stm = $_db->prepare('
+                INSERT INTO payments (order_id, method, status, amount, paid_at) 
+                VALUES (?, "Stripe", "Pending", ?, NOW())
+            ');
+            $pay_stm->execute([$order_id, $order->total_amount]);
+        }
+
+
+
         $session = \Stripe\Checkout\Session::create([
             'payment_method_types' => ['card'],  // Add 'fpx' for Malaysian bank if enabled in dashboard
             'line_items' => $line_items,

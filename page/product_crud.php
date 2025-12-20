@@ -247,7 +247,8 @@ $fields = [
     'description'    => 'Description',
     'category_id'    => 'Category',
     'is_available'   => 'Availability',
-    'status'         => 'Status'
+    'status'         => 'Status',
+    'sold'           => "Unit Sold"
 ];
 
 $sort = req('sort');
@@ -303,7 +304,7 @@ if (isset($_POST['update_multiple'])) {
     update_multiple();
 }
 
-if (isset($_POST['export'])) {
+if (isset($_POST['export_csv'])) {
     export_products_csv();
 }
 
@@ -384,6 +385,7 @@ include '../_head.php';
         <td><?= $m->category_name ?></td>
         <td><?= (int)$m->is_available === 1 ? 'Available' : 'Unavailable' ?></td>
         <td><?= (int)$m->status === 1 ? 'Active' : 'Inactive' ?></td>
+        <td><?= $m->sold ?></td>
         <td>
             <button data-get="/page/product_update.php?product_id=<?= $m->product_id ?>">Update</button>
             <!-- <button data-post="/page/product_delete.php?product_id=<?= $m->product_id ?>" id="delete" data-confirm>Delete</button> -->
@@ -404,21 +406,11 @@ include '../_head.php';
 
 <!-- Export -->
 <form method="POST">
-    <button type="submit" id="export" name="export">Export Table to CSV File</button>
+    <button type="submit" id="export_csv" name="export_csv" onclick="changeButtonTextAfterClickThenChangeItBack(this, 'File Exported!')">Export as CSV File</button>
 </form>
-<script>
-    //Select button by id
-    const export_button = document.getElementById('export');
-    //Add on click listener for button
-    export_button.addEventListener('click', function() {
-        //Select button by id, and then change it's value
-        document.getElementById('export').innerText = "File Exported!"
-    })
-</script>
-
 <!-- Batch insertion -->
 <form method="post" enctype="multipart/form-data">
-    <label for="import">Insert CSV File</label>
+    <label for="import">Insert Data via CSV File</label>
     <?= html_file('import', '.csv') ?>
     <?= err('import') ?>
     <section>

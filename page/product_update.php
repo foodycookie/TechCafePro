@@ -229,6 +229,10 @@ include '../_head.php';
         <button type="button" onclick="toggle_visibility('insert_product_tags')">Close</button>
     </div>
 
+    <label for="sold">Unit Sold</label>
+    <b><?= $sold ?></b>
+    <br>
+
     <label for="photo">Photo</label>
     <label class="upload" tabindex="0">
         <?= html_file('photo', 'image/*', 'hidden') ?>

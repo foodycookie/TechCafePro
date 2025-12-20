@@ -1,6 +1,97 @@
 <?php
+require '../../vendor/autoload.php';
 require '../../_base.php';
+
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+
 $user_id = $_SESSION['user']->user_id ?? null;
+
+function export_products_report() {
+    global $_db;
+
+    if (ob_get_level()) {
+        ob_end_clean();
+    }
+
+    $spreadsheet = new Spreadsheet();
+    $sheet = $spreadsheet->getActiveSheet();
+
+    // Headers
+    $headers = ['Product ID','Product Name','Category Name','Price','Amount Sold','Revenue'];
+    $sheet->fromArray($headers, null, 'A1');
+
+    // Bold headers and add border
+    $sheet->getStyle('A1:F1')->getFont()->setBold(true);
+    $sheet->getStyle('A1:F1')->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
+
+    // Fetch products
+    $products = $_db->query('SELECT products.*, categories.category_name 
+                             FROM products
+                             LEFT JOIN categories ON categories.category_id = products.category_id
+                             ORDER BY products.sold DESC, products.category_id ASC, products.product_id ASC')
+                    ->fetchAll();
+
+    $row = 2;
+    foreach ($products as $product) {
+        $revenue = $product->price * $product->sold;
+
+        $sheet->setCellValue('A'.$row, $product->product_id)
+              ->setCellValue('B'.$row, $product->product_name)
+              ->setCellValue('C'.$row, $product->category_name)
+              ->setCellValue('D'.$row, $product->price)
+              ->setCellValue('E'.$row, $product->sold)
+              ->setCellValue('F'.$row, $revenue);
+
+        // Format currency
+        $sheet->getStyle('D'.$row)->getNumberFormat()
+              ->setFormatCode('"RM"#,##0.00');
+        $sheet->getStyle('F'.$row)->getNumberFormat()
+              ->setFormatCode('"RM"#,##0.00');
+
+        // Add border to this row
+        $sheet->getStyle("A{$row}:F{$row}")->getBorders()->getAllBorders()
+              ->setBorderStyle(Border::BORDER_THIN);
+
+        $row++;
+    }
+
+    // Auto-size columns
+    foreach (range('A','F') as $col) {
+        $sheet->getColumnDimension($col)->setAutoSize(true);
+    }
+
+    $writer = new Xlsx($spreadsheet);
+    header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    header('Content-Disposition: attachment; filename="product_report.xlsx"');
+    $writer->save('php://output');
+    exit;
+}
+
+if (isset($_POST['export_report'])) {
+    export_products_report();
+}
+
+// ----------------------------------------------------------------------------
+
+// [ (object) ['product_name' => 'Chocolate', 'sold' => 120], (object) ['product_name' => 'Strawberry', 'sold' => 115] ]
+$topSellingProducts = $_db->query('SELECT product_name, sold
+                                   FROM products
+                                   ORDER BY sold DESC, category_id ASC, product_id ASC
+                                   LIMIT 15')
+                          ->fetchAll();
+
+// Prepare data for JS
+// array_column($topSellingProducts, 'product_name') = Extract only the product_name values from the array
+// json_encode() = Convert PHP array to JSON string use by JS
+
+// $productNames = ['Chocolate', 'Strawberry']; (After array_column())
+// $productNames = '["Chocolate","Strawberry"]'; (After json_encode())
+$productNames = json_encode(array_column($topSellingProducts, 'product_name'));
+$soldQuantities = json_encode(array_column($topSellingProducts, 'sold'));
+
+// ----------------------------------------------------------------------------
 
 $_title = 'Page | Home';
 include '../../_head.php';
@@ -209,7 +300,6 @@ include '../../_head.php';
                         </button>
 
                         <button class="icon-btn" onclick="location.href='/page/category_crud.php'">
-                            <img src="../../images/system/product_icon.png" alt="Product Icon">
                             <span>Category</span>
                             <div class="badge-group">
                                 <div class="badge_available">
@@ -238,7 +328,6 @@ include '../../_head.php';
                         </button>
 
                         <button class="icon-btn" onclick="location.href='/page/tag_crud.php'">
-                            <img src="../../images/system/order_icon.png" alt="Order Icon">
                             <span>Tag</span>
                             <div class="badge-group">
                                 <div class="badge_available">
@@ -259,5 +348,50 @@ include '../../_head.php';
         </tbody>
     </table>
 </body>
+
+<h2>Top 15 Selling Products</h2>
+
+<form method="post">
+    <button type="submit" id="export_report" name="export_report" onclick="changeButtonTextAfterClickThenChangeItBack(this, 'File Exported!')">Export Full Data as Report</button>
+</form>
+
+<canvas id="topSellingProductChart" width="800" height="400" style="background-color: #fff;"></canvas>
+<br>
+<button id="exportChartButton">Export Chart as Image</button>
+
+<script>
+    const xValues = <?php echo $productNames; ?>;
+    const yValues = <?php echo $soldQuantities; ?>;
+
+    const chart = new Chart("topSellingProductChart", {
+        type: 'bar',
+        data: {
+            labels: xValues,
+            datasets: [{
+                label: 'Units Sold',
+                data: yValues,
+                backgroundColor: 'rgba(99, 123, 255, 0.7)',
+            }]
+        },
+        options: {
+            plugins: {
+                legend: { display: false },
+                title: {
+                    display: true,
+                    text: 'Top 15 Selling Products'
+                }
+            },
+        }
+    });
+
+    // Download
+    document.getElementById('exportChartButton').addEventListener('click', function() {
+        const link = document.createElement('a');
+        link.href = chart.toBase64Image();
+        link.download = 'top_15_selling_products.png';
+        link.click();
+    });
+</script>
+
 <?php
 include '../../_foot.php';
