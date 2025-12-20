@@ -1,6 +1,7 @@
 <?php
 require '../_base.php';
 
+print_r($_SESSION);
 if (is_post()) {
 
     // Input
@@ -24,6 +25,31 @@ if (is_post()) {
 
     if (!$_err) {
 
+        $stm = $_db->prepare('
+            SELECT * FROM users
+            WHERE name = ? AND role != "admin"
+        ');
+        $stm->execute([$name]);
+        $uname = $stm->fetch();
+
+        if (!$uname) {
+            temp('info', 'Not Found Users!');
+            redirect();
+        }
+
+        // checking the failed attempt
+        $block_time = 1; // minutes
+        if ($uname->failed_attempts >= 3 && $uname->last_failed_login) {
+            $last = new DateTime($uname->last_failed_login);
+            $now  = new DateTime();
+            $diff = $now->getTimestamp() - $last->getTimestamp();
+
+            if ($diff < $block_time * 60) {
+                temp('info', 'Account temporarily blocked. Try again after 1 minute.');
+                redirect();
+            }
+        }
+
         $stm = $_db -> prepare ('
             SELECT * FROM users
             WHERE name = ? AND password = SHA(?) AND role != "admin"
@@ -35,12 +61,27 @@ if (is_post()) {
             if ($u->status == 0) {
                 temp('info', 'Account Freeze');
             } else {
+                $stm = $_db->prepare('
+                    UPDATE users 
+                    SET failed_attempts = 0, last_failed_login = NULL 
+                    WHERE user_id = ?
+                '); 
+                $stm->execute([$u->user_id]);   
+
                 temp('info', 'Login Successfully');
                 login($u);
             }
         } 
         else {
+             $stm = $_db->prepare('
+                UPDATE users 
+                SET failed_attempts = failed_attempts + 1, last_failed_login = NOW()
+                WHERE user_id = ?
+            ');
+            $stm->execute([$uname->user_id]);
+
             temp('info', 'Login Failed! Please try again');
+            redirect();
             }
     }
 }
