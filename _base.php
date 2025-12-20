@@ -582,6 +582,15 @@ function export($file, $exported_file_name) {
             cb.checked = source.checked;
         });
     }
+
+    function changeButtonTextAfterClickThenChangeItBack(source, message) {
+        const originalText = source.innerText;
+        source.innerText = message;
+
+        setTimeout(() => {
+            source.innerText = originalText;
+        }, 2000);
+    }
 </script>
 
 <?php
