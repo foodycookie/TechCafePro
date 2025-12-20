@@ -61,6 +61,28 @@ if (!empty(get_chosen_cart_item_for_order())) {
 }
 
 set_chosen_cart_item_for_order();
+
+// Check if we are coming back from a successful Stripe session
+$session_id = get('session_id');
+
+if ($session_id && str_starts_with($session_id, 'cs_')) {
+    // RIGOROUS UPDATE: Only update if it's currently 'Pending'
+    $stm = $_db->prepare('
+        UPDATE payments 
+        SET status = "Completed", paid_at = NOW() 
+        WHERE order_id = ? AND method = "Stripe" AND status = "Pending"
+    ');
+    $stm->execute([$order_id]);
+
+    // UPDATE INVENTORY: Since the payment is now confirmed, update the sold counts
+    if ($stm->rowCount() > 0) { // Only do this if we actually updated a row
+        $item_stm = $_db->prepare('UPDATE products SET sold = sold + ? WHERE product_id = ?');
+        foreach ($items as $item) {
+            $item_stm->execute([$item->unit, $item->product_id]);
+        }
+        temp('info', 'Stripe Payment Confirmed!');
+    }
+}
 ?>
 
 <!DOCTYPE html>
