@@ -134,6 +134,9 @@ include '../_head.php';
     <button data-get="/page/order_history.php">
         📦 Order History
     </button>
+    <button data-get="/page/change_password.php">
+        🫰 Change Password
+    </button>
 </p>
 
 <button onclick="location.href='/page/logout.php'">Logout</button>

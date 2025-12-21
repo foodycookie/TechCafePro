@@ -164,7 +164,7 @@ $cart = get_cart();
                     </div>
                 </div>
                 
-                <p class="tax-info">Tax included. Shipping calculated at checkout.</p>
+                <p class="tax-info">Tax included. </p>
             </div>
         </div>
     </form>
