@@ -1,5 +1,9 @@
 <?php
-include '../_base.php';
+include '../../_base.php';
+
+auth('admin');
+
+// ----------------------------------------------------------------------------
 
 $fields = [
     'tag_id' => 'Id',
@@ -19,7 +23,7 @@ $name = req('name', '');
 
 $page = req('page', 1);
 
-require_once '../lib/SimplePager.php';
+require_once '../../lib/SimplePager.php';
 
 // ----------------------------------------------------------------------------
 
@@ -50,8 +54,8 @@ foreach ($p->result as $row) {
 
 // ----------------------------------------------------------------------------
 
-$_title = 'All tags';
-include '../_head.php';
+$_title = 'Admin | All Tags';
+include '../../_head.php';
 ?>
 
 <style>
@@ -78,7 +82,7 @@ include '../_head.php';
 </form>
 
 <form method="POST" id="modify_multiple">
-    <button formaction="tag_delete.php" data-confirm>Delete Selected</button>
+    <button formaction="/page/admin6699/tag_delete.php" data-confirm>Delete Selected</button>
 </form>
 
 <p>
@@ -109,8 +113,8 @@ include '../_head.php';
         <td><?= $m->name ?></td>
         <td><?= $m->category ?></td>
         <td>
-            <button data-get="/page/tag_update.php?tag_id=<?= $m->tag_id ?>">Update</button>
-            <button data-post="/page/tag_delete.php?tag_id=<?= $m->tag_id ?>" id="delete" data-confirm>Delete</button>
+            <button data-get="/page/admin6699/tag_update.php?tag_id=<?= $m->tag_id ?>">Update</button>
+            <button data-post="/page/admin6699/tag_delete.php?tag_id=<?= $m->tag_id ?>" id="delete" data-confirm>Delete</button>
         </td>
     </tr>
     <?php endforeach ?>
@@ -121,10 +125,9 @@ include '../_head.php';
 <?= $p->html("sort=$sort&dir=$dir&name=$name") ?>
 
 <p>
-    <button data-get="/page/tag_insert.php">Insert</button>
+    <button data-get="/page/admin6699/tag_insert.php">Insert</button>
     <button data-get="/page/admin6699/admin_home.php">Back to Home</button>
 </p>
 
 <?php
-include '../_foot.php';
-?>
+include '../../_foot.php';

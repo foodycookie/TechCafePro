@@ -7,8 +7,8 @@
     <link rel="shortcut icon" href="/images/system/logo.png">
     <link rel="stylesheet" href="/css/app.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-    <script src="/js/app.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
+    <script src="/js/app.js"></script>
 </head>
 <body>
     <header>
@@ -17,22 +17,20 @@
             <div>
                 <?= $_user -> name ?><br>
                 <?= $_user -> role ?>
-                <img src="../images/user_photos/<?= $_user -> profile_image_path ?>">
+                <img src="/images/user_photos/<?= $_user -> profile_image_path ?>">
             </div>
         <?php endif ?>
     </header>
 
     <?php if ($msg = temp('info')): ?>
     <script>alert('<?php echo $msg; ?>');</script>
+    <?php endif; ?>
 
-<?php endif; ?>
     <nav>
         <?php 
         $role = $_SESSION['user'] -> role ?? null;
         
-
-        if (in_array($role,['member','customer'])): ?>
-            <?php //echo $_SESSION['user']; ?>
+        if (auth2('member','customer')): ?>
             <a href="/page/home.php">Home</a>
             <a href="/page/menu.php">Menu</a> 
             <div class="right">
@@ -46,30 +44,22 @@
                 <a href="/page/profile.php">Profile</a>
                 <a href="/page/logout.php">Logout</a>
             </div>
-        <?php elseif (in_array($role, ["admin"])): ?>
-            <?php //echo $_SESSION['user']; ?>
+
+        <?php elseif (auth2('admin')): ?>
             <a href="/page/admin6699/admin_home.php">Home</a>
-            <!-- <a href="/page/menu.php">Menu</a>      Admin also want to see menu? -->
-            <!-- <a href="/page/order_crud.php">All orders</a> -->
-            <!-- <a href="/page/product_crud.php">All products</a> -->
-            <!-- <a href="/page/admin6699/admin_crud.php">All admin</a> -->
-            <!-- <a href="/page/tag_crud.php">All tags</a> use for check immediately -->
-            <!-- <a href="/page/insert.php">Insert</a>
-            <a href="/page/update.php">Update</a>
-            <a href="/page/delete.php">Delete</a> -->
             <div class="right">
-                <a href="/page/profile.php">Profile</a>
+                <a href="/page/admin6699/admin_profile.php">Profile</a>
                 <a href="/page/logout.php">Logout</a>
             </div>
+
         <?php else: ?>
-            <?php //echo $_SESSION['user_id']; ?>
-            <!-- <a href="/page/product_crud.php">All products</a> use for check immediately -->
-            <!-- <a href="/page/tag_crud.php">All tags</a> use for check immediately -->
-            <!-- <a href="/page/category_crud.php">All categories</a> use for check immediately -->
             <a href="/page/home.php">Home</a>
             <a href="/page/menu.php">Menu</a>
-            <a href="/page/register.php" class="right">Register</a>
-            <a href="/page/login.php">Login</a>
+            <div class="right">
+                <a href="/page/register.php">Register</a>
+                <a href="/page/login.php">Login</a>
+            </div>
+            
         <?php endif; ?>
     </nav>
 

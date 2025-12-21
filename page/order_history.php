@@ -1,26 +1,17 @@
 <?php
 include '../_base.php';
 
-// ----------------------------------------------------------------------------
-// (1) Authorization (member / customer)
+auth('customer', 'member');
+
 // ----------------------------------------------------------------------------
 
 $user_id = $_SESSION['user']->user_id ?? null;
 
-if (!$user_id) {
-    redirect('login.php');
-}
-
-// ----------------------------------------------------------------------------
-// Date filter inputs
-// ----------------------------------------------------------------------------
-
+// Data filter inputs
 $from = req('from');
 $to   = req('to');
 
-// ----------------------------------------------------------------------------
-// (2) Return orders belong to the user (descending)
-// ----------------------------------------------------------------------------
+// Return orders belong to the user (descending)
 // orders table:
 // - order_id
 // - created_at
@@ -29,7 +20,6 @@ $to   = req('to');
 // order_items table:
 // - order_id
 // - quantity
-
 $sql = "
     SELECT 
         o.order_id        AS id,
@@ -68,7 +58,6 @@ $_title = 'Order | History';
 include '../_head.php';
 ?>
 
-<!-- (B) EXTRA: CSS (optional but nice) -->
 <style>
 .right { text-align: right; }
 .table td, .table th { vertical-align: middle; }
@@ -108,7 +97,7 @@ include '../_head.php';
         <td class="right"><?= $o->count ?></td>
         <td class="right"><?= number_format($o->total, 2) ?></td>
         <td>
-            <button data-get="order_detail.php?order_id=<?= $o->id ?>">
+            <button data-get="/page/order_detail.php?order_id=<?= $o->id ?>">
                 Detail
             </button>
         </td>

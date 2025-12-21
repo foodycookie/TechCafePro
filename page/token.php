@@ -3,15 +3,12 @@ include '../_base.php';
 
 // ----------------------------------------------------------------------------
 
-// TODO: (1) Delete expired tokens
+// (1) Delete expired tokens
 $_db->query('DELETE FROM tokens WHERE expire <  NOW()');
 
 $id = req('id');
 
-// var_dump($id);
-
-
-// TODO: (2) Is token id valid?
+// (2) Is token id valid?
 if (!is_exists($id, 'tokens', 'token_id')) {
     temp('info', 'Invalid token. Try again');
     // redirect('/');
@@ -43,7 +40,7 @@ if (is_post()) {
 
     //DB operation
     if (!$_err) {
-        // TODO: Update user (password) based on token id + delete token
+        // Update user (password) based on token id + delete token
         $stm = $_db->prepare('
             UPDATE users
             SET password = SHA1(?)
@@ -54,7 +51,7 @@ if (is_post()) {
         $stm->execute([$password, $id, $id]);
 
         temp('info', 'Record updated');
-        redirect('./login.php');
+        redirect('/page/login.php');
     }
 }
 

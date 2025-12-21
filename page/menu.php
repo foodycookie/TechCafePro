@@ -1,6 +1,8 @@
 <?php
 include '../_base.php';
 
+// ----------------------------------------------------------------------------
+
 if (isset($_POST['submit'])) {
     $product_id = req('selected', []);
     $quantity = req('quantity', []);
@@ -56,10 +58,7 @@ $stm = $_db->prepare('SELECT p.*, c.category_name
 $stm->execute(["%$product_name%"]);
 $arr = $stm->fetchAll();
 
-// ----------------------------------------------------------------------------
-// GROUP PRODUCTS PROPERLY
-// ----------------------------------------------------------------------------
-
+// Group products
 $grouped = [];
 
 foreach ($cats as $c) {
@@ -73,7 +72,6 @@ foreach ($cats as $c) {
 foreach ($arr as $m) {
     $grouped[$m->category_id]['items'][] = $m;
 }
-
 
 // ----------------------------------------------------------------------------
 
@@ -121,12 +119,11 @@ include '../_head.php';
                                     <input type='number' name='quantity[<?= $p->product_id ?>]' value='0'
                                         min='0' max='99' step='1' onclick="event.stopPropagation()">
                                 <?php else: ?>
-                                    <button type="button" onclick="location.href='login.php'">
+                                    <button type="button" onclick="location.href='/page/login.php'">
                                         Login to Order
                                     </button>
                                 <?php endif; ?>
                             <?php endif; ?>
-
                         </div>
                     <?php endforeach; ?>
                 </div>

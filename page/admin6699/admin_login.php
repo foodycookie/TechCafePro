@@ -1,8 +1,9 @@
 <?php
 require '../../_base.php';
 
-if (is_post()) {
+// ----------------------------------------------------------------------------
 
+if (is_post()) {
     // Input
     $name       = req('name');
     $password   = req('password');
@@ -86,13 +87,13 @@ if (is_post()) {
     }
 }
 
-$_title = 'Login';
-include '../../_head.php';
+// ----------------------------------------------------------------------------
 
+$_title = 'Admin | Login';
+include '../../_head.php';
 ?>
 
-
-   <form method="post" class="form">
+<form method="post" class="form">
     <?php if (!empty($_err['general'])): ?>
         <p style="color:red;"><?= $_err['general'] ?></p>
     <?php endif; ?>
@@ -110,7 +111,7 @@ include '../../_head.php';
     <section>
         <button type="submit">Submit</button>
         <button type="button" onclick="window.location.href='/page/home.php'">Cancel</button>
-        <button type="button" onclick="window.location.href='/page/forget_password.php'">forget password</button>
+        <button type="button" onclick="window.location.href='/page/forget_password.php'">Forget password</button>
     </section>
 </form>
 

@@ -1,6 +1,10 @@
 <?php
 include '../../_base.php';
 
+auth('admin');
+
+// ----------------------------------------------------------------------------
+
 function update_multiple() {
     global $_db;
 
@@ -42,70 +46,6 @@ function update_multiple() {
     }
 }
 
-// function import_admin_csv() {
-//     if ($_FILES['import']['type'] != 'text/csv') {
-//         temp('info', 'Not a CSV file!');
-//         redirect();
-//     }
-
-//     global $_db;
-
-//     $header_row = true;
-//     $stm1 = $_db->prepare('INSERT INTO users (name, email, password, profile_image_path, role)
-//                            VALUES (?, ?, SHA1(?), ?, "admin")');
-//     // $stm2 = $_db->prepare('INSERT INTO product_tags (product_id, tag_id)
-//     //                        VALUES (?, ?)');
-//     $success_count = 0;
-//     $failed_count = 0;
-
-//     // $_FILES['userfile']['tmp_name (or any attribute)']
-//     //The temporary filename of the file in which the uploaded file was stored on the server
-//     $handle = fopen($_FILES['import']['tmp_name'], 'r');
-
-//     while($data = fgetcsv($handle)) {
-//         if ($header_row == true) {
-//             $header_row = false;
-//             continue;
-//         }
-
-//         if (count($data) != 4) {
-//             $failed_count++;
-//             continue;
-//         }
-
-//         $name = trim($data[0]);
-//         $email = trim($data[1]);
-//         $password = trim($data[2]);
-//         $profile_image_path = trim($data[3]);
-
-
-//         // Validation: name
-//         if (($name === '') || (strlen($name) > 100) || (!is_unique($name, 'users', 'name'))) {
-//             $failed_count++;
-//             continue;
-//         }
-
-//         // Validation: email
-//         if (($email === '') || (strlen($name) > 100) || (!is_email($email)) || (!is_unique($name, 'users', 'name'))) {
-//             $failed_count++;
-//             continue;
-//         }
-
-//         // Validation: password
-//         if (($password === '') || (strlen($password) < 5 || (strlen($password) > 100))) {
-//             $failed_count++;
-//             continue;
-//         }
-
-//         $success_count += $stm1->execute([$name, $email, $password, $profile_image_path]);
-
-//     }
-
-//     fclose($handle);
-//     temp('info', "$success_count record(s) inserted, $failed_count record(s) failed!");
-//     redirect();
-// }
-
 function import_photo_file($_PHOTO) {
     if($_PHOTO['files']['name'][0] == ""){
         return "Empty file";
@@ -133,9 +73,6 @@ function import_photo_file($_PHOTO) {
 
 function import_users_with_photos() {
     global $_db, $_err;
-// ----------------------------------------------------------------------------
-
-// (1) Sorting
 
     // Counters
     $success_count       = 0; // users inserted
@@ -148,7 +85,7 @@ function import_users_with_photos() {
         redirect();
     }
 
-    // 1️⃣ Read CSV
+    // (1) Read CSV
     if (!isset($_FILES['import_csv']) || $_FILES['import_csv']['error'] !== UPLOAD_ERR_OK) {
         $_err['csv'] = 'CSV file is required or upload failed';
         return;
@@ -183,9 +120,10 @@ function import_users_with_photos() {
             'photo' => $photo
         ];
     }
+
     fclose($handle);
 
-    // 2️⃣ Upload photos
+    // (2) Upload photos
     if (!empty($_FILES['photos']['name'][0])) {
         $path = $_SERVER['DOCUMENT_ROOT'] . '/images/user_photos/';
         if (!is_dir($path)) mkdir($path, 0755, true);
@@ -218,7 +156,7 @@ function import_users_with_photos() {
         }
     }
 
-    // 3️⃣ Insert users into DB
+    // (3) Insert users into DB
     $stm = $_db->prepare('
         INSERT INTO users (name, email, password, profile_image_path, role)
         VALUES (?, ?, SHA1(?), ?, "admin")
@@ -235,7 +173,7 @@ function import_users_with_photos() {
         $success_count++;
     }
 
-    // 4️⃣ Report
+    // (4) Report
     $temp_msg = "
         $success_count user(s) inserted.
         $failed_user_count user(s) failed (duplicate/incomplete).
@@ -247,12 +185,27 @@ function import_users_with_photos() {
     redirect();
 }
 
+if (isset($_POST['update_multiple'])) {
+    update_multiple();
+}
+
+if (isset($_POST['import_photo'])) {
+    import_photo_file($_PHOTO);
+}
+
+if (isset($_POST['import_users'])) {
+    import_users_with_photos();
+}
+
+// ----------------------------------------------------------------------------
+
+// (1) Sorting
 $fields = [
-    'user_id'        => 'Id',
-    'name'           => 'Name',
-    'email'          => 'Email',
-    'role'           => 'Role',
-    'status'         => 'Status',
+    'user_id' => 'Id',
+    'name'    => 'Name',
+    'email'   => 'Email',
+    'role'    => 'Role',
+    'status'  => 'Status',
 ];
 
 $sort = req('sort');
@@ -263,7 +216,6 @@ in_array($dir, ['asc', 'desc']) || $dir = 'asc';
 
 // (2) Filtering
 $name   = req('name', '');
-// $user_id = req('user_id', '');
 
 // (3) Paging
 $page = req('page', 1);
@@ -271,6 +223,7 @@ $page = req('page', 1);
 require_once '../../lib/SimplePager.php';
 
 // ----------------------------------------------------------------------------
+
 // Build SQL for SimplePager
 $baseSQL = "FROM users WHERE role = 'admin' AND name LIKE ?";
 $params = ["%$name%"];
@@ -293,23 +246,9 @@ foreach ($p->result as $row) {
     $arr[] = $full->fetch();
 }
 
-if (isset($_POST['update_multiple'])) {
-    update_multiple();
-}
+// ----------------------------------------------------------------------------
 
-// if (isset($_POST['import_submit'])) {
-//     import_admin_csv();
-// }
-
-if (isset($_POST['import_photo'])) {
-    import_photo_file($_PHOTO);
-}
-
-if (isset($_POST['import_users'])) {
-    import_users_with_photos();
-}
-
-$_title = 'All admin';
+$_title = 'Super Admin | All Admins';
 include '../../_head.php';
 ?>
 
@@ -334,7 +273,6 @@ include '../../_head.php';
     </select>
 
     <button type="submit" id="update_multiple" name="update_multiple" data-confirm>Update Selected</button>
-    <!-- <button formaction="admin_delete.php" data-confirm>Delete Multiple</button> -->
 </form>
 
 <p>
@@ -368,7 +306,6 @@ include '../../_head.php';
         <td><?= (int)$m->status === 1 ? 'Active' : 'Inactive' ?></td>
         <td>
             <button data-get="/page/admin6699/admin_update.php?user_id=<?= $m->user_id ?>">Update</button>
-            <!-- <button data-post="/page/admin6699/admin_delete.php?user_id=<?= $m->user_id ?>" id="delete" data-confirm>Delete</button> -->
             <img src="../../images/user_photos/<?= $m->profile_image_path ?>" class="popup">
         </td>
     </tr>
@@ -377,7 +314,6 @@ include '../../_head.php';
 
 <br>
 
-<!-- <//?= $p->html("sort=$sort&dir=$dir&name=$name&user_id=$user_id") ?> -->
 <?= $p->html("sort=$sort&dir=$dir&name=$name") ?>
 
 <p>
@@ -385,15 +321,6 @@ include '../../_head.php';
     <button data-get="/page/admin6699/admin_home.php">Back to Home</button>
 </p>
 
-<!-- <form method="post" enctype="multipart/form-data">
-    <label for="import">Insert CSV File</label>
-    <?= html_file('import', '.csv') ?>
-    <?= err('import') ?>
-    <section>
-        <button type="submit" id="import_submit" name="import_submit">Submit</button>
-        <button type="reset">Reset</button>
-    </section>
-</form> -->
 <form method="post" enctype="multipart/form-data">
     <label>Import Admin CSV</label>
         <input type="file" name="import_csv" accept=".csv">
@@ -408,4 +335,3 @@ include '../../_head.php';
 
 <?php
 include '../../_foot.php';
-?>

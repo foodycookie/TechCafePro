@@ -1,6 +1,10 @@
 <?php
 require '../../_base.php';
 
+auth('admin');
+
+// ----------------------------------------------------------------------------
+
 if (is_post()) {
     $name     = req('name');
     $email    = req('email');
@@ -65,13 +69,10 @@ if (is_post()) {
 
     // DB operation
     if (!$_err) {
-        //redirect(); // TODO: REMOVE THIS
-
         // (1) Save photo
         $photo = save_photo($f, '../../images/user_photos/');
         
         // (2) Insert user (member)
-        // TODO
         $stm = $_db->prepare('
             INSERT INTO users (name, email, password, profile_image_path, role)
             VALUES (?, ?, SHA1(?), ?, "admin")
@@ -83,10 +84,12 @@ if (is_post()) {
     }
 }
 
-$_title = 'ADMIN Register';
-include '../../_head.php';
+// ----------------------------------------------------------------------------
 
+$_title = 'Super Admin | Admin Register';
+include '../../_head.php';
 ?>
+
    <form method="post" class="form" enctype="multipart/form-data">
 
    <label for="name">Name</label>

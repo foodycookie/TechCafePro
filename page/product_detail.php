@@ -1,6 +1,8 @@
 <?php
 include '../_base.php';
 
+// ----------------------------------------------------------------------------
+
 if (isset($_POST['add_to_cart'])) {
     $product_id = req('product_id');
     $quantity = req('quantity');
@@ -67,12 +69,12 @@ include '../_head.php';
 
 <form method="post">
     <div class="form">
-        <?php if (in_array($role,['member','customer'])): ?>
+        <?php if (auth2('member', 'customer')): ?>
             <input type="hidden" name="product_id" value="<?= $product_id ?>">
             <input type='number' name='quantity' value='0' min='0' max='99' step='1'>
             <button type="submit" name="add_to_cart" >Add To Cart</button>
         <?php else: ?>
-            <button type="button" onclick="location.href='login.php'">
+            <button type="button" onclick="location.href='/page/login.php'">
                 Login to Order
         <?php endif ?>
         <button data-get="/page/menu.php">Back</button>

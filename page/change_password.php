@@ -1,10 +1,9 @@
 <?php
 include '../_base.php';
 
-// ----------------------------------------------------------------------------
-
-// Authenticated users
 auth();
+
+// ----------------------------------------------------------------------------
 
 if (is_post()) {
     $password     = req('password');
@@ -49,7 +48,6 @@ if (is_post()) {
         $_err['confirm'] = 'Not matched';
     }
 
-    // DB operation
     if (!$_err) {
         // Update user (password)
         $stm = $_db->prepare('
@@ -82,13 +80,13 @@ if (is_post()) {
         $m->send();
 
         temp('info', 'Password Change Successfully!');
-        redirect('./home.php');
+        redirect('/page/home.php');
     }
 }
 
 // ----------------------------------------------------------------------------
 
-$_title = 'User | Password';
+$_title = 'User | Change Password';
 include '../_head.php';
 ?>
 

@@ -1,6 +1,8 @@
 <?php
 include '../_base.php';
 
+// ----------------------------------------------------------------------------
+
 if (isset($_POST['submit'])) {
     $product_id = req('selected', []);
     $quantity = req('quantity', []);
@@ -40,7 +42,7 @@ if (!is_array($tag_id)) {
 }
 
 if (!$category_id) {
-    redirect('menu.php');
+    redirect('/page/menu.php');
 }
 
 // Get category info
@@ -49,7 +51,7 @@ $stm->execute([$category_id]);
 $cat = $stm->fetch();
 
 if (!$cat) {
-    redirect('menu.php');
+    redirect('/page/menu.php');
 }
 
 $sql_query = "";
@@ -122,8 +124,6 @@ $products = $stm->fetchAll();
 
 $no_result = empty($products);
 
-// ----------------------------------------------------------------------------
-
 $temperature_tags = $_db->query("SELECT * FROM tags WHERE category = 'Temperature'")->fetchAll();
 $base_tags        = $_db->query("SELECT * FROM tags WHERE category = 'Base'")       ->fetchAll();
 $flavour_tags     = $_db->query("SELECT * FROM tags WHERE category = 'Flavour'")    ->fetchAll();
@@ -134,26 +134,26 @@ $_title = 'Menu | ' . $cat->category_name;
 include '../_head.php';
 ?>
 
-<div class="search">
-    <div class="menu-search" style="height: 30px; padding-bottom: 25px;">
-        <form method="get">
+<div class="search category-bar">
+    <div class="menu-search">
+        <form method="get" class="filter-bar">
             <input type="hidden" name="category_id" value="<?= $category_id ?>">
-            <?= html_search('product_name', 'placeholder="Search product..."') ?>
+            <?= html_search('product_name', 'placeholder="Search product..." class="bar-input"') ?>
 
             <label for="min_price">Min Price</label>
-            <?= html_number('min_price', 0.01, 99.99, 0.01) ?>
+            <?= html_number('min_price', 0.01, 99.99, 0.01, 'class="bar-input"') ?>
             <?= err('min_price') ?>
 
             <label for="max_price">Max Price</label>
-            <?= html_number('max_price', 0.01, 99.99, 0.01) ?>
+            <?= html_number('max_price', 0.01, 99.99, 0.01, 'class="bar-input"') ?>
             <?= err('max_price') ?>
             
-            <button type="button" id="filter_popup_filter_button" name="filter_popup_filter_button" onclick="toggle_visibility('filter_popup')">Filter Menu</button>
+            <button type="button" id="filter_popup_filter_button" name="filter_popup_filter_button" class="bar-btn" onclick="toggle_visibility('filter_popup')">Filter Menu</button>
 
-            <button style="background-color: aqua;">Search and Filter Product</button>
+            <button class="bar-btn bar-primary">Search and Filter Product</button>
 
-            <button type="submit" name="submit" form="add_to_cart" style="background-color: gold; float: right">Add Selected Item(s) To Cart</button>
-
+            <button type="submit" name="submit" form="add_to_cart" class="bar-btn bar-cart">Add Selected Item(s) To Cart</button>
+            
             <div class="filter_popup" id="filter_popup" name="filter_popup">
                 <h2>Filter Menu</h2>
 
@@ -198,7 +198,7 @@ include '../_head.php';
         <div class="alert alert-warning">
             <h2>Product not found, please search again.</h2>
         </div>
-        <button type="button" onclick="location.href='category.php?category_id=<?= $category_id ?>'" style="margin-bottom: 40px;">
+        <button type="button" onclick="location.href='/page/category.php?category_id=<?= $category_id ?>'" style="margin-bottom: 40px;">
             Back
         </button>
 
@@ -225,7 +225,7 @@ include '../_head.php';
                                 <input type='number' name='quantity[<?= $p->product_id ?>]' value='0'
                                         min='0' max='99' step='1' onclick="event.stopPropagation()">
                             <?php else: ?>
-                                <button type="button" onclick="location.href='login.php'">
+                                <button type="button" onclick="location.href='/page/login.php'">
                                     Login to Order
                                 </button>
                             <?php endif; ?>

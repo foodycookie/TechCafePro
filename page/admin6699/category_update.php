@@ -1,7 +1,11 @@
 <?php
-include '../_base.php';
+include '../../_base.php';
 
-$category_id     = req('category_id');
+auth('admin');
+
+// ----------------------------------------------------------------------------
+
+$category_id = req('category_id');
 
 $stm = $_db->prepare('SELECT category_name FROM categories WHERE category_id = ?');
 $stm->execute([$category_id]);
@@ -16,7 +20,7 @@ if (is_get()) {
 
     if (!$p) {
         temp('info', 'No Record');
-        redirect('/page/category_crud.php');
+        redirect('/page/admin6699/category_crud.php');
     }
 
     extract((array)$p);
@@ -50,15 +54,14 @@ if (is_post()) {
         $stm->execute([$category_name, $status, $category_id]);
 
         temp('info', 'Record updated');
-        redirect('/page/category_crud.php');
+        redirect('/page/admin6699/category_crud.php');
     }
 }
 
 // ----------------------------------------------------------------------------
 
 $_title = 'Admin | Category Update';
-include '../_head.php';
-
+include '../../_head.php';
 ?>
 
 <form method="post" class="form">
@@ -81,8 +84,8 @@ include '../_head.php';
 </form>
 
 <p>
-    <button data-get="/page/category_crud.php">Back</button>
+    <button data-get="/page/admin6699/pagecategory_crud.php">Back</button>
 </p>
 
 <?php
-include '../_foot.php';
+include '../../_foot.php';

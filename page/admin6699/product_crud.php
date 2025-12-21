@@ -1,5 +1,9 @@
 <?php
-include '../_base.php';
+include '../../_base.php';
+
+auth('admin');
+
+// ----------------------------------------------------------------------------
 
 function update_multiple() {
     global $_db;
@@ -230,7 +234,20 @@ function import_products_csv() {
     redirect();
 }
 
+if (isset($_POST['update_multiple'])) {
+    update_multiple();
+}
+
+if (isset($_POST['export_csv'])) {
+    export_products_csv();
+}
+
+if (isset($_POST['import_submit'])) {
+    import_products_csv();
+}
+
 // ----------------------------------------------------------------------------
+
 // (1) Sorting
 $fields = [
     'product_id'     => 'Id',
@@ -256,7 +273,7 @@ $category_id = req('category_id', '');
 // (3) Paging
 $page = req('page', 1);
 
-require_once '../lib/SimplePager.php';
+require_once '../../lib/SimplePager.php';
 
 // ----------------------------------------------------------------------------
 
@@ -292,22 +309,10 @@ foreach ($p->result as $row) {
 // Fetch all categories for dropdown
 $cats = $_db->query("SELECT * FROM categories ORDER BY category_name")->fetchAll();
 
-if (isset($_POST['update_multiple'])) {
-    update_multiple();
-}
-
-if (isset($_POST['export_csv'])) {
-    export_products_csv();
-}
-
-if (isset($_POST['import_submit'])) {
-    import_products_csv();
-}
-
 // ----------------------------------------------------------------------------
 
-$_title = 'All product';
-include '../_head.php';
+$_title = 'Admin | All Products';
+include '../../_head.php';
 ?>
 
 <style>
@@ -343,7 +348,6 @@ include '../_head.php';
     </select>
 
     <button type="submit" id="update_multiple" name="update_multiple" data-confirm>Update Selected</button>
-    <!-- <button formaction="product_delete.php" data-confirm>Delete Multiple</button> -->
 </form>
 
 <p>
@@ -372,16 +376,15 @@ include '../_head.php';
         </td>
         <td><?= $m->product_id ?></td>
         <td><?= $m->product_name ?></td>
-        <td style="text-align: right;"><?= number_format($m->price, 2) ?></td>
+        <td><?= number_format($m->price, 2) ?></td>
         <td><?= $m->description ?></td>
         <td><?= $m->category_name ?></td>
         <td><?= (int)$m->is_available === 1 ? 'Available' : 'Unavailable' ?></td>
         <td><?= (int)$m->status === 1 ? 'Active' : 'Inactive' ?></td>
         <td><?= $m->sold ?></td>
         <td>
-            <button data-get="/page/product_update.php?product_id=<?= $m->product_id ?>">Update</button>
-            <!-- <button data-post="/page/product_delete.php?product_id=<?= $m->product_id ?>" id="delete" data-confirm>Delete</button> -->
-            <img src="../images/menu_photos/<?= $m->photo ?>" class="popup">
+            <button data-get="/page/admin6699/product_update.php?product_id=<?= $m->product_id ?>">Update</button>
+            <img src="../../images/menu_photos/<?= $m->photo ?>" class="popup">
         </td>
     </tr>
     <?php endforeach ?>
@@ -392,15 +395,14 @@ include '../_head.php';
 <?= $p->html("sort=$sort&dir=$dir&product_name=$product_name&category_id=$category_id") ?>
 
 <p>
-    <button data-get="/page/product_insert.php">Insert</button>
+    <button data-get="/page/admin6699/product_insert.php">Insert</button>
     <button data-get="/page/admin6699/admin_home.php">Back to Home</button>
 </p>
 
-<!-- Export -->
-<form method="POST">
+<form method="post">
     <button type="submit" id="export_csv" name="export_csv" onclick="changeButtonTextAfterClickThenChangeItBack(this, 'File Exported!')">Export as CSV File</button>
 </form>
-<!-- Batch insertion -->
+
 <form method="post" enctype="multipart/form-data">
     <label for="import">Insert Data via CSV File</label>
     <?= html_file('import', '.csv') ?>
@@ -412,5 +414,4 @@ include '../_head.php';
 </form>
 
 <?php
-include '../_foot.php';
-?>
+include '../../_foot.php';

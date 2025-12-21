@@ -19,17 +19,15 @@ if (is_post()) {
 
     // Send reset token (if valid)
     if (!$_err) {
-        // TODO: (1) Select user
+        // (1) Select user
         $stm = $_db->prepare('SELECT * FROM users WHERE email = ?');
         $stm->execute([$email]);
         $u = $stm->fetch();
         
-        // print_r($u);
-        
-        // TODO: (2) Generate token id
+        // (2) Generate token id
         $id = sha1(uniqid() . rand());  
 
-        // TODO: (3) Delete old and insert new token
+        // (3) Delete old and insert new token
         $stm = $_db->prepare('
             DELETE FROM tokens WHERE user_id = ?;
 
@@ -38,10 +36,10 @@ if (is_post()) {
         ');
         $stm->execute([$u->user_id, $id, $u->user_id]);
 
-        // TODO: (4) Generate token url
+        // (4) Generate token url
         $url = base("page/token.php?id=$id");
 
-        // TODO: (5) Send email
+        // (5) Send email
         $m = get_mail();
         $m->addAddress($u->email, $u->name);
         $m->addEmbeddedImage("../images/user_photos/$u->profile_image_path", 'photo');

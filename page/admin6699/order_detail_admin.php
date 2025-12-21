@@ -1,16 +1,14 @@
 <?php
-include '../_base.php';
+include '../../_base.php';
 
-auth('customer', 'member');
+auth('admin');
 
 // ----------------------------------------------------------------------------
-
-$user_id = $_SESSION['user']->user_id ?? null;
 
 $order_id = req('order_id');
 
 if (!$order_id) {
-    redirect('/page/order_history.php');
+    redirect('/page/admin6699/order_crud.php');
 }
 
 $stm = $_db->prepare("
@@ -22,15 +20,15 @@ $stm = $_db->prepare("
     FROM orders o
     LEFT JOIN payments p ON p.order_id = o.order_id
     WHERE o.order_id = ?
-      AND o.user_id = ?
 ");
-$stm->execute([$order_id, $user_id]);
+$stm->execute([$order_id]);
 $order = $stm->fetch();
 
 if (!$order) {
-    redirect('/page/order_history.php');
+    redirect('/page/admin6699/order_crud.php');
 }
 
+// Fetch order items
 $stm = $_db->prepare("
     SELECT 
         p.product_name,
@@ -45,8 +43,8 @@ $items = $stm->fetchAll();
 
 // ----------------------------------------------------------------------------
 
-$_title = 'Order | Detail';
-include '../_head.php';
+$_title = 'Admin | Order Details';
+include '../../_head.php';
 ?>
 
 <h2>Order Detail</h2>
@@ -93,10 +91,10 @@ include '../_head.php';
 </table>
 
 <p>
-    <button onclick="location.href='/page/order_history.php'">
-        &laquo; Back to Order History
+    <button onclick="location.href='/page/admin6699/order_crud.php'">
+        &laquo; Back to Order CRUD
     </button>
 </p>
 
 <?php
-include '../_foot.php';
+include '../../_foot.php';

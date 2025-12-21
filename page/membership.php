@@ -1,22 +1,16 @@
 <?php
 include '../_base.php';
 
-// ----------------------------------------------------------------------------
-// (1) Authorization: only customer can register membership
-// ----------------------------------------------------------------------------
-
 auth('customer');
+
+// ----------------------------------------------------------------------------
 
 $user = $_SESSION['user'];
 
 // If already a member, no need to join again
 if ($user->role === 'member') {
-    redirect('profile.php');
+    redirect('/page/profile.php');
 }
-
-// ----------------------------------------------------------------------------
-// (2) POST: Register membership
-// ----------------------------------------------------------------------------
 
 if (is_post()) {
 
@@ -25,34 +19,32 @@ if (is_post()) {
         $_err['agree'] = 'You must agree to the membership terms';
     }
 
-    // DB operation
     if (!$_err) {
+        // Update user role + init reward points
+        $_db->prepare("
+            UPDATE users
+            SET 
+                role = 'member',
+                is_member = 1,
+                reward_points = 0,
+                member_since = NOW()
+            WHERE user_id = ?
+        ")->execute([$user->user_id]);
 
-    // (1) Update user role + init reward points
-     $_db->prepare("
-        UPDATE users
-        SET 
-            role = 'member',
-            is_member = 1,
-            reward_points = 0,
-            member_since = NOW()
-        WHERE user_id = ?
-    ")->execute([$user->user_id]);
-
-
-        // (2) Update session user object
+        // Update session user object
         $user->role = 'member';
         $user->reward_points = 0;
         $user->member_since = date('Y-m-d H:i:s');
         $_SESSION['user'] = $user;
 
         temp('info', 'Membership activated successfully 🎉');
-        redirect('profile.php');
+        redirect('/page/profile.php');
     }
 }
 
+// ----------------------------------------------------------------------------
 
-$_title = 'Membership Registration';
+$_title = 'Customer | Membership Registration';
 include '../_head.php';
 ?>
 
@@ -75,7 +67,7 @@ include '../_head.php';
 
     <section>
         <button>Join Membership</button>
-        <button type="button" onclick="location.href='profile.php'">
+        <button type="button" onclick="location.href='/page/profile.php'">
             Cancel
         </button>
     </section>

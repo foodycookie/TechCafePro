@@ -1,7 +1,11 @@
 <?php
-include '../_base.php';
+include '../../_base.php';
 
-$tag_id     = req('tag_id');
+auth('admin');
+
+// ----------------------------------------------------------------------------
+
+$tag_id = req('tag_id');
 
 $stm = $_db->prepare('SELECT name FROM tags WHERE tag_id = ?');
 $stm->execute([$tag_id]);
@@ -16,7 +20,7 @@ if (is_get()) {
 
     if (!$p) {
         temp('info', 'No Record');
-        redirect('/page/tag_crud.php');
+        redirect('/page/admin6699/tag_crud.php');
     }
 
     extract((array)$p);
@@ -50,15 +54,14 @@ if (is_post()) {
         $stm->execute([$name, $category, $tag_id]);
 
         temp('info', 'Record updated');
-        redirect('/page/tag_crud.php');
+        redirect('/page/admin6699/tag_crud.php');
     }
 }
 
 // ----------------------------------------------------------------------------
 
 $_title = 'Admin | Tag Update';
-include '../_head.php';
-
+include '../../_head.php';
 ?>
 
 <form method="post" class="form">
@@ -81,8 +84,8 @@ include '../_head.php';
 </form>
 
 <p>
-    <button data-get="/page/tag_crud.php">Back</button>
+    <button data-get="/page/admin6699/tag_crud.php">Back</button>
 </p>
 
 <?php
-include '../_foot.php';
+include '../../_foot.php';

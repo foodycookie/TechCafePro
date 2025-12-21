@@ -1,12 +1,14 @@
 <?php
 require '../_base.php';
 
-auth2('Member');
+auth('customer', 'Member');
 
-// Get order_id from URL (not from temp/session)
+// ----------------------------------------------------------------------------
+
+// Get order_id from URL
 $order_id = req('order_id');
 if (!$order_id || !is_numeric($order_id)) {
-    redirect('cart.php');
+    redirect('/page/cart.php');
 }
 
 // Fetch order with correct column name
@@ -15,7 +17,7 @@ $stm->execute([$order_id, $_user->user_id]);
 $order = $stm->fetch();
 
 if (!$order) {
-    redirect('cart.php');
+    redirect('/page/cart.php');
 }
 
 // Fetch order items
@@ -33,7 +35,7 @@ $stm = $_db->prepare('SELECT * FROM payments WHERE order_id = ?');
 $stm->execute([$order_id]);
 $payment = $stm->fetch();
 
-// reward points
+// Reward points
 if ($_user->role === 'member' && !$order->reward_given) {
 
     $points = floor($order->total_amount);
@@ -66,7 +68,7 @@ set_chosen_cart_item_for_order();
 $session_id = get('session_id');
 
 if ($session_id && str_starts_with($session_id, 'cs_')) {
-    // RIGOROUS UPDATE: Only update if it's currently 'Pending'
+    // Only update if it's currently 'Pending'
     $stm = $_db->prepare('
         UPDATE payments 
         SET status = "Completed", paid_at = NOW() 
@@ -74,8 +76,8 @@ if ($session_id && str_starts_with($session_id, 'cs_')) {
     ');
     $stm->execute([$order_id]);
 
-    // UPDATE INVENTORY: Since the payment is now confirmed, update the sold counts
-    if ($stm->rowCount() > 0) { // Only do this if we actually updated a row
+    // Update the sold counts
+    if ($stm->rowCount() > 0) {
         $item_stm = $_db->prepare('UPDATE products SET sold = sold + ? WHERE product_id = ?');
         foreach ($items as $item) {
             $item_stm->execute([$item->unit, $item->product_id]);
@@ -83,6 +85,9 @@ if ($session_id && str_starts_with($session_id, 'cs_')) {
         temp('info', 'Stripe Payment Confirmed!');
     }
 }
+
+// ----------------------------------------------------------------------------
+
 ?>
 
 <!DOCTYPE html>
@@ -99,7 +104,6 @@ if ($session_id && str_starts_with($session_id, 'cs_')) {
             <h1>TechCafe</h1>
             <p>E-Receipt</p>
         </div>
-
 
         <div class="receipt-info">
             <h2>Thank You for Your Order!</h2>

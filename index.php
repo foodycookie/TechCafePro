@@ -1,5 +1,5 @@
 <?php
-require '_base.php'; // set KL time
+require '_base.php'; // Set KL time
 ?>
 
 <!DOCTYPE html>
@@ -21,8 +21,8 @@ require '_base.php'; // set KL time
 
     <main>
         <div style = "text-align:center; margin:50px auto;">
-        <?php if (in_array($_SESSION['user'] -> role ?? null, ['admin'])): ?>
-            <button data-get="/page/admin6699/admin_home.php">Let's Start</button>
+        <?php if (auth2('admin')): ?>
+            <button data-get="/page/admin6699/admin_home.php">Admin Dashboard</button>
         <?php else: ?>
             <button data-get="/page/home.php">Let's Start</button>
         <?php endif; ?>

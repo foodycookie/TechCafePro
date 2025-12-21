@@ -1,5 +1,7 @@
 <?php
-include '../_base.php';
+include '../../_base.php';
+
+auth('admin');
 
 // ----------------------------------------------------------------------------
 
@@ -29,16 +31,16 @@ if (is_post()) {
         $stm->execute([$name, $category]);
 
         temp('info', 'Record inserted');
-        redirect('/page/tag_crud.php');
+        redirect('/page/admin6699/tag_crud.php');
     }
 }
 
 // ----------------------------------------------------------------------------
 
 $_title = 'Admin| Tag Insert';
-include '../_head.php';
-
+include '../../_head.php';
 ?>
+
 <form method="post" class="form">
     <label for="name">Name</label>
     <?= html_text('name', 'maxlength="50"') ?>
@@ -55,7 +57,8 @@ include '../_head.php';
 </form>
 
 <p>
-    <button data-get="/page/tag_crud.php">Back</button>
+    <button data-get="/page/admin6699/tag_crud.php">Back</button>
 </p>
+
 <?php
-include '../_foot.php';
+include '../../_foot.php';

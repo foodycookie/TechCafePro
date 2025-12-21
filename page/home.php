@@ -1,9 +1,16 @@
 <?php
 require '../_base.php';
 
-$_title = 'Page | Home';
+// ----------------------------------------------------------------------------
+
+
+
+// ----------------------------------------------------------------------------
+
+$_title = 'Home Page';
 include '../_head.php';
 ?>
+
 <style>
     #img {
         width: 600px;
@@ -17,7 +24,6 @@ include '../_head.php';
 
 <p id="p">Image 1 of 4</p>
 <img id="img" src="../images/system/placeholder.jpg">
-<!-- <button onclick="location.href='/page/admin6699/admin_login.php'">Admin Login</button> -->
 
 <script>
     const arr = [
@@ -40,7 +46,6 @@ include '../_head.php';
             .fadeIn();
     });
 </script>
-
 
 <?php
 include '../_foot.php';

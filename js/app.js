@@ -2,7 +2,34 @@
 // General Functions
 // ============================================================================
 
+function toggle_visibility(target) {
+    var element = document.getElementById(target);
+    if (element.style.visibility=='visible') {
+        element.style.visibility = 'hidden';
+    }
+    else
+        element.style.visibility = 'visible';
+}
 
+function toggleAll(source, target) {
+    document.querySelectorAll('input[name="' + target + '"]')
+        .forEach(cb => cb.checked = source.checked);
+}
+
+function toggleAllForNameStartedWith(source, nameStartedWith) {
+    document.querySelectorAll('input[name^="'+ nameStartedWith +'"]').forEach(cb => {
+        cb.checked = source.checked;
+    });
+}
+
+function changeButtonTextAfterClickThenChangeItBack(source, message) {
+    const originalText = source.innerText;
+    source.innerText = message;
+
+    setTimeout(() => {
+        source.innerText = originalText;
+    }, 2000);
+}
 
 // ============================================================================
 // Page Load (jQuery)

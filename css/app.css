@@ -159,6 +159,7 @@ label.upload img {
 }
 
 /*Menu---------------------------------------------------------------------------*/
+
 .category-title {
     margin: 20px 0 10px;
     font-weight: bold;
@@ -189,7 +190,7 @@ label.upload img {
     justify-content: center;
     font-size: 24px;
     font-weight: bold;
-    color: white;
+    color: rgb(255, 255, 255);
     background: rgba(0, 0, 0, 0.6);
     opacity: 0;
     border-radius: 6px;
@@ -245,10 +246,59 @@ html {
     background: #f0e5d8;
 }
 
+/* Sidebar stays visible while scrolling */
 .search{
     z-index: 1000;
     position: sticky;
-    top: 25px;                   /* Sidebar stays visible while scrolling */
+    top: 25px;                   
+}
+
+/* ------------------------------------------------------------------------- */
+
+.filter-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.bar-input {
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-weight: bold;
+    outline: none;
+}
+
+.bar-btn {
+    padding: 8px 14px;
+    background: rgb(108, 113, 211);
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-weight: bold;
+    color: #333;
+    cursor: pointer;
+}
+
+.bar-btn:hover {
+    background: #f0e5d8;
+}
+
+.bar-primary {
+    background: #6bc9ff;
+}
+
+.bar-primary:hover {
+    background: #4fb6f2;
+}
+
+.bar-cart {
+    background: gold;
+    margin-right: 20%;
+}
+
+.bar-cart:hover {
+    background: #ffde59;
 }
 
 /* Table ------------------------------------------------------------------- */
@@ -414,8 +464,8 @@ html {
     color: #666;
 }
 
-
 /* Shopping Cart ----------------------------------------------------------- */
+
 /* Layout Container */
 .cart-container {
     display: flex;
@@ -446,7 +496,6 @@ html {
 }
 
 /* 2. Define the Columns (Use these for both Header Spans and Row Divs) */
-
 /* Col 1: Checkbox */
 .col-check { flex: 0 0 40px; }
 

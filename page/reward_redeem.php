@@ -1,17 +1,13 @@
 <?php
 require '../_base.php';
 
-/* =====================================================
-   (1) Authorization
-===================================================== */
 auth('member');
+
+// ----------------------------------------------------------------------------
 
 $user = $_SESSION['user'];
 
-/* =====================================================
-   (2) Redeem rule
-   1 product = price × 10 points
-===================================================== */
+// Redeem rule: 1 product = price × 10 points
 function required_points($price) {
     if ((int)($price * 10) == 0) {
         return 1;
@@ -20,9 +16,7 @@ function required_points($price) {
     return (int)($price * 10);
 }
 
-/* =====================================================
-   (3) POST: Redeem product
-===================================================== */
+// POST: Redeem product
 if (is_post()) {
 
     $product_id = req('product_id');
@@ -38,19 +32,17 @@ if (is_post()) {
 
     if (!$product) {
         temp('info', 'Invalid product');
-        redirect('reward_redeem.php');
+        redirect('/page/reward_redeem.php');
     }
 
     $need = required_points($product->price);
 
     if ($user->reward_points < $need) {
         temp('info', 'Not enough reward points');
-        redirect('reward_redeem.php');
+        redirect('/page/reward_redeem.php');
     }
 
-    /* ===============================
-       DB Transaction
-    =============================== */
+    // DB Transaction
     $_db->beginTransaction();
 
     try {
@@ -64,8 +56,8 @@ if (is_post()) {
 
         // (2) Create FREE order (RM0)
         $_db->prepare("
-            INSERT INTO orders (user_id, total_amount, created_at)
-            VALUES (?, 0, NOW())
+            INSERT INTO orders (user_id, count, total_amount, created_at)
+            VALUES (?, 1, 0, NOW())
         ")->execute([$user->user_id]);
 
         $order_id = $_db->lastInsertId();
@@ -76,6 +68,11 @@ if (is_post()) {
             VALUES (?, ?, 1, 0, 0)
         ")->execute([$order_id, $product->product_id]);
 
+        $_db->prepare("
+            INSERT INTO payments (amount, method, status, paid_at, order_id)
+            VALUES (0, ?, ?, NOW(), ?)
+        ")->execute(["Redeemed Reward", "Completed", $order_id]);
+
         $_db->commit();
 
         // Sync session
@@ -83,28 +80,25 @@ if (is_post()) {
         $_SESSION['user'] = $user;
 
         temp('info', 'Product redeemed successfully 🎉');
-        redirect('order_detail.php?order_id=' . $order_id);
+        redirect('/page/order_detail.php?order_id=' . $order_id);
 
     } catch (Exception $e) {
         $_db->rollBack();
         temp('info', 'Redeem failed');
-        redirect('reward_redeem.php');
+        redirect('/page/reward_redeem.php');
     }
 }
 
-/* =====================================================
-   (4) Load redeemable products
-===================================================== */
+// (4) Load redeemable products
 $products = $_db->query("
     SELECT product_id, product_name, price
     FROM products
     ORDER BY product_name
 ")->fetchAll();
 
-/* =====================================================
-   UI
-===================================================== */
-$_title = 'Reward | Redeem';
+// ----------------------------------------------------------------------------
+
+$_title = 'Member | Reward Redeem';
 include '../_head.php';
 ?>
 
@@ -150,7 +144,7 @@ include '../_head.php';
 </table>
 
 <p>
-    <button onclick="location.href='profile.php'">
+    <button onclick="location.href='/page/profile.php'">
         &laquo; Back to Profile
     </button>
 </p>

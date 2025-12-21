@@ -457,25 +457,6 @@ function add_cart($id, $unit) {
     set_cart($cart);
 }
 
-// Add product to cart
-// function cart_add($id, $qty = 1) {
-//     $cart = get_cart();
-//     if (isset($cart[$id])) {
-//         $cart[$id] += $qty;
-//         if ($cart[$id] > 10) $cart[$id] = 10; // Max 10
-//     } else {
-//         $cart[$id] = $qty;
-//     }
-//     set_cart($cart); 
-// }
-
-// Remove product from cart
-// function cart_remove($id) {
-//     $cart = get_cart();
-//     unset($cart[$id]);
-//     set_cart($cart);
-// }
-
 function get_chosen_cart_item_for_order() {
     return $_SESSION['chosen_cart_item_for_order'] ?? [];
 }
@@ -557,43 +538,6 @@ function export($file, $exported_file_name) {
     exit();
 }
 
-// ============================================================================
-// Some JS
-// ============================================================================
-?>
-
-<script>
-    function toggle_visibility(target) {
-        var element = document.getElementById(target);
-        if (element.style.visibility=='visible') {
-            element.style.visibility = 'hidden';
-        }
-        else
-            element.style.visibility = 'visible';
-    }
-
-    function toggleAll(source, target) {
-        document.querySelectorAll('input[name="' + target + '"]')
-            .forEach(cb => cb.checked = source.checked);
-    }
-
-    function toggleAllForNameStartedWith(source, nameStartedWith) {
-        document.querySelectorAll('input[name^="'+ nameStartedWith +'"]').forEach(cb => {
-            cb.checked = source.checked;
-        });
-    }
-
-    function changeButtonTextAfterClickThenChangeItBack(source, message) {
-        const originalText = source.innerText;
-        source.innerText = message;
-
-        setTimeout(() => {
-            source.innerText = originalText;
-        }, 2000);
-    }
-</script>
-
-<?php
 // ============================================================================
 // Global Constants and Variables
 // ============================================================================

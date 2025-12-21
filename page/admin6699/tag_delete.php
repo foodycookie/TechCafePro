@@ -1,5 +1,9 @@
 <?php
-include '../_base.php';
+include '../../_base.php';
+
+auth('admin');
+
+// ----------------------------------------------------------------------------
 
 if (is_post()) {
     if ($tag_id = req('tag_id', [])) {
@@ -24,5 +28,5 @@ if (is_post()) {
         temp('info', "$count tag(s) deleted!");
     }
 
-    redirect('/page/tag_crud.php');
+    redirect('/page/admin6699/tag_crud.php');
 }

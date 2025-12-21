@@ -1,12 +1,16 @@
 <?php
-include '../_base.php';
+include '../../_base.php';
+
+auth('admin');
+
+// ----------------------------------------------------------------------------
 
 function update_multiple() {
     global $_db;
 
-    $category_id = req('category_id', []);
-    if (!is_array($category_id)) {
-        $category_id = [$category_id];
+    $user_id = req('user_id', []);
+    if (!is_array($user_id)) {
+        $user_id = [$user_id];
     }
     $selected_field_to_update = req('selected_field_to_update');
 
@@ -15,22 +19,22 @@ function update_multiple() {
 
         if ($selected_field_to_update == 'active') {
             $stm = $_db->prepare('
-                UPDATE categories
+                UPDATE users
                 SET status = 1
-                WHERE category_id = ?
+                WHERE user_id = ? AND (role = "customer" OR role = "member")
             ');
         }
 
         elseif ($selected_field_to_update == 'inactive') {
             $stm = $_db->prepare('
-                UPDATE categories
+                UPDATE users
                 SET status = 0
-                WHERE category_id = ?
+                WHERE user_id = ? AND (role = "customer" OR role = "member")
             ');
         }
 
-        foreach ($category_id as $cid) {
-            $count += $stm->execute([$cid]);
+        foreach ($user_id as $uid) {
+            $count += $stm->execute([$uid]);
         }
 
         temp('info', "$count record(s) updated to $selected_field_to_update!");
@@ -38,40 +42,52 @@ function update_multiple() {
     }
 }
 
+// ----------------------------------------------------------------------------
+
+// (1) Sorting
 $fields = [
-    'category_id' => 'Id',
-    'category_name' => 'Name',
-    'status' => 'Status'
+    'user_id'        => 'Id',
+    'name'           => 'Name',
+    'email'          => 'Email',
+    'role'           => 'Role',
+    'status'         => 'Status',
 ];
 
 $sort = req('sort');
-key_exists($sort, $fields) || $sort = 'category_id';
+key_exists($sort, $fields) || $sort = 'user_id';
 
 $dir = req('dir');
 in_array($dir, ['asc', 'desc']) || $dir = 'asc';
 
-$category_name = req('category_name', '');
+// (2) Filtering
+$name   = req('name', '');
 
+// (3) Paging
 $page = req('page', 1);
 
-require_once '../lib/SimplePager.php';
+require_once '../../lib/SimplePager.php';
 
 // ----------------------------------------------------------------------------
-$baseSQL = "FROM categories WHERE category_name LIKE ?";
-$params = ["%$category_name%"];
 
-$sql = "SELECT category_id $baseSQL ORDER BY $sort $dir";
+// Build SQL for SimplePager
+$baseSQL = "FROM users WHERE (role = 'customer' OR role = 'member') AND name LIKE ?";
+$params = ["%$name%"];
 
+// Sorting applied after pagination
+$sql = "SELECT user_id $baseSQL ORDER BY $sort $dir";
+
+// Pager
 $p = new SimplePager($sql, $params, 10, $page);
 
+// Fetch full product rows AFTER pagination
 $arr = [];
 foreach ($p->result as $row) {
     $full = $_db->prepare("
-        SELECT *
-        FROM categories 
-        WHERE category_id = ?
+        SELECT u.*
+        FROM users u 
+        WHERE u.user_id = ?
     ");
-    $full->execute([$row->category_id]);
+    $full->execute([$row->user_id]);
     $arr[] = $full->fetch();
 }
 
@@ -81,8 +97,8 @@ if (isset($_POST['update_multiple'])) {
 
 // ----------------------------------------------------------------------------
 
-$_title = 'All categories';
-include '../_head.php';
+$_title = 'Admin | All Customers';
+include '../../_head.php';
 ?>
 
 <style>
@@ -93,10 +109,10 @@ include '../_head.php';
 </style>
 
 <form>
-    <?= html_search('category_name','placeholder="Search category..."') ?>
+    <?= html_search('name','placeholder="Search user..."') ?>
+
     <button>Search</button>
 </form>
-
 <form method="POST" id="modify_multiple">
     <select name="selected_field_to_update">
         <option value="">Select Field</option>
@@ -105,7 +121,6 @@ include '../_head.php';
     </select>
 
     <button type="submit" id="update_multiple" name="update_multiple" data-confirm>Update Selected</button>
-    <!-- <button formaction="category_delete.php" data-confirm>Delete Multiple</button> -->
 </form>
 
 <p>
@@ -115,12 +130,12 @@ include '../_head.php';
 
 <table class="table">
     <tr>
-        <th><input type="checkbox" onclick="toggleAll(this, 'category_id[]')"></th>
+        <th><input type="checkbox" onclick="toggleAll(this, 'user_id[]')"></th>
         <?= table_headers(
                 $fields,
                 $sort,
                 $dir,
-                "page={$p->page}&category_name={$category_name}"
+                "page={$p->page}&name={$name}"
             ) ?>
     </tr>
 
@@ -128,17 +143,18 @@ include '../_head.php';
     <tr>
         <td>
             <input type="checkbox"
-                   name="category_id[]"
-                   value="<?= $m->category_id ?>"
+                   name="user_id[]"
+                   value="<?= $m->user_id ?>"
                    form="modify_multiple">
         </td>
-        <td><?= $m->category_id ?></td>
-        <td><?= $m->category_name ?></td>
+        <td><?= $m->user_id ?></td>
+        <td><?= $m->name ?></td>
+        <td><?= $m->email ?></td>
+        <td><?= $m->role ?></td>
         <td><?= (int)$m->status === 1 ? 'Active' : 'Inactive' ?></td>
-        
         <td>
-            <button data-get="/page/category_update.php?category_id=<?= $m->category_id ?>">Update</button>
-            <!-- <button data-post="/page/category_delete.php?category_id=<?= $m->category_id ?>" data-confirm>Delete</button> -->
+            <button data-get="/page/admin6699/customer_update.php?user_id=<?= $m->user_id ?>">Update</button>
+            <img src="../../images/user_photos/<?= $m->photo ?>" class="popup">
         </td>
     </tr>
     <?php endforeach ?>
@@ -146,13 +162,11 @@ include '../_head.php';
 
 <br>
 
-<?= $p->html("sort=$sort&dir=$dir&category_name=$category_name") ?>
+<?= $p->html("sort=$sort&dir=$dir&name=$name") ?>
 
 <p>
-    <button data-get="/page/category_insert.php">Insert</button>
     <button data-get="/page/admin6699/admin_home.php">Back to Home</button>
 </p>
 
 <?php
-include '../_foot.php';
-?>
+include '../../_foot.php';

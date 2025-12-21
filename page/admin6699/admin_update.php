@@ -1,13 +1,15 @@
 <?php
 include '../../_base.php';
 
+auth('admin');
+
 // ----------------------------------------------------------------------------
 
 $user_id = req('user_id');
 
-    $stm = $_db->prepare('SELECT name, email, status FROM users WHERE user_id = ?');
-    $stm->execute([$user_id]);
-    $old_data = $stm->fetch();
+$stm = $_db->prepare('SELECT name, email, status FROM users WHERE user_id = ?');
+$stm->execute([$user_id]);
+$old_data = $stm->fetch();
 
 if ($user_id == 1) {
     $status = $old_data->status;
@@ -32,7 +34,7 @@ if (is_get()) {  // step1 SQL select
 
     $_SESSION['photo'] = $photo;
 }
-  
+
 if (is_post()) {   // step3 SQL update
     $user_id = req('user_id');
     $name   = req('name');  
@@ -102,15 +104,16 @@ if (is_post()) {   // step3 SQL update
         temp('info', 'Record updated');
         redirect('/page/admin6699/admin_crud.php');
     }
+
     $_SESSION['photo'] = $photo;
 }
 
 // ----------------------------------------------------------------------------
 
-$_title = 'Admin | user Update';
+$_title = 'Super Admin | Admin Update';
 include '../../_head.php';
-
 ?>
+
 <form method="post" class="form" enctype="multipart/form-data" novalidate> 
     <label for="user_id">Id</label> 
     <b><?= $user_id ?></b> 
@@ -155,5 +158,6 @@ include '../../_head.php';
 <p>
     <button data-get="/page/admin6699/admin_crud.php">Back</button>
 </p>
+
 <?php
 include '../../_foot.php';

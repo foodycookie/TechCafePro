@@ -1,13 +1,12 @@
 <?php
-include '../_base.php';
+include '../../_base.php';
 
-auth('customer', 'member');
+auth('admin');
 
 // ----------------------------------------------------------------------------
 
 $user_id = $_SESSION['user']->user_id;
 
-// Fetch user
 if (is_get()) {
     $stm = $_db->prepare("
         SELECT 
@@ -31,7 +30,6 @@ if (is_get()) {
     $_SESSION['photo'] = $photo;
 }
 
-// Deactivate account
 if (isset($_POST['deactivate_account'])) {
     $_db->prepare("
         UPDATE users
@@ -69,7 +67,7 @@ if (is_post()) {
         $_err['name'] = 'Maximum 100 characters';
     }
 
-    // Validate: photo (optional)
+    // Validate: photo
     if ($f) {
         if (!str_starts_with($f->type, 'image/')) {
             $_err['photo'] = 'Must be image';
@@ -79,13 +77,14 @@ if (is_post()) {
         }
     }
 
+    // DB Operation
     if (!$_err) {
         // (1) Save new photo
         if ($f) {
             if ($photo) {
-                @unlink("../images/user_photos/$photo");
+                @unlink("../../images/user_photos/$photo");
             }
-            $photo = save_photo($f, '../images/user_photos');
+            $photo = save_photo($f, '../../images/user_photos');
         }
 
         // (2) Update user
@@ -96,17 +95,18 @@ if (is_post()) {
         ")->execute([$email, $name, $photo, $user_id]);
 
         temp('info', 'Profile updated');
-        redirect('/page/profile.php');
+        redirect('/page/admin6699/admin_profile.php');
     }
 }
 
 // ----------------------------------------------------------------------------
 
-$_title = 'User | Profile';
-include '../_head.php';
+$_title = 'Admin | Profile';
+include '../../_head.php';
 ?>
 
 <form method="post" class="form" enctype="multipart/form-data">
+
     <label>Email</label>
     <?= html_text('email', 'maxlength="100"', $email ?? '') ?>
     <?= err('email') ?>
@@ -118,7 +118,7 @@ include '../_head.php';
     <label>Photo</label>
     <label class="upload">
         <?= html_file('photo', 'image/*', 'hidden') ?>
-        <img src="../images/user_photos/<?= $photo ?: '../images/user_photos/placeholder.png' ?>" width="120">
+        <img src="../../images/user_photos/<?= $photo ?: '../../images/user_photos/placeholder.png' ?>" width="120">
     </label>
     <?= err('photo') ?>
 
@@ -130,15 +130,11 @@ include '../_head.php';
 
 <hr>
 
-<p>
-    <button data-get="/page/order_history.php">
-        📦 Order History
-    </button>
-</p>
-
 <button onclick="location.href='/page/logout.php'">Logout</button>
 
-<form method="post" onsubmit="return confirm('Deactivate your account permanently?')">
+<form method="post"
+      onsubmit="return confirm('Deactivate your account permanently?')">
+
     <button name="deactivate_account" class="danger">
         Deactivate Account
     </button>
@@ -146,44 +142,5 @@ include '../_head.php';
 
 <hr>
 
-<section style="margin-top:30px; padding:15px; border:1px solid #ddd;">
-    <h3>🎉 Membership</h3>
-
-    <?php if ($_SESSION['user']->role === 'customer'): ?>
-        <p>Status: <b>Customer</b></p>
-        <p>Upgrade to member and earn reward points.</p>
-
-        <button onclick="location.href='/page/membership.php'">
-            Join Membership
-        </button>
-
-    <?php else: ?>
-        <p><b>Status:</b> Member</p>
-
-        <p>
-            <b>Reward Points:</b>
-            <?= (int)($_SESSION['user']->reward_points ?? 0) ?> pts
-        </p>
-
-        <p>
-            <b>Member Since:</b>
-            <?= date('d-m-Y', strtotime($_SESSION['user']->member_since)) ?>
-        </p>
-
-        <p style="font-size:13px; color:#666;">
-            Earn 1 point for every RM1 spent.
-        </p>
-
-    <?php if ($_SESSION['user']->role === 'member'): ?>
-    <section style="margin-top:20px">
-        <button onclick="location.href='/page/reward_redeem.php'">
-            🎁 Redeem Rewards
-        </button>
-    </section>
-    <?php endif; ?>
-
-    <?php endif; ?>
-</section>
-
 <?php
-include '../_foot.php';
+include '../../_foot.php';

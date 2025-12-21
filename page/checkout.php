@@ -1,36 +1,23 @@
 <?php
 include '../_base.php';
 
+auth('customer', 'Member');
+
 // ----------------------------------------------------------------------------
-// Head
-$_title = 'Checkout';
-include '../_head.php';
-?>
-
-<h1>Checkout Page</h1>
-
-<?php
-// Only members can checkout
-auth2('Member');
 
 // Get shopping cart from session
 $cart = get_chosen_cart_item_for_order();
 if (!$cart) {
-    echo '<p>You have not choose any item for purchase yet. <a href="cart.php">Go back to cart</a></p>';
+    echo '<p>You have not choose any item for purchase yet. <a href="/page/cart.php">Go back to cart</a></p>';
     include '../_foot.php';
     exit;
 }
-
-
-// echo '<pre>'; 
-// print_r($cart); 
-// echo '</pre>';
 
 // Skip invalid entries at the start if any
 $cart = array_filter($cart, fn($unit) => $unit > 0); // remove empty or 0 units
 
 try {
-    $_db->beginTransaction(); // START TRANSACTION
+    $_db->beginTransaction();
 
     // Insert new order
     $stm = $_db->prepare('INSERT INTO orders (user_id, created_at) VALUES (?, NOW())');
@@ -67,14 +54,20 @@ try {
     // Commit transaction
     $_db->commit();
 
-    redirect("payment.php?order_id=$order_id");
+    redirect("/page/payment.php?order_id=$order_id");
 
 } catch (Exception $e) {
     $_db->rollBack();
     echo "<p>Error processing order: " . $e->getMessage() . "</p>";
-} // END TRANSACTION
+}
 
+// ----------------------------------------------------------------------------
+
+$_title = 'Order | Checkout';
+include '../_head.php';
 ?>
+
+<h1>Checkout Page</h1>
 
 <?php
 include '../_foot.php';

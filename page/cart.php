@@ -1,7 +1,9 @@
 <?php
 include '../_base.php';
 
-// --- Button Logic Handlers ---
+auth('customer', 'member');
+
+// ----------------------------------------------------------------------------
 
 if (isset($_POST['clear_button'])) {
     set_cart();
@@ -63,9 +65,9 @@ if (isset($_POST['checkout_button'])) {
     redirect("/page/checkout.php");
 }
 
-// --- Page Display ---
+// ----------------------------------------------------------------------------
 
-$_title = 'Shopping Cart'; 
+$_title = 'User | Shopping Cart'; 
 include '../_head.php';
 
 $cart = get_cart();

@@ -6,6 +6,10 @@ use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 
+auth('admin');
+
+// ----------------------------------------------------------------------------
+
 $user_id = $_SESSION['user']->user_id ?? null;
 
 function export_products_report() {
@@ -26,7 +30,6 @@ function export_products_report() {
     $sheet->getStyle('A1:F1')->getFont()->setBold(true);
     $sheet->getStyle('A1:F1')->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
 
-    // Fetch products
     $products = $_db->query('SELECT products.*, categories.category_name 
                              FROM products
                              LEFT JOIN categories ON categories.category_id = products.category_id
@@ -93,7 +96,7 @@ $soldQuantities = json_encode(array_column($topSellingProducts, 'sold'));
 
 // ----------------------------------------------------------------------------
 
-$_title = 'Page | Home';
+$_title = 'Admin | Home Page';
 include '../../_head.php';
 ?>
 
@@ -182,7 +185,7 @@ include '../../_head.php';
             <tr>
                 <td style="justify-content : center">
                     <div class="button-container">
-                        <button class="icon-btn"  onclick="location.href='../customer_crud.php'">
+                        <button class="icon-btn"  onclick="location.href='/page/admin6699/customer_crud.php'">
                             <img src="../../images/system/customer_icon.jpg" alt="Customer Icon">
                             <span>Customer</span>
                             <div class="badge-group">
@@ -213,7 +216,7 @@ include '../../_head.php';
                             </div>
                         </button>
                         <?php if ($user_id == 1):?>
-                        <button class="icon-btn" onclick="location.href='./admin_crud.php'">
+                        <button class="icon-btn" onclick="location.href='/page/admin6699/admin_crud.php'">
                             <img src="../../images/system/admin_icon.jpg" alt="Admin Icon">
                             <span>Admin</span>
                             <div class="badge-group">
@@ -243,7 +246,7 @@ include '../../_head.php';
                         </button>
                         <?php endif?>
 
-                        <button class="icon-btn" onclick="location.href='/page/product_crud.php'">
+                        <button class="icon-btn" onclick="location.href='/page/admin6699/product_crud.php'">
                             <img src="../../images/system/product_icon.png" alt="Product Icon">
                             <span>Product</span>
                             <div class="badge-group">
@@ -272,13 +275,14 @@ include '../../_head.php';
                             </div>
                         </button>
 
-                        <button class="icon-btn" onclick="location.href='/page/order_crud.php'">
+                        <button class="icon-btn" onclick="location.href='/page/admin6699/order_crud.php'">
                             <img src="../../images/system/order_icon.png" alt="Order Icon">
                             <span>Order</span>
                             <div class="badge-group">
                                 <div class="badge_available">
                                     <?php $stm = $_db -> prepare('
-                                        SELECT COUNT(*) FROM orders
+                                        SELECT COUNT(*) FROM payments
+                                        WHERE status = "Completed"
                                     ');
                                     $stm -> execute();
                                     $o_active_amount = $stm -> fetchColumn();
@@ -288,7 +292,8 @@ include '../../_head.php';
                                 </div>
                                 <div class="badge_unavailable">
                                     <?php $stm = $_db -> prepare('
-                                        SELECT COUNT(*) FROM orders
+                                        SELECT COUNT(*) FROM payments
+                                        WHERE status != "Completed"
                                     ');
                                     $stm -> execute();
                                     $o_unactive_amount = $stm -> fetchColumn();
@@ -299,7 +304,7 @@ include '../../_head.php';
                             </div>
                         </button>
 
-                        <button class="icon-btn" onclick="location.href='/page/category_crud.php'">
+                        <button class="icon-btn" onclick="location.href='/page/admin6699/category_crud.php'">
                             <span>Category</span>
                             <div class="badge-group">
                                 <div class="badge_available">
@@ -327,7 +332,7 @@ include '../../_head.php';
                             </div>
                         </button>
 
-                        <button class="icon-btn" onclick="location.href='/page/tag_crud.php'">
+                        <button class="icon-btn" onclick="location.href='/page/admin6699/tag_crud.php'">
                             <span>Tag</span>
                             <div class="badge-group">
                                 <div class="badge_available">
@@ -348,6 +353,8 @@ include '../../_head.php';
         </tbody>
     </table>
 </body>
+
+<!-- ---------------------------------------------------------------------------- -->
 
 <h2>Top 15 Selling Products</h2>
 

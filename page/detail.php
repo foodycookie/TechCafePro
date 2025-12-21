@@ -16,7 +16,7 @@ $stm = $_db->prepare('
 ');
 $stm->execute([$id]);
 $p = $stm->fetch();
-if (!$p) redirect('list.php');
+if (!$p) redirect('/page/list.php');
 
 // ----------------------------------------------------------------------------
 
@@ -68,7 +68,7 @@ include '../_head.php';
 </table>
 
 <p>
-    <button data-get="list.php">List</button> <!-- back to list -->
+    <button data-get="/page/list.php">List</button> <!-- back to list -->
 </p>
 
 <script>
