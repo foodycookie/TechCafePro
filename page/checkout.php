@@ -1,7 +1,7 @@
 <?php
 include '../_base.php';
 
-auth('customer', 'Member');
+auth('customer', 'member');
 
 // ----------------------------------------------------------------------------
 
