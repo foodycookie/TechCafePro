@@ -154,7 +154,7 @@ include '../../_head.php';
         <td><?= (int)$m->status === 1 ? 'Active' : 'Inactive' ?></td>
         <td>
             <button data-get="/page/admin6699/customer_update.php?user_id=<?= $m->user_id ?>">Update</button>
-            <img src="../../images/user_photos/<?= $m->photo ?>" class="popup">
+            <img src="../../images/user_photos/<?= $m->profile_image_path ?>" class="popup">
         </td>
     </tr>
     <?php endforeach ?>
