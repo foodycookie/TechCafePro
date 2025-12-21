@@ -66,7 +66,7 @@ if (is_post()) {
 
 // ----------------------------------------------------------------------------
 
-$_title = 'User | Reset Password';
+$_title = 'User | Forgot Password';
 include '../_head.php';
 ?>
 

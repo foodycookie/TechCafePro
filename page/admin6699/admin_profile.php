@@ -132,6 +132,7 @@ include '../../_head.php';
 
 <button onclick="location.href='/page/logout.php'">Logout</button>
 
+<?php if ($user_id !== 1): ?> 
 <form method="post"
       onsubmit="return confirm('Deactivate your account permanently?')">
 
@@ -139,7 +140,7 @@ include '../../_head.php';
         Deactivate Account
     </button>
 </form>
-
+<?php endif ?>
 <hr>
 
 <?php
