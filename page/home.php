@@ -27,11 +27,11 @@ include '../_head.php';
         float: right;
     }
 
-    a{
+    img a{
         color: brown;
     }
 
-    a:hover{
+    img a:hover{
         color: orangered;
     }
 </style>
@@ -51,7 +51,7 @@ include '../_head.php';
 
     <p>To learn more about <strong>Tech Cafe Pro</strong> or make an enquiry, feel free to contact us anytime. 
         You can reach us by phone at (+60 12-34567890) or via email at 
-        <strong><a href="mailto:techcafepro@gmail.com" style="text-decoration: none;">techcafepro@gmail.com</a></strong>. 
+        <strong><a href="../page/send_email_to_admin.php" style="text-decoration: none;">techcafepro@gmail.com</a></strong>. 
         We look forward to welcoming you!</p>
 
     <p>Opening Hours:<br>
