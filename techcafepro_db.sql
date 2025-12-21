@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 21, 2025 at 03:41 AM
+-- Generation Time: Dec 21, 2025 at 05:27 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -34,6 +34,20 @@ CREATE TABLE `categories` (
   `category_name` varchar(50) NOT NULL,
   `status` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `categories`
+--
+
+INSERT INTO `categories` (`category_id`, `category_name`, `status`) VALUES
+(1, 'Coffee', 1),
+(2, 'Tea', 1),
+(3, 'Frappe', 1),
+(4, 'Smoothie', 1),
+(5, 'Drinks', 1),
+(6, 'Cake', 1),
+(7, 'Pastry', 1),
+(8, 'Sandwich', 1);
 
 -- --------------------------------------------------------
 
@@ -91,12 +105,73 @@ CREATE TABLE `products` (
   `price` double(8,2) NOT NULL,
   `description` text NOT NULL,
   `created_at` datetime NOT NULL DEFAULT current_timestamp(),
-  `is_available` tinyint(1) NOT NULL,
+  `is_available` tinyint(1) NOT NULL DEFAULT 1,
   `photo` varchar(100) NOT NULL,
   `sold` int(11) NOT NULL,
   `status` tinyint(1) NOT NULL DEFAULT 1,
   `category_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `products`
+--
+
+INSERT INTO `products` (`product_id`, `product_name`, `price`, `description`, `created_at`, `is_available`, `photo`, `sold`, `status`, `category_id`) VALUES
+(1, 'Americano', 7.00, 'A good cup of Americano', '2025-12-21 12:23:45', 1, '', 0, 1, 1),
+(2, 'Latte', 8.00, 'A good cup of Latte', '2025-12-21 12:23:45', 1, '', 0, 1, 1),
+(3, 'Espresso', 9.00, 'A good cup of Espresso', '2025-12-21 12:23:45', 1, '', 0, 1, 1),
+(4, 'Flat White', 10.00, 'A good cup of Flat White', '2025-12-21 12:23:45', 1, '', 0, 1, 1),
+(5, 'Mocha', 11.00, 'A good cup of Mocha', '2025-12-21 12:23:45', 1, '', 0, 1, 1),
+(6, 'Cappuccino', 12.00, 'A good cup of Cappuccino', '2025-12-21 12:23:45', 1, '', 0, 1, 1),
+(7, 'Matcha Tea', 8.00, 'Fragrant Japanese matcha tea', '2025-12-21 12:23:54', 1, '', 0, 1, 2),
+(8, 'Brown Sugar Milk Tea', 9.00, 'Tea with rich brown sugar flavour', '2025-12-21 12:23:54', 1, '', 0, 1, 2),
+(9, 'Strawberry Tea', 8.00, 'Refreshing strawberry-infused tea', '2025-12-21 12:23:54', 1, '', 0, 1, 2),
+(10, 'Peach Tea', 8.00, 'Sweet and fruity peach tea', '2025-12-21 12:23:54', 1, '', 0, 1, 2),
+(11, 'Lemon Tea', 7.00, 'Classic lemon-flavoured tea', '2025-12-21 12:23:54', 1, '', 0, 1, 2),
+(12, 'Cinnamon Tea', 8.00, 'Warm cinnamon-spiced tea', '2025-12-21 12:23:54', 1, '', 0, 1, 2),
+(13, 'Jasmine Tea', 7.00, 'Light and aromatic jasmine tea', '2025-12-21 12:23:54', 1, '', 0, 1, 2),
+(14, 'Chocolate Frappe', 12.00, 'Blended chocolate frappe', '2025-12-21 12:23:54', 1, '', 0, 1, 3),
+(15, 'Caramel Frappe', 12.00, 'Creamy caramel blended drink', '2025-12-21 12:23:54', 1, '', 0, 1, 3),
+(16, 'Matcha Frappe', 13.00, 'Icy blended matcha drink', '2025-12-21 12:23:54', 1, '', 0, 1, 3),
+(17, 'Strawberry Frappe', 12.00, 'Sweet strawberry blended frappe', '2025-12-21 12:23:54', 1, '', 0, 1, 3),
+(18, 'Mocha Frappe', 13.00, 'Coffee and chocolate blended drink', '2025-12-21 12:23:54', 1, '', 0, 1, 3),
+(19, 'Brown Sugar Frappe', 13.00, 'Rich brown sugar icy frappe', '2025-12-21 12:23:54', 1, '', 0, 1, 3),
+(20, 'Coconut Frappe', 12.00, 'Tropical coconut blended frappe', '2025-12-21 12:23:54', 1, '', 0, 1, 3),
+(21, 'Mango Smoothie', 11.00, 'Fresh blended mango smoothie', '2025-12-21 12:23:54', 1, '', 0, 1, 4),
+(22, 'Strawberry Smoothie', 11.00, 'Creamy strawberry smoothie', '2025-12-21 12:23:54', 1, '', 0, 1, 4),
+(23, 'Blueberry Smoothie', 12.00, 'Antioxidant-rich blueberry smoothie', '2025-12-21 12:23:54', 1, '', 0, 1, 4),
+(24, 'Pineapple Smoothie', 11.00, 'Refreshing pineapple smoothie', '2025-12-21 12:23:54', 1, '', 0, 1, 4),
+(25, 'Coconut Smoothie', 11.00, 'Smooth coconut-flavoured drink', '2025-12-21 12:23:54', 1, '', 0, 1, 4),
+(26, 'Mango Pineapple Smoothie', 12.00, 'Tropical mango & pineapple blend', '2025-12-21 12:23:54', 1, '', 0, 1, 4),
+(27, 'Strawberry Banana Smoothie', 12.00, 'Classic strawberry banana blend', '2025-12-21 12:23:54', 1, '', 0, 1, 4),
+(28, 'Coca-Cola', 5.00, 'Chilled Coca-Cola', '2025-12-21 12:23:54', 1, '', 0, 1, 5),
+(29, 'Sprite', 5.00, 'Refreshing lemon-lime soda', '2025-12-21 12:23:54', 1, '', 0, 1, 5),
+(30, 'Mineral Water', 4.00, 'Bottled mineral water', '2025-12-21 12:23:54', 1, '', 0, 1, 5),
+(31, 'Sparkling Water', 5.00, 'Carbonated bottled water', '2025-12-21 12:23:54', 1, '', 0, 1, 5),
+(32, 'Orange Juice', 6.00, 'Cold bottled orange juice', '2025-12-21 12:23:54', 1, '', 0, 1, 5),
+(33, 'Apple Juice', 6.00, 'Sweet bottled apple juice', '2025-12-21 12:23:54', 1, '', 0, 1, 5),
+(34, 'Coconut Water', 6.00, 'Natural coconut water', '2025-12-21 12:23:54', 1, '', 0, 1, 5),
+(35, 'Chocolate Cake', 15.00, 'Rich chocolate layered cake', '2025-12-21 12:23:54', 1, '', 0, 1, 6),
+(36, 'Strawberry Cheesecake', 16.00, 'Creamy cheesecake with strawberry', '2025-12-21 12:23:54', 1, '', 0, 1, 6),
+(37, 'Matcha Cake', 16.00, 'Soft matcha-flavoured cake', '2025-12-21 12:23:54', 1, '', 0, 1, 6),
+(38, 'Blueberry Cheesecake', 16.00, 'Cheesecake topped with blueberry', '2025-12-21 12:23:54', 1, '', 0, 1, 6),
+(39, 'Caramel Cake', 15.00, 'Sweet caramel-flavoured cake', '2025-12-21 12:23:54', 1, '', 0, 1, 6),
+(40, 'Coconut Cake', 15.00, 'Light coconut sponge cake', '2025-12-21 12:23:54', 1, '', 0, 1, 6),
+(41, 'Brown Sugar Cake', 15.00, 'Moist brown sugar cake', '2025-12-21 12:23:54', 1, '', 0, 1, 6),
+(42, 'Butter Croissant', 7.00, 'Flaky butter croissant', '2025-12-21 12:23:54', 1, '', 0, 1, 7),
+(43, 'Chocolate Croissant', 8.00, 'Croissant filled with chocolate', '2025-12-21 12:23:54', 1, '', 0, 1, 7),
+(44, 'Cinnamon Roll', 8.00, 'Soft cinnamon pastry roll', '2025-12-21 12:23:54', 1, '', 0, 1, 7),
+(45, 'Strawberry Danish', 8.00, 'Pastry topped with strawberry', '2025-12-21 12:23:54', 1, '', 0, 1, 7),
+(46, 'Blueberry Danish', 8.00, 'Pastry topped with blueberry', '2025-12-21 12:23:54', 1, '', 0, 1, 7),
+(47, 'Caramel Puff', 7.00, 'Light pastry with caramel filling', '2025-12-21 12:23:54', 1, '', 0, 1, 7),
+(48, 'Coconut Tart', 7.00, 'Pastry tart with coconut filling', '2025-12-21 12:23:54', 1, '', 0, 1, 7),
+(49, 'Chicken Sandwich', 12.00, 'Grilled chicken sandwich', '2025-12-21 12:23:54', 1, '', 0, 1, 8),
+(50, 'Tuna Sandwich', 12.00, 'Classic tuna sandwich', '2025-12-21 12:23:54', 1, '', 0, 1, 8),
+(51, 'Egg Mayo Sandwich', 11.00, 'Egg mayonnaise sandwich', '2025-12-21 12:23:54', 1, '', 0, 1, 8),
+(52, 'Ham & Cheese Sandwich', 12.00, 'Ham and cheese sandwich', '2025-12-21 12:23:54', 1, '', 0, 1, 8),
+(53, 'Chicken Teriyaki Sandwich', 13.00, 'Sweet teriyaki chicken sandwich', '2025-12-21 12:23:54', 1, '', 0, 1, 8),
+(54, 'Veggie Sandwich', 11.00, 'Fresh vegetable sandwich', '2025-12-21 12:23:54', 1, '', 0, 1, 8),
+(55, 'Beef Sandwich', 14.00, 'Juicy beef sandwich', '2025-12-21 12:23:54', 1, '', 0, 1, 8);
 
 -- --------------------------------------------------------
 
@@ -120,6 +195,31 @@ CREATE TABLE `tags` (
   `name` varchar(50) NOT NULL,
   `category` enum('Temperature','Base','Flavour') NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `tags`
+--
+
+INSERT INTO `tags` (`tag_id`, `name`, `category`) VALUES
+(1, 'Hot', 'Temperature'),
+(2, 'Cold', 'Temperature'),
+(3, 'Warm', 'Temperature'),
+(4, 'Coffee', 'Base'),
+(5, 'Milk', 'Base'),
+(6, 'Eggs', 'Base'),
+(7, 'Nuts', 'Base'),
+(8, 'Wheat', 'Base'),
+(9, 'Strawberry', 'Flavour'),
+(10, 'Chocolate', 'Flavour'),
+(11, 'Mango', 'Flavour'),
+(12, 'Matcha', 'Flavour'),
+(13, 'Cinnamon', 'Flavour'),
+(14, 'Brown Sugar', 'Flavour'),
+(15, 'Caramel', 'Flavour'),
+(16, 'Coconut', 'Flavour'),
+(17, 'Pineapple', 'Flavour'),
+(18, 'Blueberry', 'Flavour'),
+(19, 'Tea', 'Base');
 
 -- --------------------------------------------------------
 
@@ -154,6 +254,25 @@ CREATE TABLE `users` (
   `failed_attempts` int(11) DEFAULT 0,
   `last_failed_login` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `users`
+--
+
+INSERT INTO `users` (`user_id`, `name`, `email`, `password`, `profile_image_path`, `created_at`, `role`, `status`, `is_member`, `reward_points`, `member_since`, `failed_attempts`, `last_failed_login`) VALUES
+(1, 'superadmin', 'superadmin@gmail.com', '7c4a8d09ca3762af61e59520943dc26494f8941b', '', '2025-12-21 11:21:59', 'admin', 1, 0, 0, NULL, 0, NULL),
+(2, 'Charlie Blake', 'charlieblake@gmail.com', '7c4a8d09ca3762af61e59520943dc26494f8941b', '69476ab60f940.jpg', '2025-12-21 11:34:14', 'customer', 1, 0, 0, NULL, 0, NULL),
+(3, 'White Black', 'darkchoco@outlook.com', '7c4a8d09ca3762af61e59520943dc26494f8941b', '69476b0f1e943.jpg', '2025-12-21 11:35:43', 'customer', 1, 0, 0, NULL, 0, NULL),
+(4, 'Shahira Angelito', 'shashask@gmail.com', '7c4a8d09ca3762af61e59520943dc26494f8941b', '69476b4302757.jpg', '2025-12-21 11:36:35', 'customer', 1, 0, 0, NULL, 0, NULL),
+(5, 'Smith Smooth', 'operator3798@gmail.com', '7c4a8d09ca3762af61e59520943dc26494f8941b', '69476b7feb62d.jpg', '2025-12-21 11:37:36', 'customer', 1, 0, 0, NULL, 0, NULL),
+(6, 'Singh Naveen Harjot', 'singhnh86@gmail.com', '7c4a8d09ca3762af61e59520943dc26494f8941b', '69476c285cd22.jpg', '2025-12-21 11:40:24', 'customer', 1, 0, 0, NULL, 0, NULL),
+(7, 'Alif Muhhamed', 'alippt@gmail.com', '7c4a8d09ca3762af61e59520943dc26494f8941b', '69476c5f20fbb.jpg', '2025-12-21 11:41:19', 'customer', 1, 0, 0, NULL, 0, NULL),
+(8, 'Catherine Karen', 'calvinkleinn43@gmail.com', '7c4a8d09ca3762af61e59520943dc26494f8941b', '69476c9034f87.jpg', '2025-12-21 11:42:08', 'customer', 1, 0, 0, NULL, 0, NULL),
+(9, 'Angie Tick', 'angietic@gmail.com', '7c4a8d09ca3762af61e59520943dc26494f8941b', '69476cfae14a0.jpg', '2025-12-21 11:43:54', 'customer', 1, 0, 0, NULL, 0, NULL),
+(10, 'Siti Haslinda', 'sitihaslinda@gmail.com', '7c4a8d09ca3762af61e59520943dc26494f8941b', '69476e2a4ab3c.jpg', '2025-12-21 11:48:58', 'customer', 1, 0, 0, NULL, 0, NULL),
+(11, 'techcafepro', 'techcafepro@gmail.com', '7c4a8d09ca3762af61e59520943dc26494f8941b', '69476f5ab23cc.jpg', '2025-12-21 11:54:02', 'customer', 1, 0, 0, NULL, 0, NULL),
+(12, 'admin1', 'admin1@gmail.com', '7c4a8d09ca3762af61e59520943dc26494f8941b', '', '2025-12-21 12:11:32', 'admin', 1, 0, 0, NULL, 0, NULL),
+(13, 'admin2', 'admin2@gmail.com', '7c4a8d09ca3762af61e59520943dc26494f8941b', '', '2025-12-21 12:11:55', 'admin', 1, 0, 0, NULL, 0, NULL);
 
 --
 -- Indexes for dumped tables
@@ -227,7 +346,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `categories`
 --
 ALTER TABLE `categories`
-  MODIFY `category_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `category_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `orders`
@@ -245,19 +364,19 @@ ALTER TABLE `payments`
 -- AUTO_INCREMENT for table `products`
 --
 ALTER TABLE `products`
-  MODIFY `product_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `product_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=56;
 
 --
 -- AUTO_INCREMENT for table `tags`
 --
 ALTER TABLE `tags`
-  MODIFY `tag_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `tag_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- Constraints for dumped tables
