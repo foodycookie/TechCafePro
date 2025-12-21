@@ -69,13 +69,15 @@ include '../_head.php';
 
 <form method="post">
     <div class="form">
-        <?php if (auth2('member', 'customer')): ?>
-            <input type="hidden" name="product_id" value="<?= $product_id ?>">
-            <input type='number' name='quantity' value='0' min='0' max='99' step='1'>
-            <button type="submit" name="add_to_cart" >Add To Cart</button>
-        <?php else: ?>
-            <button type="button" onclick="location.href='/page/login.php'">
-                Login to Order
+        <?php if ((int)$is_available === 1): ?>
+            <?php if (auth2('member', 'customer')): ?>
+                <input type="hidden" name="product_id" value="<?= $product_id ?>">
+                <input type='number' name='quantity' value='0' min='0' max='99' step='1'>
+                <button type="submit" name="add_to_cart" >Add To Cart</button>
+            <?php else: ?>
+                <button type="button" onclick="location.href='/page/login.php'">
+                    Login to Order
+            <?php endif ?>
         <?php endif ?>
         <button data-get="/page/menu.php">Back</button>
     </div>

@@ -1,16 +1,15 @@
 <?php
 include '../_base.php';
 
-auth('customer', 'Member');
+auth('customer', 'member');
 
 // ----------------------------------------------------------------------------
 
 // Get shopping cart from session
 $cart = get_chosen_cart_item_for_order();
 if (!$cart) {
-    echo '<p>You have not choose any item for purchase yet. <a href="/page/cart.php">Go back to cart</a></p>';
-    include '../_foot.php';
-    exit;
+    temp('info', "Your cart is empty. Please add items to cart before checkout.");
+    redirect('/page/cart.php');
 }
 
 // Skip invalid entries at the start if any

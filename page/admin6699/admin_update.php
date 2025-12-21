@@ -138,7 +138,7 @@ include '../../_head.php';
     <?= err('status') ?>
     <?php else :?>
     <label for="status">Status</label>
-    <?= html_radios('status', ["1" => "Available", "0" => "Unavailable"], $status) ?>
+    <?= html_radios('status', ["1" => "Active", "0" => "Inactive"], $status) ?>
     <?= err('status') ?>
     <?php endif; ?>
 

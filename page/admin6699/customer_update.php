@@ -127,11 +127,11 @@ if (is_post()) {   // step3 SQL update
 
     <?php if ($user_id == 1): ?>
     <label>Status</label>
-    <b> <?= $status == 1 ? 'Available' : 'Unavailable' ?></b>
+    <b> <?= $status == 1 ? 'Active' : 'Inactive' ?></b>
     <?= err('status') ?>
     <?php else :?>
     <label for="status">Status</label>
-    <?= html_radios('status', ["1" => "Available", "0" => "Unavailable"], $status) ?>
+    <?= html_radios('status', ["1" => "Active", "0" => "Inactive"], $status) ?>
     <?= err('status') ?>
     <?php endif; ?>
 

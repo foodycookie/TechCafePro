@@ -305,6 +305,7 @@ include '../../_head.php';
                         </button>
 
                         <button class="icon-btn" onclick="location.href='/page/admin6699/category_crud.php'">
+                            <img src="../../images/system/category_icon.png" alt="Category Icon">
                             <span>Category</span>
                             <div class="badge-group">
                                 <div class="badge_available">
@@ -333,6 +334,7 @@ include '../../_head.php';
                         </button>
 
                         <button class="icon-btn" onclick="location.href='/page/admin6699/tag_crud.php'">
+                            <img src="../../images/system/tag_icon.png" alt="Tag Icon">
                             <span>Tag</span>
                             <div class="badge-group">
                                 <div class="badge_available">

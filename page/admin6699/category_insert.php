@@ -28,7 +28,7 @@ if (is_post()) {
             INSERT INTO categories (category_name, status)
             VALUES (?, ?)
         ');
-        $stm->execute([$category_name]);
+        $stm->execute([$category_name, $status]);
 
         temp('info', 'Record inserted');
         redirect('/page/admin6699/category_crud.php');
@@ -37,7 +37,7 @@ if (is_post()) {
 
 // ----------------------------------------------------------------------------
 
-$_title = 'Admin| Category Insert';
+$_title = 'Admin | Category Insert';
 include '../../_head.php';
 ?>
 

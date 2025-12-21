@@ -84,7 +84,7 @@ include '../../_head.php';
 </form>
 
 <p>
-    <button data-get="/page/admin6699/pagecategory_crud.php">Back</button>
+    <button data-get="/page/admin6699/category_crud.php">Back</button>
 </p>
 
 <?php
