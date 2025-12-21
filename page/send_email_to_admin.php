@@ -55,7 +55,7 @@ if (is_post()) {
 }
 
 // ----------------------------------------------------------------------------
-$_title = 'Contact Tech Cafe';
+$_title = 'Contact';
 include '../_head.php';
 ?>
 
